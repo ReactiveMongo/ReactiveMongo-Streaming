@@ -4,8 +4,10 @@ import scala.concurrent.{ ExecutionContext, Future }
 import reactivemongo.api.{
   Cursor, CursorProducer, FlattenedCursor, WrappedCursor
 }
+
 import org.reactivestreams.Publisher
-import akka.stream.FlowMaterializer
+
+import akka.stream.Materializer
 import akka.stream.scaladsl.{ Sink, Source }
 
 sealed trait AkkaStreamsCursor[T] extends Cursor[T] {
@@ -21,7 +23,7 @@ sealed trait AkkaStreamsCursor[T] extends Cursor[T] {
    * 
    * @param name Publisher name
    */
-  def publisher(name: String, maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext, fm: FlowMaterializer): Future[Publisher[T]]
+  def publisher(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext, mat: Materializer): Future[Publisher[T]]
 }
 
 class AkkaStreamsCursorImpl[T](val wrappee: Cursor[T])
@@ -30,10 +32,10 @@ class AkkaStreamsCursorImpl[T](val wrappee: Cursor[T])
 
   def source(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext): Future[Source[T, Unit]] = wrappee.foldWhile(Source.empty[T], maxDocs)(
     (src, res) => Cont(src.concat(Source(Future.successful(res))).
-      mapMaterialized(_ => ())),
+      mapMaterializedValue(_ => ())),
     (_, error) => Fail(error))
 
-  def publisher(name: String, maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext, fm: FlowMaterializer): Future[Publisher[T]] = source(maxDocs).map(_.runWith(Sink.publisher[T](name)))
+  def publisher(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext, mat: Materializer): Future[Publisher[T]] = source(maxDocs).map(_.runWith(Sink.publisher[T]))
 
 }
 
@@ -42,5 +44,5 @@ class AkkaStreamsFlattenedCursor[T](val future: Future[AkkaStreamsCursor[T]])
 
   def source(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext): Future[Source[T, Unit]] = future.flatMap(_.source(maxDocs))
 
-  def publisher(name: String, maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext, fm: FlowMaterializer): Future[Publisher[T]] = future.flatMap(_.publisher(name, maxDocs))
+  def publisher(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext, mat: Materializer): Future[Publisher[T]] = future.flatMap(_.publisher(maxDocs))
 }

@@ -11,8 +11,7 @@ object CursorSpec extends org.specs2.mutable.Specification {
   import Common._
 
   implicit val system = akka.actor.ActorSystem("reactivemongo-akkastreams")
-  implicit val materializer = 
-    akka.stream.ActorFlowMaterializer.create(system)
+  implicit val materializer = akka.stream.ActorMaterializer.create(system)
 
   "Cursor" should {
     "read from collection" >> {
@@ -45,8 +44,7 @@ object CursorSpec extends org.specs2.mutable.Specification {
       }
 
       "successfully as publisher" in {
-        val pub: Future[Publisher[Int]] =
-          cursor("source1b").publisher("publisher1")
+        val pub: Future[Publisher[Int]] = cursor("source1b").publisher()
 
         pub.flatMap { p =>
           val (s, f) = promise[Int]
@@ -97,8 +95,7 @@ object CursorSpec extends org.specs2.mutable.Specification {
       }
 
       "using tailable publisher" in {
-        val pub: Future[Publisher[Int]] =
-          tailable("source4").publisher("publisher2", 5)
+        val pub: Future[Publisher[Int]] = tailable("source4").publisher(5)
 
         pub.flatMap { p =>
           val (s, f) = promise[Int]

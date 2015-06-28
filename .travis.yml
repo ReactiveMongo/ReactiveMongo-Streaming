@@ -1,7 +1,7 @@
 language: scala
 script: sbt ++$TRAVIS_SCALA_VERSION testOnly
 scala:
-  - "2.11.6"
+  - "2.11.7"
   - "2.10.4"
 jdk:
   - oraclejdk7
