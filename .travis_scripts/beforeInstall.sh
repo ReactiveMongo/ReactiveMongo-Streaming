@@ -3,6 +3,12 @@
 SCALA_VER="$1"
 MONGODB_VER="3"
 
+# Travis OpenJDK workaround
+#cat /etc/hosts # optionally check the content *before*
+hostname "$(hostname | cut -c1-63)"
+sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | tee /etc/hosts
+
+# MongoDB
 apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv EA312927
 
 if [ "$MONGODB_VER" = "3" ]; then

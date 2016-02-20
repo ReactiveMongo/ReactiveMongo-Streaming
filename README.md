@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
   "org.reactivemongo" %% "reactivemongo-akkastreams" % s"$reactiveMongoVer-SNAPSHOT")
 ```
 
-[Travis](https://travis-ci.org/cchantep/RM-AkkaStreams): ![Travis build status](https://travis-ci.org/cchantep/RM-AkkaStreams.png?branch=master)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastreams_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastreams_2.11/)
 
 Then in your code:
 
@@ -41,6 +41,18 @@ val src: Source[Int, akka.NotUsed] = cursor("sourceName").source()
 
 val pub: Publisher[Int] = cursor("sourceName").publisher("publisher")
 ```
+
+## Build manually
+
+The Akka Streams extension for ReactiveMongo can be built from this source repository.
+
+    sbt publish-local
+
+To run the tests, use:
+
+    sbt test
+
+[Travis](https://travis-ci.org/cchantep/RM-AkkaStreams): [![Build Status](https://travis-ci.org/cchantep/RM-AkkaStreams.svg?branch=master)](https://travis-ci.org/cchantep/RM-AkkaStreams)
 
 ## Documentation
 
