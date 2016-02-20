@@ -4,6 +4,5 @@ scala:
   - "2.11.7"
 jdk:
   - oraclejdk8
-  - oraclejdk7
 before_install:
 - sudo ./.travis_scripts/beforeInstall.sh $TRAVIS_SCALA_VERSION

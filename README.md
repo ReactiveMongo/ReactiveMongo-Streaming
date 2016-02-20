@@ -18,6 +18,8 @@ libraryDependencies ++= Seq(
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastreams_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastreams_2.11/)
 
+> Java 1.8+ is required.
+
 Then in your code:
 
 ```scala
