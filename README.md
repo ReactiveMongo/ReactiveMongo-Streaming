@@ -16,6 +16,8 @@ libraryDependencies ++= Seq(
   "org.reactivemongo" %% "reactivemongo-akkastreams" % s"$reactiveMongoVer-SNAPSHOT")
 ```
 
+[Travis](https://travis-ci.org/cchantep/RM-AkkaStreams): ![Travis build status](https://travis-ci.org/cchantep/RM-AkkaStreams.png?branch=master)
+
 Then in your code:
 
 ```scala
