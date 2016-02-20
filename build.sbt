@@ -2,12 +2,26 @@ organization := "org.reactivemongo"
 
 name := "reactivemongo-akkastreams"
 
-version := "0.11.6-SNAPSHOT"
+val reactiveMongoVer = "0.11.10"
+
+version := s"$reactiveMongoVer-SNAPSHOT"
 
 scalaVersion := "2.11.7"
 
-crossScalaVersions  := Seq("2.11.7", "2.10.4")
+crossScalaVersions  := Seq("2.11.7", "2.10.5")
 
+scalacOptions in Compile ++= Seq(
+  "-unchecked", "-deprecation", "-target:jvm-1.6", "-Ywarn-unused-import")
+
+resolvers ++= Seq(
+  Resolver.sonatypeRepo("snapshots"),
+  "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/")
+
+libraryDependencies ++= Seq(
+  "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided" cross CrossVersion.binary,
+  "com.typesafe.akka" %% "akka-stream" % "2.4.2" cross CrossVersion.binary changing())
+
+// Test
 testOptions in Test += Tests.Cleanup(cl => {
   import scala.language.reflectiveCalls
   val c = cl.loadClass("Common$")
@@ -16,25 +30,37 @@ testOptions in Test += Tests.Cleanup(cl => {
   m.closeDriver()
 })
 
-resolvers ++= Seq(
-  Resolver.sonatypeRepo("snapshots"),
-  "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/")
-
-libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "reactivemongo" % "0.11.6" % "provided" cross CrossVersion.binary,
-  "com.typesafe.akka" %% "akka-stream-experimental" % "1.0" cross CrossVersion.binary changing())
-
-libraryDependencies ++= Seq(
+libraryDependencies ++= (Seq(
   "specs2-core"
-).map("org.specs2" %% _ % "2.4.9" % Test)
+).map("org.specs2" %% _ % "2.4.9") ++ Seq(
+  "org.slf4j" % "slf4j-simple" % "1.7.13",
+  "org.reactivestreams" % "reactive-streams" % "1.0.0")).
+  map(_ % Test)
 
-publishTo := Some("Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/")
+def env(n: String): String = sys.env.get(n).getOrElse(n)
 
-/*
-credentials := Seq(Credentials(
-  "Sonatype Nexus Repository Manager",
-  "oss.sonatype.org",
-  sys.env.get("SONATYPE_USER").getOrElse(throw new RuntimeException("no SONATYPE_USER defined")),
-  sys.env.get("SONATYPE_PASSWORD").getOrElse(throw new RuntimeException("no SONATYPE_PASSWORD defined"))
-))
-*/
+// Publish settings
+publishMavenStyle := true
+
+publishArtifact in Test := false
+
+pomIncludeRepository := { _ => false }
+
+licenses := Seq("Apache 2.0" ->
+  url("http://www.apache.org/licenses/LICENSE-2.0"))
+
+homepage := Some(url("http://reactivemongo.org"))
+
+pomExtra := (
+  <scm>
+    <url>git://github.com/cchantep/RM-AkkaStream.git</url>
+    <connection>scm:git://github.com/cchantep/RM-AkkaStream.git</connection>
+  </scm>)
+
+val repoName = env("PUBLISH_REPO_NAME")
+val repoUrl = env("PUBLISH_REPO_URL")
+
+publishTo := Some(repoUrl).map(repoName at _)
+
+credentials += Credentials(repoName, env("PUBLISH_REPO_ID"),
+  env("PUBLISH_USER"), env("PUBLISH_PASS"))
