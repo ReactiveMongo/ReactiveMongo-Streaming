@@ -8,7 +8,7 @@ version := s"$reactiveMongoVer-SNAPSHOT"
 
 scalaVersion := "2.11.7"
 
-crossScalaVersions  := Seq("2.11.7", "2.10.5")
+crossScalaVersions  := Seq("2.11.7")
 
 scalacOptions in Compile ++= Seq(
   "-unchecked", "-deprecation", "-target:jvm-1.6", "-Ywarn-unused-import")
