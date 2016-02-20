@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>akkastreams - reactivemongo.akkastreams</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -24,9 +28,13 @@
         </head>
         <body class="value">
       <div id="definition">
-        <img src="../../lib/package_big.png" />
+        <img alt="Package" src="../../lib/package_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="reactivemongo">reactivemongo</a></p>
-        <h1>akkastreams</h1>
+        <h1>akkastreams</h1><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -67,7 +75,6 @@
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -81,7 +88,24 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="reactivemongo.akkastreams.AkkaStreamsCursor" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="reactivemongo.akkastreams.AkkaPublisher" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AkkaPublisher[T]extendsAnyRef"></a>
+      <a id="AkkaPublisher[T]:AkkaPublisher[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="AkkaPublisher.html"><span class="name">AkkaPublisher</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.package@AkkaPublisher[T]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="reactivemongo.akkastreams.AkkaStreamsCursor" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="AkkaStreamsCursor[T]extendsCursor[T]"></a>
       <a id="AkkaStreamsCursor[T]:AkkaStreamsCursor[T]"></a>
       <h4 class="signature">
@@ -92,10 +116,14 @@
       <span class="symbol">
         <a href="AkkaStreamsCursor.html"><span class="name">AkkaStreamsCursor</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="reactivemongo.api.Cursor">Cursor</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.package@AkkaStreamsCursor[T]extendsCursor[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="reactivemongo.akkastreams.AkkaStreamsCursorImpl" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AkkaStreamsCursorImpl[T]extendsAkkaStreamsCursor[T]withWrappedCursor[T]"></a>
+      <a id="AkkaStreamsCursorImpl[T]extendsAkkaStreamsCursor[T]withWrappedCursor[T]withAkkaPublisher[T]"></a>
       <a id="AkkaStreamsCursorImpl[T]:AkkaStreamsCursorImpl[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -103,12 +131,16 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="AkkaStreamsCursorImpl.html"><span class="name">AkkaStreamsCursorImpl</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="AkkaStreamsCursor.html" class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor">AkkaStreamsCursor</a>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursorImpl.T">T</span>] with <span class="extype" name="reactivemongo.api.WrappedCursor">WrappedCursor</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursorImpl.T">T</span>]</span>
+        <a href="AkkaStreamsCursorImpl.html"><span class="name">AkkaStreamsCursorImpl</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="AkkaStreamsCursor.html" class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor">AkkaStreamsCursor</a>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursorImpl.T">T</span>] with <span class="extype" name="reactivemongo.api.WrappedCursor">WrappedCursor</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursorImpl.T">T</span>] with <a href="AkkaPublisher.html" class="extype" name="reactivemongo.akkastreams.AkkaPublisher">AkkaPublisher</a>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursorImpl.T">T</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.package@AkkaStreamsCursorImpl[T]extendsAkkaStreamsCursor[T]withWrappedCursor[T]withAkkaPublisher[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="reactivemongo.akkastreams.AkkaStreamsFlattenedCursor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AkkaStreamsFlattenedCursor[T]extendsFlattenedCursor[T]withAkkaStreamsCursor[T]"></a>
+      <a id="AkkaStreamsFlattenedCursor[T]extendsFlattenedCursor[T]withAkkaStreamsCursor[T]withAkkaPublisher[T]"></a>
       <a id="AkkaStreamsFlattenedCursor[T]:AkkaStreamsFlattenedCursor[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -116,9 +148,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="AkkaStreamsFlattenedCursor.html"><span class="name">AkkaStreamsFlattenedCursor</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="reactivemongo.api.FlattenedCursor">FlattenedCursor</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsFlattenedCursor.T">T</span>] with <a href="AkkaStreamsCursor.html" class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor">AkkaStreamsCursor</a>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsFlattenedCursor.T">T</span>]</span>
+        <a href="AkkaStreamsFlattenedCursor.html"><span class="name">AkkaStreamsFlattenedCursor</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="reactivemongo.api.FlattenedCursor">FlattenedCursor</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsFlattenedCursor.T">T</span>] with <a href="AkkaStreamsCursor.html" class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor">AkkaStreamsCursor</a>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsFlattenedCursor.T">T</span>] with <a href="AkkaPublisher.html" class="extype" name="reactivemongo.akkastreams.AkkaPublisher">AkkaPublisher</a>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsFlattenedCursor.T">T</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.package@AkkaStreamsFlattenedCursor[T]extendsFlattenedCursor[T]withAkkaStreamsCursor[T]withAkkaPublisher[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li></ol>
             </div>
@@ -138,9 +174,13 @@
       <span class="symbol">
         <a href="package$$cursorFlattener$.html"><span class="name">cursorFlattener</span></a><span class="result"> extends <span class="extype" name="reactivemongo.api.CursorFlattener">CursorFlattener</span>[<a href="AkkaStreamsCursor.html" class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor">AkkaStreamsCursor</a>]</span>
       </span>
-      </h4>
-      <p class="comment cmt">Provides flattener for Akka Streams cursor.</p>
-    </li><li name="reactivemongo.akkastreams.package#cursorProducer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.package@cursorFlattener" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Provides flattener for Akka Streams cursor.</p>
+    </li><li name="reactivemongo.akkastreams#cursorProducer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="cursorProducer[T]:reactivemongo.api.CursorProducer[T]{typeProducedCursor=reactivemongo.akkastreams.AkkaStreamsCursor[T]}"></a>
       <a id="cursorProducer[T]:CursorProducer[T]{typeProducedCursor=reactivemongo.akkastreams.AkkaStreamsCursor[T]}"></a>
       <h4 class="signature">
@@ -151,7 +191,11 @@
       <span class="symbol">
         <span class="name">cursorProducer</span><span class="tparams">[<span name="T">T</span>]</span><span class="result">: <span class="extype" name="reactivemongo.api.CursorProducer">CursorProducer</span>[<span class="extype" name="reactivemongo.akkastreams.cursorProducer.T">T</span>] { type ProducedCursor = reactivemongo.akkastreams.AkkaStreamsCursor[T] }</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.package@cursorProducer[T]:reactivemongo.api.CursorProducer[T]{typeProducedCursor=reactivemongo.akkastreams.AkkaStreamsCursor[T]}" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Provides Akka Streams instances for CursorProducer typeclass.</p>
     </li></ol>
             </div>
@@ -182,6 +226,7 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>

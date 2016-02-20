@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>AkkaStreamsCursor - reactivemongo.akkastreams.AkkaStreamsCursor</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -24,9 +28,15 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img src="../../lib/trait_big.png" />
+        <img alt="Trait" src="../../lib/trait_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="reactivemongo">reactivemongo</a>.<a href="package.html" class="extype" name="reactivemongo.akkastreams">akkastreams</a></p>
-        <h1>AkkaStreamsCursor</h1>
+        <h1>AkkaStreamsCursor</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="reactivemongo.akkastreams">package akkastreams</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -43,9 +53,9 @@
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="reactivemongo.api.Cursor">Cursor</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
-          <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="AkkaStreamsCursorImpl.html" class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursorImpl">AkkaStreamsCursorImpl</a>, <a href="AkkaStreamsFlattenedCursor.html" class="extype" name="reactivemongo.akkastreams.AkkaStreamsFlattenedCursor">AkkaStreamsFlattenedCursor</a></div>
-        </div></div>
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="AkkaStreamsCursorImpl.html" class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursorImpl">AkkaStreamsCursorImpl</a>, <a href="AkkaStreamsFlattenedCursor.html" class="extype" name="reactivemongo.akkastreams.AkkaStreamsFlattenedCursor">AkkaStreamsFlattenedCursor</a></div>
+          </div></div>
         
 
       <div id="mbrsel">
@@ -70,7 +80,6 @@
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -87,18 +96,109 @@
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="reactivemongo.api.Cursor#collect" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="collect[M[_]](upTo:Int,stopOnError:Boolean)(implicitcbf:scala.collection.generic.CanBuildFrom[M[_],T,M[T]],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[M[T]]"></a>
-      <a id="collect[M[_]](Int,Boolean)(CanBuildFrom[M[_],T,M[T]],ExecutionContext):Future[M[T]]"></a>
+      <a id="collect[M[_]](maxDocs:Int,err:reactivemongo.api.Cursor.ErrorHandler[M[T]])(implicitcbf:scala.collection.generic.CanBuildFrom[M[_],T,M[T]],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[M[T]]"></a>
+      <a id="collect[M[_]](Int,ErrorHandler[M[T]])(CanBuildFrom[M[_],T,M[T]],ExecutionContext):Future[M[T]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">collect</span><span class="tparams">[<span name="M">M<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="upTo">upTo: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[_], <span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>, <span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>
+        <span class="name">collect</span><span class="tparams">[<span name="M">M<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>, <span name="err">err: <span class="extype" name="reactivemongo.api.Cursor.ErrorHandler">ErrorHandler</span>[<span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[_], <span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>, <span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@collect[M[_]](maxDocs:Int,err:reactivemongo.api.Cursor.ErrorHandler[M[T]])(implicitcbf:scala.collection.generic.CanBuildFrom[M[_],T,M[T]],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[M[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
+    </li><li name="reactivemongo.api.Cursor#foldBulks" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="foldBulks[A](z:=&gt;A,maxDocs:Int)(suc:(A,Iterator[T])=&gt;reactivemongo.api.Cursor.State[A],err:reactivemongo.api.Cursor.ErrorHandler[A])(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]"></a>
+      <a id="foldBulks[A](⇒A,Int)((A,Iterator[T])⇒State[A],ErrorHandler[A])(ExecutionContext):Future[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">foldBulks</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="z">z: ⇒ <span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span></span>, <span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span name="suc">suc: (<span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span>, <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]) ⇒ <span class="extype" name="reactivemongo.api.Cursor.State">State</span>[<span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span>]</span>, <span name="err">err: <span class="extype" name="reactivemongo.api.Cursor.ErrorHandler">ErrorHandler</span>[<span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@foldBulks[A](z:=&gt;A,maxDocs:Int)(suc:(A,Iterator[T])=&gt;reactivemongo.api.Cursor.State[A],err:reactivemongo.api.Cursor.ErrorHandler[A])(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
+    </li><li name="reactivemongo.api.Cursor#foldResponses" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="foldResponses[A](z:=&gt;A,maxDocs:Int)(suc:(A,reactivemongo.core.protocol.Response)=&gt;reactivemongo.api.Cursor.State[A],err:reactivemongo.api.Cursor.ErrorHandler[A])(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]"></a>
+      <a id="foldResponses[A](⇒A,Int)((A,Response)⇒State[A],ErrorHandler[A])(ExecutionContext):Future[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">foldResponses</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="z">z: ⇒ <span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span></span>, <span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span name="suc">suc: (<span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span>, <span class="extype" name="reactivemongo.core.protocol.Response">Response</span>) ⇒ <span class="extype" name="reactivemongo.api.Cursor.State">State</span>[<span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span>]</span>, <span name="err">err: <span class="extype" name="reactivemongo.api.Cursor.ErrorHandler">ErrorHandler</span>[<span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@foldResponses[A](z:=&gt;A,maxDocs:Int)(suc:(A,reactivemongo.core.protocol.Response)=&gt;reactivemongo.api.Cursor.State[A],err:reactivemongo.api.Cursor.ErrorHandler[A])(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
+    </li><li name="reactivemongo.api.Cursor#foldWhile" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="foldWhile[A](z:=&gt;A,maxDocs:Int)(suc:(A,T)=&gt;reactivemongo.api.Cursor.State[A],err:reactivemongo.api.Cursor.ErrorHandler[A])(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]"></a>
+      <a id="foldWhile[A](⇒A,Int)((A,T)⇒State[A],ErrorHandler[A])(ExecutionContext):Future[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">foldWhile</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="z">z: ⇒ <span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span></span>, <span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span name="suc">suc: (<span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span>, <span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>) ⇒ <span class="extype" name="reactivemongo.api.Cursor.State">State</span>[<span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span>]</span>, <span name="err">err: <span class="extype" name="reactivemongo.api.Cursor.ErrorHandler">ErrorHandler</span>[<span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@foldWhile[A](z:=&gt;A,maxDocs:Int)(suc:(A,T)=&gt;reactivemongo.api.Cursor.State[A],err:reactivemongo.api.Cursor.ErrorHandler[A])(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
+    </li><li name="reactivemongo.akkastreams.AkkaStreamsCursor#publisher" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="publisher(fanout:Boolean,maxDocs:Int)(implicitec:scala.concurrent.ExecutionContext,implicitmat:akka.stream.Materializer):org.reactivestreams.Publisher[T]"></a>
+      <a id="publisher(Boolean,Int)(ExecutionContext,Materializer):Publisher[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">publisher</span><span class="params">(<span name="fanout">fanout: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>, <span name="mat">mat: <span class="extype" name="akka.stream.Materializer">Materializer</span></span>)</span><span class="result">: <span class="extype" name="org.reactivestreams.Publisher">Publisher</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@publisher(fanout:Boolean,maxDocs:Int)(implicitec:scala.concurrent.ExecutionContext,implicitmat:akka.stream.Materializer):org.reactivestreams.Publisher[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns a Reactive Streams publisher from this cursor.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a Reactive Streams publisher from this cursor.
+</p></div><dl class="paramcmts block"><dt class="param">fanout</dt><dd class="cmt"><p>see <a href="http://doc.akka.io/api/akka/2.4.2/index.html#akka.stream.scaladsl.Sink$@asPublisher[T](fanout:Boolean):akka.stream.scaladsl.Sink[T,org.reactivestreams.Publisher[T" target="_blank">http://doc.akka.io/api/akka/2.4.2/index.html#akka.stream.scaladsl.Sink$@asPublisher[T](fanout:Boolean):akka.stream.scaladsl.Sink[T,org.reactivestreams.Publisher[T</a> Sink.asPublisher]]</p></dd><dt class="param">maxDocs</dt><dd class="cmt"><p>the maximum number of documents to be retrieved</p></dd></dl></div>
+    </li><li name="reactivemongo.akkastreams.AkkaStreamsCursor#source" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="source(maxDocs:Int)(implicitec:scala.concurrent.ExecutionContext):akka.stream.scaladsl.Source[T,akka.NotUsed]"></a>
+      <a id="source(Int)(ExecutionContext):Source[T,NotUsed]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">source</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="akka.stream.scaladsl.Source">Source</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>, <span class="extype" name="akka.NotUsed">NotUsed</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@source(maxDocs:Int)(implicitec:scala.concurrent.ExecutionContext):akka.stream.scaladsl.Source[T,akka.NotUsed]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns the result of cursor as a stream source.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the result of cursor as a stream source.
+</p></div><dl class="paramcmts block"><dt class="param">maxDocs</dt><dd class="cmt"><p>the maximum number of documents to be retrieved</p></dd></dl></div>
     </li><li name="reactivemongo.api.Cursor#enumerate" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="enumerate(maxDocs:Int,stopOnError:Boolean)(implicitctx:scala.concurrent.ExecutionContext):play.api.libs.iteratee.Enumerator[T]"></a>
       <a id="enumerate(Int,Boolean)(ExecutionContext):Enumerator[T]"></a>
@@ -108,10 +208,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">enumerate</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Enumerator">Enumerator</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.11.10) Use .enumerator from Play Iteratee modules">enumerate</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Enumerator">Enumerator</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]</span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@enumerate(maxDocs:Int,stopOnError:Boolean)(implicitctx:scala.concurrent.ExecutionContext):play.api.libs.iteratee.Enumerator[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11.10)</i> Use <code>.enumerator</code> from Play Iteratee modules</p></dd></dl></div>
     </li><li name="reactivemongo.api.Cursor#enumerateBulks" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="enumerateBulks(maxDocs:Int,stopOnError:Boolean)(implicitctx:scala.concurrent.ExecutionContext):play.api.libs.iteratee.Enumerator[Iterator[T]]"></a>
       <a id="enumerateBulks(Int,Boolean)(ExecutionContext):Enumerator[Iterator[T]]"></a>
@@ -121,10 +228,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">enumerateBulks</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Enumerator">Enumerator</span>[<span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.11.10) Use .bulkEnumerator from the Play Iteratee modules">enumerateBulks</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Enumerator">Enumerator</span>[<span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@enumerateBulks(maxDocs:Int,stopOnError:Boolean)(implicitctx:scala.concurrent.ExecutionContext):play.api.libs.iteratee.Enumerator[Iterator[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11.10)</i> Use <code>.bulkEnumerator</code> from the Play Iteratee modules</p></dd></dl></div>
     </li><li name="reactivemongo.api.Cursor#enumerateResponses" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="enumerateResponses(maxDocs:Int,stopOnError:Boolean)(implicitctx:scala.concurrent.ExecutionContext):play.api.libs.iteratee.Enumerator[reactivemongo.core.protocol.Response]"></a>
       <a id="enumerateResponses(Int,Boolean)(ExecutionContext):Enumerator[Response]"></a>
@@ -134,64 +248,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">enumerateResponses</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Enumerator">Enumerator</span>[<span class="extype" name="reactivemongo.core.protocol.Response">Response</span>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.11.10) Use .responseEnumerator from the Play Iteratee modules">enumerateResponses</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Enumerator">Enumerator</span>[<span class="extype" name="reactivemongo.core.protocol.Response">Response</span>]</span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
-    </li><li name="reactivemongo.api.Cursor#foldBulks" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="foldBulks[A](z:=&gt;A,maxDocs:Int)(suc:(A,Iterator[T])=&gt;reactivemongo.api.Cursor.State[A],err:(A,Throwable)=&gt;reactivemongo.api.Cursor.State[A])(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]"></a>
-      <a id="foldBulks[A](⇒A,Int)((A,Iterator[T])⇒State[A],(A,Throwable)⇒State[A])(ExecutionContext):Future[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">foldBulks</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="z">z: ⇒ <span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span></span>, <span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span name="suc">suc: (<span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span>, <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]) ⇒ <span class="extype" name="reactivemongo.api.Cursor.State">State</span>[<span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span>]</span>, <span name="err">err: (<span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span>, <span class="extype" name="scala.Throwable">Throwable</span>) ⇒ <span class="extype" name="reactivemongo.api.Cursor.State">State</span>[<span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.foldBulks.A">A</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
-    </li><li name="reactivemongo.api.Cursor#foldResponses" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="foldResponses[A](z:=&gt;A,maxDocs:Int)(suc:(A,reactivemongo.core.protocol.Response)=&gt;reactivemongo.api.Cursor.State[A],err:(A,Throwable)=&gt;reactivemongo.api.Cursor.State[A])(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]"></a>
-      <a id="foldResponses[A](⇒A,Int)((A,Response)⇒State[A],(A,Throwable)⇒State[A])(ExecutionContext):Future[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">foldResponses</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="z">z: ⇒ <span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span></span>, <span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span name="suc">suc: (<span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span>, <span class="extype" name="reactivemongo.core.protocol.Response">Response</span>) ⇒ <span class="extype" name="reactivemongo.api.Cursor.State">State</span>[<span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span>]</span>, <span name="err">err: (<span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span>, <span class="extype" name="scala.Throwable">Throwable</span>) ⇒ <span class="extype" name="reactivemongo.api.Cursor.State">State</span>[<span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.foldResponses.A">A</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
-    </li><li name="reactivemongo.api.Cursor#foldWhile" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="foldWhile[A](z:=&gt;A,maxDocs:Int)(suc:(A,T)=&gt;reactivemongo.api.Cursor.State[A],err:(A,Throwable)=&gt;reactivemongo.api.Cursor.State[A])(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]"></a>
-      <a id="foldWhile[A](⇒A,Int)((A,T)⇒State[A],(A,Throwable)⇒State[A])(ExecutionContext):Future[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">foldWhile</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="z">z: ⇒ <span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span></span>, <span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span name="suc">suc: (<span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span>, <span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>) ⇒ <span class="extype" name="reactivemongo.api.Cursor.State">State</span>[<span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span>]</span>, <span name="err">err: (<span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span>, <span class="extype" name="scala.Throwable">Throwable</span>) ⇒ <span class="extype" name="reactivemongo.api.Cursor.State">State</span>[<span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.foldWhile.A">A</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
-    </li><li name="reactivemongo.akkastreams.AkkaStreamsCursor#publisher" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="publisher(name:String,maxDocs:Int)(implicitec:scala.concurrent.ExecutionContext,implicitfm:akka.stream.FlowMaterializer):scala.concurrent.Future[org.reactivestreams.Publisher[T]]"></a>
-      <a id="publisher(String,Int)(ExecutionContext,FlowMaterializer):Future[Publisher[T]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">publisher</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>, <span name="fm">fm: <span class="extype" name="akka.stream.FlowMaterializer">FlowMaterializer</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="org.reactivestreams.Publisher">Publisher</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Returns a Reactive Streams publisher from this cursor.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a Reactive Streams publisher from this cursor.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>Publisher name
-</p></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@enumerateResponses(maxDocs:Int,stopOnError:Boolean)(implicitctx:scala.concurrent.ExecutionContext):play.api.libs.iteratee.Enumerator[reactivemongo.core.protocol.Response]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11.10)</i> Use <code>.responseEnumerator</code> from the Play Iteratee modules</p></dd></dl></div>
     </li><li name="reactivemongo.api.Cursor#rawEnumerateResponses" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="rawEnumerateResponses(maxDocs:Int)(implicitctx:scala.concurrent.ExecutionContext):play.api.libs.iteratee.Enumerator[reactivemongo.core.protocol.Response]"></a>
       <a id="rawEnumerateResponses(Int)(ExecutionContext):Enumerator[Response]"></a>
@@ -201,44 +268,23 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rawEnumerateResponses</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Enumerator">Enumerator</span>[<span class="extype" name="reactivemongo.core.protocol.Response">Response</span>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.11.10) Use the Play Iteratee modules">rawEnumerateResponses</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Enumerator">Enumerator</span>[<span class="extype" name="reactivemongo.core.protocol.Response">Response</span>]</span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
-    </li><li name="reactivemongo.akkastreams.AkkaStreamsCursor#source" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="source(maxDocs:Int)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[akka.stream.scaladsl.Source[T,Unit]]"></a>
-      <a id="source(Int)(ExecutionContext):Future[Source[T,Unit]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">source</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="akka.stream.scaladsl.Source">Source</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>, <span class="extype" name="scala.Unit">Unit</span>]]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Returns the result of cursor as a stream source.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the result of cursor as a stream source.
-</p></div><dl class="paramcmts block"><dt class="param">maxDocs</dt><dd class="cmt"><p>Maximum number of documents to be retrieved
-</p></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@rawEnumerateResponses(maxDocs:Int)(implicitctx:scala.concurrent.ExecutionContext):play.api.libs.iteratee.Enumerator[reactivemongo.core.protocol.Response]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11.10)</i> Use the Play Iteratee modules</p></dd></dl></div>
     </li></ol>
             </div>
 
         <div id="values" class="values members">
               <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -249,8 +295,12 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -262,22 +312,13 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -288,8 +329,12 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -301,7 +346,11 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -314,7 +363,11 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -322,6 +375,23 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="reactivemongo.api.Cursor#collect" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="collect[M[_]](maxDocs:Int,stopOnError:Boolean)(implicitcbf:scala.collection.generic.CanBuildFrom[M[_],T,M[T]],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[M[T]]"></a>
+      <a id="collect[M[_]](Int,Boolean)(CanBuildFrom[M[_],T,M[T]],ExecutionContext):Future[M[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">collect</span><span class="tparams">[<span name="M">M<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[_], <span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>, <span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.collect.M">M</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@collect[M[_]](maxDocs:Int,stopOnError:Boolean)(implicitcbf:scala.collection.generic.CanBuildFrom[M[_],T,M[T]],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[M[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -333,7 +403,11 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a>
@@ -346,7 +420,11 @@
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -359,7 +437,11 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -367,6 +449,23 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="reactivemongo.api.Cursor#fold" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fold[A](z:=&gt;A,maxDocs:Int)(suc:(A,T)=&gt;A)(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]"></a>
+      <a id="fold[A](⇒A,Int)((A,T)⇒A)(ExecutionContext):Future[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fold</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="z">z: ⇒ <span class="extype" name="reactivemongo.api.Cursor.fold.A">A</span></span>, <span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span name="suc">suc: (<span class="extype" name="reactivemongo.api.Cursor.fold.A">A</span>, <span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>) ⇒ <span class="extype" name="reactivemongo.api.Cursor.fold.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor.fold.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@fold[A](z:=&gt;A,maxDocs:Int)(suc:(A,T)=&gt;A)(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -378,7 +477,11 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
@@ -391,7 +494,11 @@
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="reactivemongo.api.Cursor#headOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="headOption(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[Option[T]]"></a>
@@ -404,7 +511,11 @@
       <span class="symbol">
         <span class="name">headOption</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@headOption(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[Option[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -417,7 +528,11 @@
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -430,7 +545,11 @@
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -443,7 +562,11 @@
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -456,7 +579,11 @@
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
@@ -469,7 +596,11 @@
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -482,7 +613,11 @@
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -495,7 +630,11 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -514,7 +653,11 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -533,7 +676,11 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -549,7 +696,7 @@
         <div id="values" class="values members">
               <h3>Deprecated Value Members</h3>
               <ol><li name="reactivemongo.api.Cursor#toList" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toList(upTo:Int,stopOnError:Boolean)(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[List[T]]"></a>
+      <a id="toList(maxDocs:Int,stopOnError:Boolean)(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[List[T]]"></a>
       <a id="toList(Int,Boolean)(ExecutionContext):Future[List[T]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -557,9 +704,13 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.10.0) consider using collect[List] instead">toList</span><span class="params">(<span name="upTo">upTo: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.List">List</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.10.0) consider using collect[List] instead">toList</span><span class="params">(<span name="maxDocs">maxDocs: <span class="extype" name="scala.Int">Int</span></span>, <span name="stopOnError">stopOnError: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ctx">ctx: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.List">List</span>[<span class="extype" name="reactivemongo.akkastreams.AkkaStreamsCursor.T">T</span>]]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#reactivemongo.akkastreams.AkkaStreamsCursor@toList(maxDocs:Int,stopOnError:Boolean)(implicitctx:scala.concurrent.ExecutionContext):scala.concurrent.Future[List[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Cursor</dd><dt>Annotations</dt><dd>
                 <span class="name">@deprecated</span>
               
@@ -591,6 +742,7 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>
