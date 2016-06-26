@@ -2,13 +2,13 @@ organization := "org.reactivemongo"
 
 name := "reactivemongo-akkastreams"
 
-val reactiveMongoVer = "0.11.10"
+val reactiveMongoVer = "0.11.13"
 
 version := s"$reactiveMongoVer-SNAPSHOT"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
-crossScalaVersions  := Seq("2.11.7")
+crossScalaVersions  := Seq("2.11.8")
 
 scalacOptions in Compile ++= Seq(
   "-unchecked", "-deprecation", "-target:jvm-1.6", "-Ywarn-unused-import")
@@ -18,8 +18,8 @@ resolvers ++= Seq(
   "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/")
 
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided" cross CrossVersion.binary,
-  "com.typesafe.akka" %% "akka-stream" % "2.4.2" cross CrossVersion.binary changing())
+  "org.reactivemongo" %% "reactivemongo" % "0.12.0-SNAPSHOT" % "provided" changing(),
+  "com.typesafe.akka" %% "akka-stream" % "2.4.7" % "provided")
 
 // Test
 testOptions in Test += Tests.Cleanup(cl => {
@@ -32,7 +32,7 @@ testOptions in Test += Tests.Cleanup(cl => {
 
 libraryDependencies ++= (Seq(
   "specs2-core"
-).map("org.specs2" %% _ % "2.4.9") ++ Seq(
+).map("org.specs2" %% _ % "3.8.3") ++ Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.13",
   "org.reactivestreams" % "reactive-streams" % "1.0.0")).
   map(_ % Test)

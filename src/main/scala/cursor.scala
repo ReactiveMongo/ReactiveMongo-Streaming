@@ -1,53 +1,82 @@
-package reactivemongo.akkastreams
+package reactivemongo.akkastream
 
 import scala.concurrent.{ ExecutionContext, Future }
+
+import reactivemongo.core.protocol.Response
 import reactivemongo.api.{
-  Cursor, CursorProducer, FlattenedCursor, WrappedCursor
-}
+  Cursor, FlattenedCursor, WrappedCursor
+}, Cursor.{ ErrorHandler, FailOnError }
 
 import org.reactivestreams.Publisher
 
 import akka.NotUsed
 import akka.stream.Materializer
-import akka.stream.scaladsl.{ Sink, Source }
+import akka.stream.scaladsl.{ Flow, Sink, Source }
 
-sealed trait AkkaStreamsCursor[T] extends Cursor[T] {
+/**
+  * @define errDescription The binary operator to be applied when failing to get the next response. Exception or [[reactivemongo.api.Cursor$.Fail Fail]] raised within the `suc` function cannot be recovered by this error handler.
+  * @define maxDocs the maximum number of documents to be retrieved
+  */
+sealed trait AkkaStreamCursor[T] extends Cursor[T] {
   /** 
-   * Returns the result of cursor as a stream source. 
+   * Returns a source of responses.
    * 
-   * @param maxDocs the maximum number of documents to be retrieved
+   * @param maxDocs $maxDocs
+   * @param err $errDescription
    */
-  def source(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext): Source[T, NotUsed]
+  def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, NotUsed]
 
   /**
-   * Returns a Reactive Streams publisher from this cursor.
+   * Returns a Reactive Streams publisher of responses from this cursor.
    * 
-   * @param fanout see [[http://doc.akka.io/api/akka/2.4.2/index.html#akka.stream.scaladsl.Sink$@asPublisher[T](fanout:Boolean):akka.stream.scaladsl.Sink[T,org.reactivestreams.Publisher[T]] Sink.asPublisher]]
-   * @param maxDocs the maximum number of documents to be retrieved
+   * @param fanout see [[http://doc.akka.io/api/akka/2.4.7/index.html#akka.stream.scaladsl.Sink$@asPublisher[T](fanout:Boolean):akka.stream.scaladsl.Sink[T,org.reactivestreams.Publisher[T]] Sink.asPublisher]]
+   * @param maxDocs $maxDocs
+   * @param err $errDescription
    */
-  def publisher(fanout: Boolean, maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext, mat: Materializer): Publisher[T]
-}
+  def responsePublisher(fanout: Boolean, maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Publisher[Response] = responseSource(maxDocs, err).runWith(Sink.asPublisher[Response](fanout))
 
-sealed trait AkkaPublisher[T] { cursor: AkkaStreamsCursor[T] =>
-  def publisher(fanout: Boolean, maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext, mat: Materializer): Publisher[T] = source(maxDocs).runWith(Sink.asPublisher[T](fanout))
-}
-
-class AkkaStreamsCursorImpl[T](val wrappee: Cursor[T])
-    extends AkkaStreamsCursor[T] with WrappedCursor[T] with AkkaPublisher[T] {
-  import Cursor.{ Cont, Fail }
-
-  def source(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext): Source[T, NotUsed] = Source.fromFuture(
-    wrappee.foldWhile(Source.empty[T], maxDocs)(
-      (src, res) => Cont(src.concat(Source single res).
-        mapMaterializedValue(_ => akka.NotUsed)),
-      (_, error) => Fail(error))).flatMapMerge(1, identity)
+  def bulkSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Iterator[T]] = FailOnError())(implicit m: Materializer): Source[Iterator[T], NotUsed]
 
 }
 
-class AkkaStreamsFlattenedCursor[T](
-  val underlying: Future[AkkaStreamsCursor[T]])
-    extends FlattenedCursor[T](underlying)
-    with AkkaStreamsCursor[T] with AkkaPublisher[T] {
+private[akkastream] class AkkaStreamCursorImpl[T](
+  val wrappee: Cursor[T]) extends WrappedCursor[T] with AkkaStreamCursor[T] {
 
-  def source(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext): Source[T, NotUsed] = Source.fromFuture(underlying.map(_.source(maxDocs))).flatMapMerge(1, identity)
+  def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, NotUsed] = {
+    implicit def ec: ExecutionContext = m.executionContext
+    Source.fromGraph(new ResponseStage[T](this, maxDocs, err))
+  }
+
+  def bulkSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Iterator[T]] = FailOnError())(implicit m: Materializer): Source[Iterator[T], NotUsed] = {
+    implicit def ec: ExecutionContext = m.executionContext
+    def responses: Source[Response, NotUsed] =
+      Source.fromGraph(new ResponseStage[T](this, maxDocs, {
+        (lastResponse, reason) => ???
+      }))
+
+    val parallelism = 1 // TODO
+
+    //def foo(r: Response) = this.documentIterator(r.reply, r.documents)
+
+    ???
+  }
+}
+
+class AkkaStreamFlattenedCursor[T](
+  val cursor: Future[AkkaStreamCursor[T]])
+    extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
+
+  def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, NotUsed] = {
+    implicit def ec: ExecutionContext = m.executionContext
+
+    Source.fromFuture(
+      cursor.map(_.responseSource(maxDocs, err))).flatMapMerge(1, identity)
+  }
+
+  def bulkSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Iterator[T]] = FailOnError())(implicit m: Materializer): Source[Iterator[T], NotUsed] = {
+    implicit def ec: ExecutionContext = m.executionContext
+
+    Source.fromFuture(
+      cursor.map(_.bulkSource(maxDocs, err))).flatMapMerge(1, identity)
+  }
 }
