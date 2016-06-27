@@ -6,43 +6,56 @@ This is an Akka Streams extension for the ReactiveMongo cursors.
 
 In your `project/Build.scala`:
 
-```scala
-val reactiveMongoVer = "0.11.10"
+```ocaml
+val reactiveMongoVer = "0.12.0-SNAPSHOT"
 
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
   "org.reactivemongo" %% "rectivemongo" % reactiveMongoVer,
-  "org.reactivemongo" %% "reactivemongo-akkastreams" % s"$reactiveMongoVer-SNAPSHOT")
+  "org.reactivemongo" %% "reactivemongo-akkastream" % reactiveMongoVer)
 ```
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastreams_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastreams_2.11/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastream_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastream_2.11/)
 
 > Java 1.8+ is required.
 
 Then in your code:
 
 ```scala
-import reactivemongo.bson.{ BSONDocument, BSONDocumentWriter }
-import reactivemongo.api.Cursor
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import reactivemongo.bson.{ BSONDocument, BSONDocumentReader }
+import reactivemongo.api.collections.bson.BSONCollection
 
 // Reactive streams imports
 import org.reactivestreams.Publisher
 import akka.stream.scaladsl.Source
 
 // ReactiveMongo extensions
-import reactivemongo.akkastreams.cursorProducer
+import reactivemongo.akkastream.{ AkkaStreamCursor, cursorProducer }
 
-implicit val system = akka.actor.ActorSystem("reactivemongo-akkastreams")
+implicit val system = akka.actor.ActorSystem("reactivemongo-akkastream")
 implicit val materializer = akka.stream.ActorMaterializer.create(system)
 
-val cursor = Cursor.flatten(collection(n).map(_.find(BSONDocument()).
-  sort(BSONDocument("id" -> 1)).cursor[Int]))
+implicit val reader = BSONDocumentReader[Int] { doc =>
+  doc.getAsTry[Int]("age").get
+}
 
-val src: Source[Int, akka.NotUsed] = cursor("sourceName").source()
+def foo(collection: BSONCollection): (Source[Int, akka.NotUsed], Publisher[Int]) = {
+  val cursor: AkkaStreamCursor[Int] =
+    collection.find(BSONDocument.empty/* findAll */).
+    sort(BSONDocument("id" -> 1)).cursor[Int]()
 
-val pub: Publisher[Int] = cursor("sourceName").publisher("publisher")
+  val src: Source[Int, akka.NotUsed] = cursor.documentSource()
+
+  val pub: Publisher[Int] = cursor.documentPublisher()
+
+  src -> pub
+}
 ```
+
+> More [examples](.src/test/scala/CursorSpec.scala)
 
 ## Build manually
 
@@ -54,8 +67,8 @@ To run the tests, use:
 
     sbt test
 
-[Travis](https://travis-ci.org/cchantep/RM-AkkaStreams): [![Build Status](https://travis-ci.org/cchantep/RM-AkkaStreams.svg?branch=master)](https://travis-ci.org/cchantep/RM-AkkaStreams)
+(https://travis-ci.org/ReactiveMongo/ReactiveMongo-AkkaStream): [![Build Status](https://travis-ci.org/ReactiveMongo/ReactiveMongo-AkkaStream.svg?branch=master)](https://travis-ci.org/ReactiveMongo/ReactiveMongo-AkkaStream)
 
 ## Documentation
 
-The API documentation is [available online](https://cchantep.github.io/RM-AkkaStreams/api/).
+The API documentation is [available online](https://reactivemongo.github.io/ReactiveMongo-AkkaStream/).
