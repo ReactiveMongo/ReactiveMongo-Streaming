@@ -1,10 +1,8 @@
 organization := "org.reactivemongo"
 
-name := "reactivemongo-akkastreams"
+name := "reactivemongo-akkastream"
 
-val reactiveMongoVer = "0.11.13"
-
-version := s"$reactiveMongoVer-SNAPSHOT"
+version := "0.12.0-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
@@ -18,16 +16,18 @@ resolvers ++= Seq(
   "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/")
 
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "reactivemongo" % "0.12.0-SNAPSHOT" % "provided" changing(),
-  "com.typesafe.akka" %% "akka-stream" % "2.4.7" % "provided")
+  "org.reactivemongo" %% "reactivemongo" % version.value % "provided",
+  "com.typesafe.akka" %% "akka-stream" % "2.4.8" % "provided")
 
 // Test
+fork in Test := false
+
 testOptions in Test += Tests.Cleanup(cl => {
   import scala.language.reflectiveCalls
   val c = cl.loadClass("Common$")
-  type M = { def closeDriver(): Unit }
+  type M = { def close(): Unit }
   val m: M = c.getField("MODULE$").get(null).asInstanceOf[M]
-  m.closeDriver()
+  m.close()
 })
 
 libraryDependencies ++= (Seq(
@@ -64,3 +64,29 @@ publishTo := Some(repoUrl).map(repoName at _)
 
 credentials += Credentials(repoName, env("PUBLISH_REPO_ID"),
   env("PUBLISH_USER"), env("PUBLISH_PASS"))
+
+// Format settings
+import scalariform.formatter.preferences._
+import com.typesafe.sbt.SbtScalariform
+import com.typesafe.sbt.SbtScalariform.ScalariformKeys
+
+scalariformSettings
+
+ScalariformKeys.preferences := ScalariformKeys.preferences.value.
+  setPreference(AlignParameters, false).
+  setPreference(AlignSingleLineCaseStatements, true).
+  setPreference(CompactControlReadability, false).
+  setPreference(CompactStringConcatenation, false).
+  setPreference(DoubleIndentClassDeclaration, true).
+  setPreference(FormatXml, true).
+  setPreference(IndentLocalDefs, false).
+  setPreference(IndentPackageBlocks, true).
+  setPreference(IndentSpaces, 2).
+  setPreference(MultilineScaladocCommentsStartOnFirstLine, false).
+  setPreference(PreserveSpaceBeforeArguments, false).
+  setPreference(PreserveDanglingCloseParenthesis, true).
+  setPreference(RewriteArrowSymbols, false).
+  setPreference(SpaceBeforeColon, false).
+  setPreference(SpaceInsideBrackets, false).
+  setPreference(SpacesAroundMultiImports, true).
+  setPreference(SpacesWithinPatternBinders, true)
