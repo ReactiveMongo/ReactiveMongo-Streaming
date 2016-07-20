@@ -2,7 +2,7 @@ organization := "org.reactivemongo"
 
 name := "reactivemongo-akkastream"
 
-version := "0.12.0-SNAPSHOT"
+version := "0.12-RC0"
 
 scalaVersion := "2.11.8"
 
