@@ -62,9 +62,16 @@ apiURL := Some(url(
 
 pomExtra := (
   <scm>
-    <url>git@github.com:ReactiveMongo/ReactiveMongo-AkkaStream.git</url>
-    <connection>scm:git://github.com:ReactiveMongo/ReactiveMongo-AkkaStream.git</connection>
-  </scm>)
+    <url>git://github.com/ReactiveMongo/ReactiveMongo-AkkaStream.git</url>
+    <connection>scm:git://github.com/ReactiveMongo/ReactiveMongo-AkkaStream.git</connection>
+  </scm>
+  <developers>
+    <developer>
+      <id>cchantep</id>
+      <name>Cedric Chantepie</name>
+      <url>https://github.com/cchantep/</url>
+    </developer>
+  </developers>)
 
 val repoName = env("PUBLISH_REPO_NAME")
 val repoUrl = env("PUBLISH_REPO_URL")
