@@ -12,7 +12,8 @@ package object akkastream {
     // Returns a cursor with Akka Streams operations.
     def produce(base: Cursor[T]): AkkaStreamCursor[T] = base match {
       case c: BaseCursor @unchecked => new AkkaStreamCursorImpl[T](c)
-      case _                        => sys.error("expected Cursor with CursorOps")
+      case _ =>
+        sys.error("expected Cursor with CursorOps")
     }
   }
 

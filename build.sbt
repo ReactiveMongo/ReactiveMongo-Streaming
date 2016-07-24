@@ -34,10 +34,18 @@ testOptions in Test += Tests.Cleanup(cl => {
   m.close()
 })
 
+resolvers ++= Seq(
+  // For Akka Stream TestKit 'tests' (see akka/akka#21028)
+  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases")
+
+def akkaStreamTestKit = "com.typesafe.akka" %% "akka-stream-testkit" % "2.4.8"
+
 libraryDependencies ++= (Seq(
   "specs2-core"
 ).map("org.specs2" %% _ % "3.8.3") ++ Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.13",
+  akkaStreamTestKit,
+  akkaStreamTestKit.classifier("tests"),
   "org.reactivestreams" % "reactive-streams" % "1.0.0")).
   map(_ % Test)
 
