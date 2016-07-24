@@ -4,9 +4,11 @@ name := "reactivemongo-akkastream"
 
 val majorVer = "0.12"
 
-version := "0.12-RC1"
+version := s"${majorVer}-RC2"
 
-scalaVersion := "2.11.8"
+val scalaMajorVer = "2.11"
+
+scalaVersion := s"${scalaMajorVer}.8"
 
 crossScalaVersions  := Seq("2.11.8")
 
