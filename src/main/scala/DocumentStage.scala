@@ -23,7 +23,8 @@ private[akkastream] class DocumentStage[T](
 )(implicit ec: ExecutionContext)
     extends GraphStage[SourceShape[T]] {
 
-  val out: Outlet[T] = Outlet("ReactiveMongoDocument")
+  override val toString = "ReactiveMongoDocument"
+  val out: Outlet[T] = Outlet(s"${toString}.out")
   val shape: SourceShape[T] = SourceShape(out)
 
   private val nextResponse = cursor.nextResponse(maxDocs)
@@ -32,7 +33,7 @@ private[akkastream] class DocumentStage[T](
   private def nextR(r: Response): Future[Option[Response]] = nextResponse(ec, r)
 
   def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
-    new GraphStageLogic(shape) {
+    new GraphStageLogic(shape) with OutHandler {
       private var last = Option.empty[(Response, Iterator[T], Option[T])]
 
       private var request: () => Future[Option[Response]] = { () =>
@@ -89,38 +90,39 @@ private[akkastream] class DocumentStage[T](
           }
         }
 
-      private def handleR(response: Try[Option[Response]]): Unit =
-        response match {
-          case Failure(reason) => onFailure(reason)
+      private val futureCB =
+        getAsyncCallback((response: Try[Option[Response]]) => {
+          response match {
+            case Failure(reason) => onFailure(reason)
 
-          case Success(resp @ Some(r)) => {
-            last = None
+            case Success(resp @ Some(r)) => {
+              last = None
 
-            if (r.reply.numberReturned == 0) {
+              if (r.reply.numberReturned == 0) {
+                completeStage()
+              } else {
+                val bulkIter = cursor.documentIterator(r).
+                  take(maxDocs - r.reply.startingFrom)
+
+                nextD(r, bulkIter)
+              }
+            }
+
+            case Success(_) => {
+              last = None
               completeStage()
-            } else {
-              val bulkIter = cursor.documentIterator(r).
-                take(maxDocs - r.reply.startingFrom)
-
-              nextD(r, bulkIter)
             }
           }
+        }).invoke _
 
-          case Success(_) => {
-            last = None
-            completeStage()
-          }
-        }
+      def onPull(): Unit = last match {
+        case Some((r, bulk, _)) if (bulk.hasNext) =>
+          nextD(r, bulk)
 
-      setHandler(out, new OutHandler {
-        val asyncCallback =
-          getAsyncCallback[Try[Option[Response]]](handleR).invoke _
+        case _ =>
+          request().onComplete(futureCB)
+      }
 
-        def onPull(): Unit = last match {
-          case Some((r, bulk, _)) if (bulk.hasNext) => nextD(r, bulk)
-          case _ =>
-            request().onComplete(asyncCallback)
-        }
-      })
+      setHandler(out, this)
     }
 }

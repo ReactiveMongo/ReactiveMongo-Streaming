@@ -87,9 +87,8 @@ sealed trait AkkaStreamCursor[T] extends Cursor[T] {
 }
 
 private[akkastream] class AkkaStreamCursorImpl[T](
-  val wrappee: Cursor[T] with CursorOps[T]
-)
-    extends WrappedCursor[T] with AkkaStreamCursor[T] {
+    val wrappee: Cursor[T] with CursorOps[T]
+) extends WrappedCursor[T] with AkkaStreamCursor[T] {
 
   def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, NotUsed] = {
     implicit def ec: ExecutionContext = m.executionContext

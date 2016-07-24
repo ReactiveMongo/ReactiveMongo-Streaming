@@ -1,15 +1,16 @@
-import scala.collection.mutable.ListBuffer
-
 import java.util.concurrent.TimeoutException
 
-import scala.concurrent.{ Await, Future, Promise }
+import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
 // Reactive streams imports
-import org.reactivestreams.{ Publisher, Subscriber, Subscription }
+import org.reactivestreams.Publisher
 
 import akka.stream.scaladsl.{ Sink, Source }
+
+import akka.stream.testkit.TestSubscriber
+import akka.stream.testkit.Utils.assertAllStagesStopped
 
 import org.specs2.concurrent.{ ExecutionEnv => EE }
 
@@ -27,8 +28,12 @@ import reactivemongo.api.collections.bson.BSONCollection
 
 import reactivemongo.akkastream.AkkaStreamCursor
 
-class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
+class CursorSpec
+    extends org.specs2.mutable.Specification with CursorFixtures {
+
   "Cursor" title
+
+  sequential
 
   implicit val system = akka.actor.ActorSystem("reactivemongo-akkastream")
   implicit val materializer = akka.stream.ActorMaterializer.create(system)
@@ -39,7 +44,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
   "Response source" should {
     "be fully consumed" >> {
-      "using a sequence sink" in { implicit ee: EE =>
+      "using a sequence sink" in assertAllStagesStopped { implicit ee: EE =>
         val expected = 4 /* batches */ -> List(
           3 -> true, // 1st batch
           3 -> true, // 2nd batch
@@ -54,100 +59,156 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         }.aka("sequence") must beEqualTo(expected).await(0, timeout)
       }
 
-      "using a publisher" in { implicit ee: EE =>
+      "using a publisher" in assertAllStagesStopped { implicit ee: EE =>
         val pub: Publisher[_ <: Response] =
           cursor("source2").responsePublisher(true)
 
-        val (s, f) = promise[Response] { r =>
-          s"${r.reply.numberReturned}@${r.reply.cursorID != 0}"
+        val c = TestSubscriber.manualProbe[Response]()
+
+        pub subscribe c
+
+        val sub = c.expectSubscription()
+        sub.request(2)
+
+        c.expectNext must beLike[Response] {
+          case resp1 =>
+            val r = resp1.reply
+            r.numberReturned.aka("numberReturned #1") must_== 3 and {
+              (r.cursorID != 0L) aka "hasNext #1" must beTrue
+            }
+        } and {
+          c.expectNext must beLike[Response] {
+            case resp2 =>
+              val r = resp2.reply
+              r.numberReturned.aka("numberReturned #2") must_== 3 and {
+                (r.cursorID != 0L) aka "hasNext #2" must beTrue
+              }
+          }
+        } and {
+          c.expectNoMsg(200.millis) must not(throwA[Throwable])
+        } and {
+          sub.request(3) must not(throwA[Throwable])
+        } and {
+          c.expectNext must beLike[Response] {
+            case resp3 =>
+              val r = resp3.reply
+              r.numberReturned.aka("numberReturned #3") must_== 3 and {
+                (r.cursorID != 0L) aka "hasNext #3" must beTrue
+              }
+          }
+        } and {
+          c.expectNext must beLike[Response] {
+            case resp4 =>
+              val r = resp4.reply
+              r.numberReturned.aka("numberReturned #4") must_== 1 and {
+                (r.cursorID != 0L) aka "hasNext #4" must beFalse
+              }
+          }
+        } and {
+          c.expectComplete() aka "completed" must not(throwA[Throwable])
         }
-
-        pub subscribe s
-
-        f must beEqualTo(List(
-          "subscribe", "3@true", "3@true", "3@true", "1@false"
-        )).
-          await(0, timeout)
       }
     }
 
     "consumed with a max of 5 documents" in { implicit ee: EE =>
-      val expected = 2 /* batches */ -> List(
-        3 -> true, // 1st batch
-        3 -> true
-      ) // 2nd batch - true has the max stop before end
-      // got 6 docs, as the batch size is 3
+      assertAllStagesStopped {
+        val expected = 2 /* batches */ -> List(
+          3 -> true, // 1st batch
+          3 -> true
+        ) // 2nd batch - true has the max stop before end
+        // got 6 docs, as the batch size is 3
 
-      toSeq(cursor("source3").responseSource(5)).map { rs =>
-        rs.size -> (rs.map { r =>
-          r.reply.numberReturned -> (r.reply.cursorID != 0)
-        }).toList
-      }.aka("sequence") must beEqualTo(expected).await(0, timeout)
-
+        toSeq(cursor("source3").responseSource(5)).map { rs =>
+          rs.size -> (rs.map { r =>
+            r.reply.numberReturned -> (r.reply.cursorID != 0)
+          }).toList
+        }.aka("sequence") must beEqualTo(expected).await(0, timeout)
+      }
     }
 
     "consumed using a publisher with a max of 6 documents" in {
       implicit ee: EE =>
-        val pub: Publisher[_ <: Response] =
-          cursor("source4").responsePublisher(true, 6)
+        assertAllStagesStopped {
+          val pub: Publisher[_ <: Response] =
+            cursor("source4").responsePublisher(true, 6)
 
-        val (s, f) = promise[Response] { r =>
-          s"${r.reply.numberReturned}@${r.reply.cursorID != 0}"
+          val c = TestSubscriber.manualProbe[Response]()
+
+          pub subscribe c
+
+          val sub = c.expectSubscription()
+          sub.request(2)
+
+          c.expectNext must beLike[Response] {
+            case resp1 =>
+              val r = resp1.reply
+              r.numberReturned.aka("numberReturned #1") must_== 3 and {
+                (r.cursorID != 0L) aka "hasNext #1" must beTrue
+              }
+          } and {
+            c.expectNext must beLike[Response] {
+              case resp2 =>
+                val r = resp2.reply
+                r.numberReturned.aka("numberReturned #2") must_== 3 and {
+                  (r.cursorID != 0L) aka "hasNext #2" must beTrue
+                }
+            }
+          } and {
+            c.expectComplete() aka "completed" must not(throwA[Throwable])
+          }
         }
-
-        pub subscribe s
-
-        f must beEqualTo(List("subscribe", "3@true", "3@true")).await(0, timeout)
     }
 
     "handle errors" >> {
       "by failing with the default handler" in { implicit ee: EE =>
-        val drv = reactivemongo.api.MongoDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
+        assertAllStagesStopped {
+          val drv = reactivemongo.api.MongoDriver()
+          val con = drv.connection(List(primaryHost))
+          def col(n: String) = con.database(db.name).flatMap { d =>
+            withFixtures(d.collection(n))
+          }
+
+          val sink = Sink.fold(0) { (count, r: Response) =>
+            if (count == 0) drv.close(3.second) // trigger error by closing
+            count + 1
+          }
+
+          Await.result(
+            cursor1("source5")(col).responseSource() runWith sink, timeout
+          ) aka "result" must throwA[ClosedException](
+              "This MongoConnection is closed"
+            )
         }
-
-        val sink = Sink.fold(0) { (count, r: Response) =>
-          if (count == 0) drv.close(3.second) // trigger error by closing
-          count + 1
-        }
-
-        Await.result(
-          cursor1("source5")(col).responseSource() runWith sink, timeout
-        ).
-          aka("result") must throwA[ClosedException](
-            "This MongoConnection is closed"
-          )
-
       }
 
       "by stopping with the Done handler" in { implicit ee: EE =>
-        val drv = reactivemongo.api.MongoDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
-        }
-
-        val sink = Sink.fold(0) { (count, r: Response) =>
-          if (count == 1) drv.close(3.second) // trigger error by closing
-          count + 1
-        }
-        @volatile var err = Option.empty[Throwable]
-
-        cursor1("source6")(col).responseSource(
-          err = Cursor.DoneOnError { (_, e) => err = Some(e) }
-        ).runWith(sink) must beEqualTo(2).await(0, timeout) and {
-            err must beSome[Throwable].like {
-              case reason: ClosedException =>
-                reason.getMessage must beMatching(
-                  ".*This MongoConnection is closed.*"
-                )
-            }
+        assertAllStagesStopped {
+          val drv = reactivemongo.api.MongoDriver()
+          val con = drv.connection(List(primaryHost))
+          def col(n: String) = con.database(db.name).flatMap { d =>
+            withFixtures(d.collection(n))
           }
+
+          val sink = Sink.fold(0) { (count, r: Response) =>
+            if (count == 1) drv.close(3.second) // trigger error by closing
+            count + 1
+          }
+          @volatile var err = Option.empty[Throwable]
+
+          cursor1("source6")(col).responseSource(
+            err = Cursor.DoneOnError { (_, e) => err = Some(e) }
+          ).runWith(sink) must beEqualTo(2).await(0, timeout) and {
+              err must beSome[Throwable].like {
+                case reason: ClosedException =>
+                  reason.getMessage must beMatching(
+                    ".*This MongoConnection is closed.*"
+                  )
+              }
+            }
+        }
       }
 
-      "by trying to continue" in { implicit ee: EE =>
+      "by trying to continue" in assertAllStagesStopped { implicit ee: EE =>
         val drv = reactivemongo.api.MongoDriver()
         val con = drv.connection(List(primaryHost))
         def col(n: String) = con.database(db.name).flatMap { d =>
@@ -176,7 +237,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
   "Bulk source" should {
     "be fully consumed" >> {
-      "using a sequence sink" in { implicit ee: EE =>
+      "using a sequence sink" in assertAllStagesStopped { implicit ee: EE =>
         val expected = expectedList.sliding(3, 3).toList
 
         toSeq(cursor("source5").bulkSource()).map(_.map(_.toList)).
@@ -184,67 +245,83 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
       }
 
-      "using a publisher" in { implicit ee: EE =>
+      "using a publisher" in assertAllStagesStopped { implicit ee: EE =>
         val pub: Publisher[_ <: Iterator[Int]] =
           cursor("source6").bulkPublisher(true)
 
-        val (s, f) = promise[Iterator[Int]] { _.mkString("(", ",", ")") }
+        val c = TestSubscriber.manualProbe[Iterator[Int]]()
 
-        pub subscribe s
+        pub subscribe c
 
-        f must beEqualTo(List(
-          "subscribe", "(0,1,2)", "(3,4,5)", "(6,7,8)", "(9)"
-        )).
-          await(0, timeout)
-      } tag "wip"
+        val sub = c.expectSubscription()
+        sub.request(3)
+
+        c.expectNext.toList aka "bulk #1" must_== List(0, 1, 2) and {
+          c.expectNext.toList aka "bulk #2" must_== List(3, 4, 5)
+        } and {
+          c.expectNext.toList aka "bulk #3" must_== List(6, 7, 8)
+        } and {
+          c.expectNoMsg(200.millis) must not(throwA[Throwable])
+        } and {
+          sub.request(2) must not(throwA[Throwable])
+        } and {
+          c.expectNext.toList aka "bulk #4" must_== List(9)
+        } and {
+          c.expectComplete() aka "completed" must not(throwA[Throwable])
+        }
+      }
     }
 
     "handle errors" >> {
       "by failing with the default handler" in { implicit ee: EE =>
-        val drv = reactivemongo.api.MongoDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
-        }
+        assertAllStagesStopped {
+          val drv = reactivemongo.api.MongoDriver()
+          val con = drv.connection(List(primaryHost))
+          def col(n: String) = con.database(db.name).flatMap { d =>
+            withFixtures(d.collection(n))
+          }
 
-        val sink = Sink.fold(0) { (count, bulk: Iterator[Int]) =>
-          if (count == 0) drv.close(3.second) // trigger error by closing
-          count + 1
-        }
+          val sink = Sink.fold(0) { (count, bulk: Iterator[Int]) =>
+            if (count == 0) drv.close(3.second) // trigger error by closing
+            count + 1
+          }
 
-        Await.result(
-          cursor1("source10")(col).bulkSource() runWith sink, timeout
-        ) aka "result" must throwA[ClosedException](
-            "This MongoConnection is closed"
-          )
+          Await.result(
+            cursor1("source10")(col).bulkSource() runWith sink, timeout
+          ) aka "result" must throwA[ClosedException](
+              "This MongoConnection is closed"
+            )
+        }
       }
 
       "by stopping with the Done handler" in { implicit ee: EE =>
-        val drv = reactivemongo.api.MongoDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
-        }
-
-        val sink = Sink.fold(0) { (count, bulk: Iterator[Int]) =>
-          if (count == 1) drv.close(3.second) // trigger error by closing
-          count + 1
-        }
-        @volatile var err = Option.empty[Throwable]
-
-        cursor1("source11")(col).bulkSource(
-          err = Cursor.DoneOnError { (_, e) => err = Some(e) }
-        ).runWith(sink) must beEqualTo(2).await(0, timeout) and {
-            err must beSome[Throwable].like {
-              case reason: ClosedException =>
-                reason.getMessage must beMatching(
-                  ".*This MongoConnection is closed.*"
-                )
-            }
+        assertAllStagesStopped {
+          val drv = reactivemongo.api.MongoDriver()
+          val con = drv.connection(List(primaryHost))
+          def col(n: String) = con.database(db.name).flatMap { d =>
+            withFixtures(d.collection(n))
           }
+
+          val sink = Sink.fold(0) { (count, bulk: Iterator[Int]) =>
+            if (count == 1) drv.close(3.second) // trigger error by closing
+            count + 1
+          }
+          @volatile var err = Option.empty[Throwable]
+
+          cursor1("source11")(col).bulkSource(
+            err = Cursor.DoneOnError { (_, e) => err = Some(e) }
+          ).runWith(sink) must beEqualTo(2).await(0, timeout) and {
+              err must beSome[Throwable].like {
+                case reason: ClosedException =>
+                  reason.getMessage must beMatching(
+                    ".*This MongoConnection is closed.*"
+                  )
+              }
+            }
+        }
       }
 
-      "by trying to continue" in { implicit ee: EE =>
+      "by trying to continue" in assertAllStagesStopped { implicit ee: EE =>
         val drv = reactivemongo.api.MongoDriver()
         val con = drv.connection(List(primaryHost))
         def col(n: String) = con.database(db.name).flatMap { d =>
@@ -273,24 +350,52 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
   "Document source" should {
     "be fully consumed" >> {
-      "using a sequence sink" in { implicit ee: EE =>
+      "using a sequence sink" in assertAllStagesStopped { implicit ee: EE =>
         toSeq(cursor("source7").documentSource()).
           aka("sequence") must beEqualTo(expectedList).await(0, timeout)
       }
 
-      "using a publisher" in { implicit ee: EE =>
+      "using a publisher" in assertAllStagesStopped { implicit ee: EE =>
         val pub: Publisher[Int] =
           cursor("source8").documentPublisher(true)
 
-        val (s, f) = promise[Int](_.toString)
+        val c = TestSubscriber.manualProbe[Int]()
 
-        pub subscribe s
+        pub subscribe c
 
-        f must beEqualTo(List(
-          "subscribe", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-        )).
-          await(0, timeout)
-      } tag "wip"
+        val sub = c.expectSubscription()
+        sub.request(4)
+
+        c.expectNext aka "document #1" must_== 0 and {
+          c.expectNext aka "document #2" must_== 1
+        } and {
+          c.expectNext aka "document #3" must_== 2
+        } and {
+          c.expectNext aka "document #4" must_== 3
+        } and {
+          c.expectNoMsg(200.millis) must not(throwA[Throwable])
+        } and {
+          sub.request(5) must not(throwA[Throwable])
+        } and {
+          c.expectNext aka "document #5" must_== 4
+        } and {
+          c.expectNext aka "document #6" must_== 5
+        } and {
+          c.expectNext aka "document #7" must_== 6
+        } and {
+          c.expectNext aka "document #8" must_== 7
+        } and {
+          c.expectNext aka "document #9" must_== 8
+        } and {
+          c.expectNoMsg(500.millis) must not(throwA[Throwable])
+        } and {
+          sub.request(2) must not(throwA[Throwable])
+        } and {
+          c.expectNext aka "document #10" must_== 9
+        } and {
+          c.expectComplete() aka "completed" must not(throwA[Throwable])
+        }
+      }
 
       val nDocs = 16517
       s"insert $nDocs records" in { implicit ee: EE =>
@@ -327,74 +432,98 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
     }
 
     "consumed with a max of 6 documents" in { implicit ee: EE =>
-      toSeq(cursor("source9").documentSource(6)).
-        aka("sequence") must beEqualTo(expectedList take 6).await(0, timeout)
-
+      assertAllStagesStopped {
+        toSeq(cursor("source9").documentSource(6)).
+          aka("sequence") must beEqualTo(expectedList take 6).await(0, timeout)
+      }
     }
 
     "consumed using a publisher with a max of 7 documents" in {
       implicit ee: EE =>
-        val pub: Publisher[Int] = cursor("source10").documentPublisher(true, 7)
+        assertAllStagesStopped {
+          val pub: Publisher[Int] =
+            cursor("source10").documentPublisher(true, 7)
 
-        val (s, f) = promise[Int](_.toString)
+          val c = TestSubscriber.manualProbe[Int]()
 
-        pub subscribe s
+          pub subscribe c
 
-        f must beEqualTo(List(
-          "subscribe",
-          "0", "1", "2", "3", "4", "5", "6"
-        )).await(0, timeout)
+          val sub = c.expectSubscription()
+          sub.request(2)
+
+          c.expectNext aka "document #1" must_== 0 and {
+            c.expectNext aka "document #2" must_== 1
+          } and {
+            c.expectNoMsg(200.millis) must not(throwA[Throwable])
+          } and {
+            sub.request(5) must not(throwA[Throwable])
+          } and {
+            c.expectNext aka "document #3" must_== 2
+          } and {
+            c.expectNext aka "document #4" must_== 3
+          } and {
+            c.expectNext aka "document #5" must_== 4
+          } and {
+            c.expectNext aka "document #6" must_== 5
+          } and {
+            c.expectNext aka "document #7" must_== 6
+          } and {
+            c.expectComplete() aka "completed" must not(throwA[Throwable])
+          }
+        }
     }
 
     "handle errors" >> {
       "by failing with the default handler" in { implicit ee: EE =>
-        val drv = reactivemongo.api.MongoDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
+        assertAllStagesStopped {
+          val drv = reactivemongo.api.MongoDriver()
+          val con = drv.connection(List(primaryHost))
+          def col(n: String) = con.database(db.name).flatMap { d =>
+            withFixtures(d.collection(n))
+          }
+
+          val sink = Sink.fold(0) { (count, _: Int) =>
+            if (count == 0) drv.close(3.second) // trigger error by closing
+            count + 1
+          }
+
+          Await.result(
+            cursor1("source17")(col).documentSource() runWith sink, timeout
+          ) aka "result" must throwA[ClosedException](
+              "This MongoConnection is closed"
+            )
         }
-
-        val sink = Sink.fold(0) { (count, _: Int) =>
-          if (count == 0) drv.close(3.second) // trigger error by closing
-          count + 1
-        }
-
-        Await.result(
-          cursor1("source17")(col).documentSource() runWith sink, timeout
-        ).
-          aka("result") must throwA[ClosedException](
-            "This MongoConnection is closed"
-          )
-
       }
 
       "by stopping with the Done handler" in { implicit ee: EE =>
-        val drv = reactivemongo.api.MongoDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
-        }
-
-        val sink = Sink.fold(0) { (count, _: Int) =>
-          if (count == 1) drv.close(3.second) // trigger error by closing
-          count + 1
-        }
-        @volatile var err = Option.empty[Throwable]
-
-        cursor1("source18")(col).documentSource(
-          err = Cursor.DoneOnError { (_, e) => err = Some(e) }
-        ).runWith(sink) must beEqualTo(3 /* = bulk size */ ).
-          await(0, timeout) and {
-            err must beSome[Throwable].like {
-              case reason: ClosedException =>
-                reason.getMessage must beMatching(
-                  ".*This MongoConnection is closed.*"
-                )
-            }
+        assertAllStagesStopped {
+          val drv = reactivemongo.api.MongoDriver()
+          val con = drv.connection(List(primaryHost))
+          def col(n: String) = con.database(db.name).flatMap { d =>
+            withFixtures(d.collection(n))
           }
+
+          val sink = Sink.fold(0) { (count, _: Int) =>
+            if (count == 1) drv.close(3.second) // trigger error by closing
+            count + 1
+          }
+          @volatile var err = Option.empty[Throwable]
+
+          cursor1("source18")(col).documentSource(
+            err = Cursor.DoneOnError { (_, e) => err = Some(e) }
+          ).runWith(sink) must beEqualTo(3 /* = bulk size */ ).
+            await(0, timeout) and {
+              err must beSome[Throwable].like {
+                case reason: ClosedException =>
+                  reason.getMessage must beMatching(
+                    ".*This MongoConnection is closed.*"
+                  )
+              }
+            }
+        }
       }
 
-      "by trying to continue" in { implicit ee: EE =>
+      "by trying to continue" in assertAllStagesStopped { implicit ee: EE =>
         val drv = reactivemongo.api.MongoDriver()
         val con = drv.connection(List(primaryHost))
         def col(n: String) = con.database(db.name).flatMap { d =>
@@ -419,23 +548,99 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         }
       }
     }
-  }
 
-  // ---
+    "work with large source" >> {
+      // ReactiveMongo extensions
+      import reactivemongo.akkastream.cursorProducer
 
-  def promise[T](f: T => String): (Subscriber[T], Future[List[String]]) = {
-    val events = ListBuffer.empty[String]
-    val p = Promise[List[String]]
-    val sub = new Subscriber[T] {
-      def onComplete(): Unit = { p.success(events.toList) }
-      def onError(e: Throwable): Unit = events += "error"
-      def onSubscribe(s: Subscription): Unit = {
-        events += "subscribe"
-        s request 10L
+      implicit def reader = IdReader
+      val nDocs = 16517
+      val coll = db(s"akka-large-1-${System identityHashCode db}")
+      def cursor(implicit ee: EE) = coll.find(BSONDocument.empty).
+        sort(BSONDocument("id" -> 1)).cursor[Int]()
+
+      s"insert $nDocs records" in { implicit ee: EE =>
+        def futs: Seq[Future[Unit]] = for (i <- 0 until nDocs) yield {
+          coll.insert(BSONDocument(
+            "id" -> i, "record" -> s"record$i"
+          )).map(_ => {})
+        }
+        def fixtures =
+          coll.remove(BSONDocument.empty).map(_ => {}) +: futs
+
+        Future.sequence(futs).map { _ =>
+          //println(s"inserted $nDocs records")
+        } aka "fixtures" must beEqualTo({}).await(0, timeout)
+      } tag "wip"
+
+      "using a fold sink" in assertAllStagesStopped { implicit ee: EE =>
+        val source = cursor.documentSource()
+
+        source.runWith(Sink.fold[Int, Int](-1) { (prev, i) =>
+          val expected = prev + 1
+          if (expected == i) expected else -1
+        }) aka "fold result" must beEqualTo(16516).await(0, timeout * 2)
       }
-      def onNext(n: T): Unit = { events += f(n) }
+
+      "using a publisher" >> {
+        "with consumer #1" in assertAllStagesStopped { implicit ee: EE =>
+          val pub: Publisher[_ <: Int] = cursor.documentPublisher(true)
+          val c = TestSubscriber.manualProbe[Int]()
+
+          pub subscribe c
+
+          val sub = c.expectSubscription()
+          sub.request(nDocs + 2)
+
+          (0 until nDocs).foldLeft(-1) { (prev, _) =>
+            val expected = prev + 1
+            val i = c.expectNext
+            if (expected == i) expected else -1
+          } aka "fold result" must beEqualTo(16516) and {
+            c.expectComplete aka "completed" must not(throwA[Throwable])
+          }
+        }
+
+        "with consumer #2" in assertAllStagesStopped { implicit ee: EE =>
+          val pub: Publisher[_ <: Int] = cursor.documentPublisher(true)
+          val c = TestSubscriber.manualProbe[Int]()
+
+          pub subscribe c
+
+          val sub = c.expectSubscription()
+          val half = nDocs / 2
+          sub.request(half)
+
+          (0 until half).foldLeft(-1) { (prev, _) =>
+            val expected = prev + 1
+            val i = c.expectNext
+            if (expected == i) expected else -1
+          } aka "fold result #1" must beEqualTo(8257) and {
+            c.expectNoMsg(200.millis) must not(throwA[Throwable])
+          } and {
+            sub.request(3) must not(throwA[Throwable])
+          } and {
+            c.expectNext must_== 8258
+          } and {
+            c.expectNext must_== 8259
+          } and {
+            c.expectNext must_== 8260
+          } and {
+            c.expectNoMsg(500.millis) must not(throwA[Throwable])
+          } and {
+            sub.request(Int.MaxValue) must not(throwA[Throwable])
+          } and {
+            (0 to (half - 3)).foldLeft(8260) { (prev, _) =>
+              val expected = prev + 1
+              val i = c.expectNext
+              if (expected == i) expected else -1
+            } aka "fold result #2" must beEqualTo(16516)
+          } and {
+            c.expectComplete aka "completed" must not(throwA[Throwable])
+          }
+        }
+      }
     }
-    sub -> p.future
   }
 }
 

@@ -18,7 +18,8 @@ private[akkastream] class ResponseStage[T, Out](
 )(implicit ec: ExecutionContext)
     extends GraphStage[SourceShape[Out]] {
 
-  val out: Outlet[Out] = Outlet("ReactiveMongoResponse")
+  override val toString = "ReactiveMongoResponse"
+  val out: Outlet[Out] = Outlet(s"${toString}.out")
   val shape: SourceShape[Out] = SourceShape(out)
 
   private val nextResponse = cursor.nextResponse(maxDocs)
@@ -27,7 +28,7 @@ private[akkastream] class ResponseStage[T, Out](
   private def next(r: Response): Future[Option[Response]] = nextResponse(ec, r)
 
   def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
-    new GraphStageLogic(shape) {
+    new GraphStageLogic(shape) with OutHandler {
       private var last = Option.empty[(Response, Out)]
 
       private var request: () => Future[Option[Response]] = { () =>
@@ -53,26 +54,25 @@ private[akkastream] class ResponseStage[T, Out](
         }
       }
 
-      private def handle(response: Try[Option[Response]]): Unit =
-        response.map(_.map { r => r -> suc(r) }) match {
-          case Failure(reason) => onFailure(reason)
+      private val futureCB =
+        getAsyncCallback((response: Try[Option[Response]]) => {
+          response.map(_.map { r => r -> suc(r) }) match {
+            case Failure(reason) => onFailure(reason)
 
-          case Success(state @ Some((_, result))) => {
-            last = state
-            push(out, result)
+            case Success(state @ Some((_, result))) => {
+              last = state
+              push(out, result)
+            }
+
+            case Success(_) => {
+              last = None
+              completeStage()
+            }
           }
+        }).invoke _
 
-          case Success(_) => {
-            last = None
-            completeStage()
-          }
-        }
+      def onPull(): Unit = request().onComplete(futureCB)
 
-      setHandler(out, new OutHandler {
-        val asyncCallback =
-          getAsyncCallback[Try[Option[Response]]](handle).invoke _
-
-        def onPull(): Unit = request().onComplete(asyncCallback)
-      })
+      setHandler(out, this)
     }
 }
