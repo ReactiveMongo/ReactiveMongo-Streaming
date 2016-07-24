@@ -2,14 +2,18 @@ organization := "org.reactivemongo"
 
 name := "reactivemongo-akkastream"
 
-version := "0.12.0-SNAPSHOT"
+val majorVer = "0.12"
 
-scalaVersion := "2.11.8"
+version := s"${majorVer}.0-SNAPSHOT"
+
+val scalaMajorVer = "2.11"
+
+scalaVersion := s"${scalaMajorVer}.8"
 
 crossScalaVersions  := Seq("2.11.8")
 
 scalacOptions in Compile ++= Seq(
-  "-unchecked", "-deprecation", "-target:jvm-1.6", "-Ywarn-unused-import")
+  "-unchecked", "-deprecation", "-target:jvm-1.8", "-Ywarn-unused-import")
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
@@ -51,10 +55,15 @@ licenses := Seq("Apache 2.0" ->
 
 homepage := Some(url("http://reactivemongo.org"))
 
+autoAPIMappings := true
+
+apiURL := Some(url(
+  s"https://reactivemongo.github.io/ReactiveMongo-AkkaStream/$majorVer/api/"))
+
 pomExtra := (
   <scm>
-    <url>git://github.com/cchantep/RM-AkkaStream.git</url>
-    <connection>scm:git://github.com/cchantep/RM-AkkaStream.git</connection>
+    <url>git@github.com:ReactiveMongo/ReactiveMongo-AkkaStream.git</url>
+    <connection>scm:git://github.com:ReactiveMongo/ReactiveMongo-AkkaStream.git</connection>
   </scm>)
 
 val repoName = env("PUBLISH_REPO_NAME")
