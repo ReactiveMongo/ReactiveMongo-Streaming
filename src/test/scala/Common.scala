@@ -43,7 +43,7 @@ object Common {
 
     val _db = for {
       d <- connection.database(
-        s"rm-akkastream-${System identityHashCode this}"
+        s"rm-akkastream-${System identityHashCode getClass}"
       )
       _ <- d.drop()
     } yield d

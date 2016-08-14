@@ -28,6 +28,9 @@ private[akkastream] class DocumentStage[T](
   val shape: SourceShape[T] = SourceShape(out)
 
   private val nextResponse = cursor.nextResponse(maxDocs)
+  private val logger = reactivemongo.util.LazyLogger(
+    "reactivemongo.akkastream.DocumentStage"
+  )
 
   @inline
   private def nextR(r: Response): Future[Option[Response]] = nextResponse(ec, r)
@@ -41,16 +44,38 @@ private[akkastream] class DocumentStage[T](
           case Success(r) => {
             request = { () =>
               last.fold(Future.successful(Option.empty[Response])) {
-                case (lastResponse, _, _) => nextR(lastResponse)
+                case (lastResponse, _, _) => nextR(lastResponse).andThen {
+                  case Success(Some(response)) => last.foreach {
+                    case (lr, _, _) =>
+                      if (lr.reply.cursorID != response.reply.cursorID) try {
+                        cursor.wrappee kill lr.reply.cursorID
+                      } catch {
+                        case reason: Throwable =>
+                          logger.warn("fails to kill the cursor", reason)
+                      }
+                  }
+                }
               }
             }
           }
         }.map(Some(_))
       }
 
+      private def kill(): Unit = last.foreach {
+        case (r, _, _) =>
+          try {
+            cursor.wrappee kill r.reply.cursorID
+          } catch {
+            case reason: Throwable =>
+              logger.warn("fails to kill the cursor", reason)
+          }
+
+          last = None
+      }
+
       private def onFailure(reason: Throwable): Unit = {
         val previous = last.flatMap(_._3)
-        last = None
+        kill()
 
         err(previous, reason) match {
           case Cursor.Cont(_)     => ()
@@ -109,6 +134,8 @@ private[akkastream] class DocumentStage[T](
             }
 
             case Success(_) => {
+              kill()
+
               last = None
               completeStage()
             }
@@ -122,6 +149,8 @@ private[akkastream] class DocumentStage[T](
         case _ =>
           request().onComplete(futureCB)
       }
+
+      // TODO: cursor.wrappee.kill(resp.reply.cursorID)
 
       setHandler(out, this)
     }
