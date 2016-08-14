@@ -23,6 +23,9 @@ private[akkastream] class ResponseStage[T, Out](
   val shape: SourceShape[Out] = SourceShape(out)
 
   private val nextResponse = cursor.nextResponse(maxDocs)
+  private val logger = reactivemongo.util.LazyLogger(
+    "reactivemongo.akkastream.ResponseStage"
+  )
 
   @inline
   private def next(r: Response): Future[Option[Response]] = nextResponse(ec, r)
@@ -36,16 +39,39 @@ private[akkastream] class ResponseStage[T, Out](
           case Success(r) => {
             request = { () =>
               last.fold(Future.successful(Option.empty[Response])) {
-                case (lastResponse, _) => next(lastResponse)
+                case (lastResponse, _) => next(lastResponse).andThen {
+                  case Success(Some(response)) => last.foreach {
+                    case (lr, _) =>
+                      if (lr.reply.cursorID != response.reply.cursorID) try {
+                        cursor.wrappee kill lr.reply.cursorID
+                      } catch {
+                        case reason: Throwable =>
+                          logger.warn("fails to kill the cursor", reason)
+                      }
+                  }
+                }
               }
             }
           }
         }.map(Some(_))
       }
 
+      private def kill(): Unit = last.foreach {
+        case (r, _) =>
+          try {
+            cursor.wrappee kill r.reply.cursorID
+          } catch {
+            case reason: Throwable =>
+              logger.warn("fails to kill the cursor", reason)
+          }
+
+          last = None
+      }
+
       private def onFailure(reason: Throwable): Unit = {
         val previous = last.map(_._2)
-        last = None
+
+        kill()
 
         err(previous, reason) match {
           case Cursor.Cont(_)     => ()
@@ -59,13 +85,13 @@ private[akkastream] class ResponseStage[T, Out](
           response.map(_.map { r => r -> suc(r) }) match {
             case Failure(reason) => onFailure(reason)
 
-            case Success(state @ Some((_, result))) => {
+            case Success(state @ Some((r, result))) => {
               last = state
               push(out, result)
             }
 
             case Success(_) => {
-              last = None
+              kill()
               completeStage()
             }
           }

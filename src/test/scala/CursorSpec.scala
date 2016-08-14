@@ -1,8 +1,9 @@
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.TimeUnit.MILLISECONDS
 
+import scala.util.Try
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit.MILLISECONDS
 
 // Reactive streams imports
 import org.reactivestreams.Publisher
@@ -23,14 +24,12 @@ import reactivemongo.bson.{
 import reactivemongo.core.protocol.Response
 import reactivemongo.core.actors.Exceptions.ClosedException
 
-import reactivemongo.api.{ Cursor, QueryOpts }
+import reactivemongo.api.{ Cursor, DB, QueryOpts }
 import reactivemongo.api.collections.bson.BSONCollection
 
 import reactivemongo.akkastream.AkkaStreamCursor
 
-class CursorSpec
-    extends org.specs2.mutable.Specification with CursorFixtures {
-
+class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
   "Cursor" title
 
   sequential
@@ -203,6 +202,8 @@ class CursorSpec
                   reason.getMessage must beMatching(
                     ".*This MongoConnection is closed.*"
                   )
+
+                case reason => sys.error(s"Cause: $reason")
               }
             }
         }
@@ -240,14 +241,14 @@ class CursorSpec
       "using a sequence sink" in assertAllStagesStopped { implicit ee: EE =>
         val expected = expectedList.sliding(3, 3).toList
 
-        toSeq(cursor("source5").bulkSource()).map(_.map(_.toList)).
+        toSeq(cursor("source8").bulkSource()).map(_.map(_.toList)).
           aka("sequence") must beEqualTo(expected).await(0, timeout)
 
       }
 
       "using a publisher" in assertAllStagesStopped { implicit ee: EE =>
         val pub: Publisher[_ <: Iterator[Int]] =
-          cursor("source6").bulkPublisher(true)
+          cursor("source9").bulkPublisher(true)
 
         val c = TestSubscriber.manualProbe[Iterator[Int]]()
 
@@ -351,13 +352,13 @@ class CursorSpec
   "Document source" should {
     "be fully consumed" >> {
       "using a sequence sink" in assertAllStagesStopped { implicit ee: EE =>
-        toSeq(cursor("source7").documentSource()).
+        toSeq(cursor("source13").documentSource()).
           aka("sequence") must beEqualTo(expectedList).await(0, timeout)
       }
 
       "using a publisher" in assertAllStagesStopped { implicit ee: EE =>
         val pub: Publisher[Int] =
-          cursor("source8").documentPublisher(true)
+          cursor("source14").documentPublisher(true)
 
         val c = TestSubscriber.manualProbe[Int]()
 
@@ -433,7 +434,7 @@ class CursorSpec
 
     "consumed with a max of 6 documents" in { implicit ee: EE =>
       assertAllStagesStopped {
-        toSeq(cursor("source9").documentSource(6)).
+        toSeq(cursor("source15").documentSource(6)).
           aka("sequence") must beEqualTo(expectedList take 6).await(0, timeout)
       }
     }
@@ -442,7 +443,7 @@ class CursorSpec
       implicit ee: EE =>
         assertAllStagesStopped {
           val pub: Publisher[Int] =
-            cursor("source10").documentPublisher(true, 7)
+            cursor("source16").documentPublisher(true, 7)
 
           val c = TestSubscriber.manualProbe[Int]()
 
@@ -571,7 +572,7 @@ class CursorSpec
         Future.sequence(futs).map { _ =>
           //println(s"inserted $nDocs records")
         } aka "fixtures" must beEqualTo({}).await(0, timeout)
-      } tag "wip"
+      }
 
       "using a fold sink" in assertAllStagesStopped { implicit ee: EE =>
         val source = cursor.documentSource()
@@ -638,6 +639,115 @@ class CursorSpec
           } and {
             c.expectComplete aka "completed" must not(throwA[Throwable])
           }
+        }
+      }
+    }
+  }
+
+  "Capped collection" should {
+    import scala.concurrent.Promise
+
+    def capped(n: String, database: DB, cb: Promise[Unit])(implicit ee: EE) = {
+      val col = database(s"akka_${n}_${System identityHashCode ee}")
+
+      // Concurrently populated the capped collection
+      def populate(): Future[Unit] =
+        (0 until 10).foldLeft(Future successful {}) { (future, id) =>
+          for {
+            _ <- future
+            _ <- col.insert(BSONDocument("id" -> id))
+          } yield {
+            try {
+              Thread.sleep(200)
+            } catch {
+              case _: InterruptedException => ()
+            }
+          }
+        }.map { _ =>
+          cb.success(println(s"All fixtures inserted in test collection '$n'"))
+        }
+
+      Await.result((for {
+        _ <- col.createCapped(4096, Some(10))
+        _ = populate() // side-effect, doesn't wait for
+      } yield col), timeout)
+    }
+
+    def tailable(cb: Promise[Unit], n: String, database: DB = db)(implicit ee: EE) = {
+      // ReactiveMongo extensions
+      import reactivemongo.akkastream.cursorProducer
+
+      implicit val reader = IdReader
+      capped(n, database, cb).find(BSONDocument.empty).
+        options(QueryOpts().tailable).cursor[Int]()
+    }
+
+    def recoverTimeout[A, B](f: => Future[A])(on: => B, to: FiniteDuration = timeout): Try[B] = {
+      lazy val v = on
+      Try(Await.result(f, to)).map(_ => v).recover {
+        case _: TimeoutException => v
+      }
+    }
+
+    // ---
+
+    "be consumed as response source" >> {
+      "using a sink" in assertAllStagesStopped { implicit ee: EE =>
+        val ranges = scala.collection.mutable.TreeSet.empty[(Int, Int)]
+        val consumer = Sink.foreach[Response] { resp =>
+          if (resp.reply.numberReturned > 0) {
+            ranges += (resp.reply.startingFrom -> resp.reply.numberReturned)
+          }
+        }
+        val done = Promise[Unit]()
+        val cursor = tailable(done, "source20")
+        lazy val consume = cursor.responseSource().runWith(consumer)
+
+        done.future must beEqualTo({}).await(0, timeout) and {
+          recoverTimeout(consume)(ranges.toList).
+            aka("consumed") must beSuccessfulTry[List[(Int, Int)]].which {
+              _.foldLeft((true, 0, 0)) {
+                case ((ordered, last, count), (start, c)) =>
+                  if (start < last) (false, start, count + c)
+                  else (ordered, start, count + c)
+
+              } must beLike[(Boolean, Int, Int)] {
+                case (ordered, _, count) =>
+                  ordered must beTrue and (count must_== 10)
+              }
+            }
+        }
+      }
+    }
+
+    "be consumed as bulk source" >> {
+      "using a sink" in assertAllStagesStopped { implicit ee: EE =>
+        val consumed = scala.collection.mutable.TreeSet.empty[Int]
+        val consumer = Sink.foreach[Iterator[Int]] { consumed ++= _ }
+        val done = Promise[Unit]()
+        val cursor = tailable(done, "source21")
+        def consume = cursor.bulkSource().runWith(consumer)
+
+        done.future must beEqualTo({}).await(0, timeout) and {
+          recoverTimeout(consume)(consumed.toList) must beSuccessfulTry(
+            List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+          )
+        }
+      }
+    }
+
+    "be consumed as document source" >> {
+      "using a sink" in assertAllStagesStopped { implicit ee: EE =>
+        val consumed = scala.collection.mutable.TreeSet.empty[Int]
+        val consumer = Sink.foreach[Int] { consumed += _ }
+        val done = Promise[Unit]()
+        val cursor = tailable(done, "source22")
+        def consume = cursor.documentSource().runWith(consumer)
+
+        done.future must beEqualTo({}).await(0, timeout) and {
+          recoverTimeout(consume)(consumed.toList) must beSuccessfulTry(
+            List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+          )
         }
       }
     }
