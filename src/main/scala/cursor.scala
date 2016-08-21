@@ -23,8 +23,6 @@ import akka.stream.scaladsl.{ Sink, Source }
  * @define fanoutParam see [[http://doc.akka.io/api/akka/2.4.7/index.html#akka.stream.scaladsl.Sink$@asPublisher[T](fanout:Boolean):akka.stream.scaladsl.Sink[T,org.reactivestreams.Publisher[T]] Sink.asPublisher]] (default: false)
  */
 sealed trait AkkaStreamCursor[T] extends Cursor[T] {
-  /** The default parallelism */
-  val defaultParallelism = Runtime.getRuntime.availableProcessors
 
   /**
    * Returns a source of responses.

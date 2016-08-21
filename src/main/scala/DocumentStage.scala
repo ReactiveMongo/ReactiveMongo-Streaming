@@ -33,31 +33,22 @@ private[akkastream] class DocumentStage[T](
   )
 
   @inline
-  private def nextR(r: Response): Future[Option[Response]] = nextResponse(ec, r)
+  private def nextR(r: Response): Future[Option[Response]] =
+    nextResponse(ec, r)
 
   def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
     new GraphStageLogic(shape) with OutHandler {
       private var last = Option.empty[(Response, Iterator[T], Option[T])]
 
+      @inline private def tailable = cursor.wrappee.tailable
+
       private var request: () => Future[Option[Response]] = { () =>
         cursor.makeRequest(maxDocs).andThen {
-          case Success(r) => {
-            request = { () =>
-              last.fold(Future.successful(Option.empty[Response])) {
-                case (lastResponse, _, _) => nextR(lastResponse).andThen {
-                  case Success(Some(response)) => last.foreach {
-                    case (lr, _, _) =>
-                      if (lr.reply.cursorID != response.reply.cursorID) try {
-                        cursor.wrappee kill lr.reply.cursorID
-                      } catch {
-                        case reason: Throwable =>
-                          logger.warn("fails to kill the cursor", reason)
-                      }
-                  }
-                }
-              }
-            }
-          }
+          case Success(r) if (
+            tailable && r.reply.numberReturned > 0
+          ) => onFirst()
+
+          case Success(_) if (!tailable) => onFirst()
         }.map(Some(_))
       }
 
@@ -73,8 +64,27 @@ private[akkastream] class DocumentStage[T](
           last = None
       }
 
+      private def onFirst(): Unit = {
+        request = { () =>
+          last.fold(Future.successful(Option.empty[Response])) {
+            case (lastResponse, _, _) => nextR(lastResponse).andThen {
+              case Success(Some(response)) => last.foreach {
+                case (lr, _, _) =>
+                  if (lr.reply.cursorID != response.reply.cursorID) try {
+                    cursor.wrappee kill lr.reply.cursorID
+                  } catch {
+                    case reason: Throwable =>
+                      logger.warn("fails to kill the cursor", reason)
+                  }
+              }
+            }
+          }
+        }
+      }
+
       private def onFailure(reason: Throwable): Unit = {
         val previous = last.flatMap(_._3)
+
         kill()
 
         err(previous, reason) match {
@@ -121,11 +131,16 @@ private[akkastream] class DocumentStage[T](
             case Failure(reason) => onFailure(reason)
 
             case Success(resp @ Some(r)) => {
-              last = None
-
               if (r.reply.numberReturned == 0) {
-                completeStage()
+                if (tailable) onPull()
+                else {
+                  last = None
+
+                  completeStage()
+                }
               } else {
+                last = None
+
                 val bulkIter = cursor.documentIterator(r).
                   take(maxDocs - r.reply.startingFrom)
 
@@ -133,11 +148,17 @@ private[akkastream] class DocumentStage[T](
               }
             }
 
-            case Success(_) => {
+            case Success(_) if (!tailable) => {
               kill()
 
               last = None
               completeStage()
+            }
+
+            case Success(_) => {
+              last = None
+              Thread.sleep(1000) // TODO
+              onPull()
             }
           }
         }).invoke _
@@ -146,11 +167,14 @@ private[akkastream] class DocumentStage[T](
         case Some((r, bulk, _)) if (bulk.hasNext) =>
           nextD(r, bulk)
 
+        case _ if (tailable && !cursor.wrappee.connection.active) => {
+          // Complete tailable source if the connection is no longer active
+          completeStage()
+        }
+
         case _ =>
           request().onComplete(futureCB)
       }
-
-      // TODO: cursor.wrappee.kill(resp.reply.cursorID)
 
       setHandler(out, this)
     }
