@@ -19,9 +19,11 @@ resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/")
 
+val akkaVer = "2.4.9"
+
 libraryDependencies ++= Seq(
   "org.reactivemongo" %% "reactivemongo" % version.value % "provided",
-  "com.typesafe.akka" %% "akka-stream" % "2.4.8" % "provided")
+  "com.typesafe.akka" %% "akka-stream" % akkaVer % "provided")
 
 // Test
 fork in Test := false
@@ -38,7 +40,7 @@ resolvers ++= Seq(
   // For Akka Stream TestKit 'tests' (see akka/akka#21028)
   "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases")
 
-def akkaStreamTestKit = "com.typesafe.akka" %% "akka-stream-testkit" % "2.4.8"
+def akkaStreamTestKit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer
 
 libraryDependencies ++= (Seq(
   "specs2-core"
