@@ -1,3 +1,5 @@
+name := "reactivemongo-akkastream"
+
 resolvers ++= Seq(
   // For Akka Stream TestKit 'tests' (see akka/akka#21028)
   "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases")
