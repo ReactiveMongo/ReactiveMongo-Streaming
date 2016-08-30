@@ -2,7 +2,7 @@
 
 SCRIPT_DIR=`dirname $0`
 
-if [ "$TRAVIS_BRANCH" != "master" -o "$SONATYPE_USER" = "" -o "$SONATYPE_PASS" = "" ]; then
+if [ ! "x$TRAVIS_TAG" = "x" -o "$TRAVIS_BRANCH" != "master" -o "$SONATYPE_USER" = "" -o "$SONATYPE_PASS" = "" ]; then
     echo "skip the snapshot publication"
     exit 0
 fi
