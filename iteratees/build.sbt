@@ -1,3 +1,5 @@
+name := "reactivemongo-iteratees"
+
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-iteratees" % "2.3.10" % "provided"
 )
