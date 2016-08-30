@@ -1,4 +1,4 @@
-name := "akkastream"
+name := "reactivemongo-akkastream"
 
 resolvers ++= Seq(
   // For Akka Stream TestKit 'tests' (see akka/akka#21028)

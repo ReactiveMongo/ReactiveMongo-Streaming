@@ -11,7 +11,7 @@ object Common {
       "specs2-core", "specs2-junit").map(
       "org.specs2" %% _ % "3.8.3" % Test) ++ Seq(
       Dependencies.slf4jSimple % Test)
-  ) ++ Format.settings
+  ) ++ Publish.settings ++ Format.settings
 
   val testCleanup: ClassLoader => Unit = { cl =>
     import scala.language.reflectiveCalls
