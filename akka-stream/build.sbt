@@ -1,17 +1,15 @@
 name := "reactivemongo-akkastream"
 
 resolvers ++= Seq(
-  // For Akka Stream TestKit 'tests' (see akka/akka#21028)
-  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases")
+  // For Akka Stream Contrib TestKit
+  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/snapshots")
 
-val akkaVer = "2.4.9"
-
-def akkaStreamTestKit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer
+val akkaVer = "2.4.10"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % akkaVer,
-  akkaStreamTestKit % Test,
-  akkaStreamTestKit.classifier("tests") % Test
+  "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer % Test,
+  "com.typesafe.akka" %% "akka-stream-contrib" % "0.3-9-gaeac7b2" % Test
 )
 
 // Publish

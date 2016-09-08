@@ -11,7 +11,7 @@ import org.reactivestreams.Publisher
 import akka.stream.scaladsl.{ Sink, Source }
 
 import akka.stream.testkit.TestSubscriber
-import akka.stream.testkit.Utils.assertAllStagesStopped
+import akka.stream.contrib.TestKit.assertAllStagesStopped
 
 import org.specs2.concurrent.{ ExecutionEnv => EE }
 
