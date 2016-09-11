@@ -33,4 +33,4 @@ EOF
 
 export JVM_OPTS
 
-sbt ++$TRAVIS_SCALA_VERSION "testOnly"
+sbt ++$TRAVIS_SCALA_VERSION ";findbugs ;testOnly"
