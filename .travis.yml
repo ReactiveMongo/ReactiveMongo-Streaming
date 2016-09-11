@@ -17,6 +17,6 @@ cache:
 scala: 2.11.8
 jdk:
   - oraclejdk8
-before_install: ./.travis_scripts/beforeInstall.sh $TRAVIS_SCALA_VERSION
-script: ./.travis_scripts/validate.sh
-after_success: ./.travis_scripts/afterSuccess.sh
+before_install: ./.ci_scripts/beforeInstall.sh $TRAVIS_SCALA_VERSION
+script: ./.ci_scripts/validate.sh
+after_success: ./.ci_scripts/afterSuccess.sh
