@@ -1,0 +1,127 @@
+<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title id="title">
+          package.scala.html
+        </title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css" type="text/css"/><script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script><link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css"/><script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+      </script>
+        <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+        </style>
+      </head>
+      <body style="font-family: monospace;">
+        <ul class="nav nav-tabs">
+          <li>
+            <a href="#codegrid" data-toggle="tab">Codegrid</a>
+          </li>
+          <li>
+            <a href="#statementlist" data-toggle="tab">Statement List</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier;'>1 <span style=''>package reactivemongo.play
+</span>2 <span style=''>
+</span>3 <span style=''>import scala.concurrent.Future
+</span>4 <span style=''>import reactivemongo.api.{ Cursor, CursorProducer }
+</span>5 <span style=''>
+</span>6 <span style=''>package object iteratees {
+</span>7 <span style=''>  /** Provides Play Iteratees instances for CursorProducer typeclass. */
+</span>8 <span style=''>  implicit def cursorProducer[T] = </span><span style='background: #AEF1AE'>new</span><span style=''> CursorProducer[T] {
+</span>9 <span style=''>    type ProducedCursor = PlayIterateesCursor[T]
+</span>10 <span style=''>
+</span>11 <span style=''>    // Returns a cursor with Play Iteratees operations.
+</span>12 <span style=''>    def produce(base: Cursor[T]): PlayIterateesCursor[T] =
+</span>13 <span style=''>      </span><span style='background: #AEF1AE'>new PlayIterateesCursorImpl[T](base)</span><span style=''>
+</span>14 <span style=''>
+</span>15 <span style=''>  }
+</span>16 <span style=''>
+</span>17 <span style=''>  /** Provides flattener for Play Iteratees cursor. */
+</span>18 <span style=''>  implicit object cursorFlattener
+</span>19 <span style=''>      extends reactivemongo.api.CursorFlattener[PlayIterateesCursor] {
+</span>20 <span style=''>
+</span>21 <span style=''>    def flatten[T](future: Future[PlayIterateesCursor[T]]): PlayIterateesCursor[T] = </span><span style='background: #AEF1AE'>new PlayIterateesFlattenedCursor(future)</span><span style=''>
+</span>22 <span style=''>  }
+</span>23 <span style=''>}
+</span></pre>
+          </div>
+          <div class="tab-pane" id="statementlist">
+            <table cellspacing="0" cellpadding="0" class="table statementlist">
+      <tr>
+        <th>Line</th>
+        <th>Stmt Id</th>
+        <th>Pos</th>
+        <th>Tree</th>
+        <th>Symbol</th>
+        <th>Code</th>
+      </tr><tr>
+        <td>
+          8
+        </td>
+        <td>
+          5
+        </td>
+        <td>
+          247
+          -
+          250
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          13
+        </td>
+        <td>
+          14
+        </td>
+        <td>
+          442
+          -
+          478
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          21
+        </td>
+        <td>
+          7
+        </td>
+        <td>
+          731
+          -
+          771
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr>
+    </table>
+          </div>
+        </div>
+      </body>
+    </html>

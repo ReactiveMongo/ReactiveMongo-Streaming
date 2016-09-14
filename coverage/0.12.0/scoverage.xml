@@ -1,0 +1,862 @@
+<scoverage 
+statement-count="208" statements-invoked="180" statement-rate="86,54" branch-rate="100,00" version="1.0" timestamp="1473873111787">
+    <packages>
+        <package name="reactivemongo.akkastream" statement-count="193" statements-invoked="167" statement-rate="86,53">
+            <classes>
+                <class 
+                name="package" filename="package.scala" statement-count="3" statements-invoked="2" statement-rate="66,67" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.akkastream/package/produce" statement-count="3" statements-invoked="2" statement-rate="66,67" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="package" class-type="Class" top-level-class="package" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/package.scala" method="produce" start="252" end="255" line="8" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="package" class-type="Class" top-level-class="package" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/package.scala" method="produce" start="535" end="565" line="14" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="package" class-type="Class" top-level-class="package" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/package.scala" method="produce" start="590" end="633" line="16" branch="false" invocation-count="0" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+                <class 
+                name="AkkaStreamCursor" filename="cursor.scala" statement-count="3" statements-invoked="3" statement-rate="100,00" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.akkastream/AkkaStreamCursor/responsePublisher" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursor" class-type="Trait" top-level-class="AkkaStreamCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="responsePublisher" start="1731" end="1803" line="44" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/AkkaStreamCursor/bulkPublisher" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursor" class-type="Trait" top-level-class="AkkaStreamCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="bulkPublisher" start="2561" end="2632" line="64" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/AkkaStreamCursor/documentPublisher" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursor" class-type="Trait" top-level-class="AkkaStreamCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="documentPublisher" start="3304" end="3369" line="83" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+                <class 
+                name="cursorFlattener" filename="package.scala" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.akkastream/cursorFlattener/flatten" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="cursorFlattener" class-type="Object" top-level-class="package" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/package.scala" method="flatten" start="886" end="923" line="25" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+                <class 
+                name="ResponseStage" filename="ResponseStage.scala" statement-count="60" statements-invoked="57" statement-rate="95,00" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.akkastream/ResponseStage/kill" statement-count="7" statements-invoked="7" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="kill" start="2297" end="2308" line="68" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="kill" start="2117" end="2153" line="62" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="kill" start="2117" end="2153" line="62" branch="true" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="kill" start="2226" end="2273" line="65" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="kill" start="2304" end="2308" line="68" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="kill" start="2051" end="2316" line="59" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="kill" start="2137" end="2153" line="62" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/ResponseStage/onPull" statement-count="6" statements-invoked="6" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onPull" start="3179" end="3182" line="102" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onPull" start="3130" end="3160" line="100" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onPull" start="3168" end="3189" line="102" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onPull" start="1069" end="1072" line="34" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onPull" start="3151" end="3159" line="100" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onPull" start="3150" end="3150" line="100" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/ResponseStage/createLogic" statement-count="26" statements-invoked="23" statement-rate="88,46" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1359" end="1959" line="41" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1327" end="1973" line="40" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1282" end="1282" line="38" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1688" end="1725" line="46" branch="true" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1708" end="1725" line="46" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1608" end="1608" line="45" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="2671" end="3099" line="98" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1265" end="1272" line="38" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1658" end="1905" line="45" branch="true" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1456" end="1943" line="42" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1612" end="1656" line="45" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1688" end="1725" line="46" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1369" end="1410" line="41" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1139" end="1168" line="35" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1483" end="1483" line="42" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1608" end="1608" line="45" branch="true" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1264" end="1264" line="38" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1834" end="1881" line="49" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1633" end="1656" line="45" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1246" end="2008" line="56" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="2000" end="2007" line="56" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1282" end="1282" line="38" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1535" end="1925" line="43" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1483" end="1483" line="42" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1387" end="1409" line="41" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="createLogic" start="1999" end="1999" line="56" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/ResponseStage/next" statement-count="2" statements-invoked="2" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="next" start="974" end="993" line="31" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="next" start="987" end="989" line="31" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/ResponseStage/&lt;none&gt;" statement-count="11" statements-invoked="11" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="771" end="799" line="25" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="665" end="691" line="22" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="685" end="690" line="22" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="676" end="684" line="22" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="616" end="639" line="21" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="672" end="690" line="22" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="823" end="902" line="26" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="724" end="740" line="23" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="791" end="798" line="25" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="736" end="739" line="23" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="&lt;none&gt;" start="674" end="675" line="22" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/ResponseStage/onFailure" statement-count="8" statements-invoked="8" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onFailure" start="2422" end="2428" line="74" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onFailure" start="2599" end="2614" line="79" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onFailure" start="2407" end="2411" line="72" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onFailure" start="2505" end="2507" line="77" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onFailure" start="2550" end="2553" line="78" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onFailure" start="2438" end="2459" line="76" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onFailure" start="2545" end="2561" line="78" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="ResponseStage" class-type="Class" top-level-class="ResponseStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/ResponseStage.scala" method="onFailure" start="2398" end="2412" line="72" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+                <class 
+                name="AkkaStreamFlattenedCursor" filename="cursor.scala" statement-count="15" statements-invoked="15" statement-rate="100,00" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.akkastream/AkkaStreamFlattenedCursor/ec" statement-count="15" statements-invoked="15" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5321" end="5363" line="134" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5909" end="5927" line="146" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5603" end="5621" line="139" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5708" end="5716" line="142" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5296" end="5395" line="135" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="6015" end="6016" line="149" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5383" end="5384" line="135" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5933" end="6027" line="149" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5645" end="5683" line="141" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5627" end="5717" line="142" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="6018" end="6026" line="149" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5272" end="5290" line="131" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5951" end="5993" line="148" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5386" end="5394" line="135" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamFlattenedCursor" class-type="Class" top-level-class="AkkaStreamFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="5705" end="5706" line="142" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+                <class 
+                name="DocumentStage" filename="DocumentStage.scala" statement-count="99" statements-invoked="77" statement-rate="77,78" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.akkastream/DocumentStage/createLogic" statement-count="14" statements-invoked="14" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1421" end="1421" line="46" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1466" end="1504" line="48" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1561" end="1570" line="51" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1478" end="1504" line="48" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1575" end="1584" line="51" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1385" end="1607" line="52" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1599" end="1606" line="52" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1598" end="1598" line="52" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1421" end="1421" line="46" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1520" end="1529" line="49" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="3820" end="4738" line="164" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1404" end="1411" line="46" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1197" end="1245" line="41" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="createLogic" start="1403" end="1403" line="46" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/DocumentStage/nextR" statement-count="2" statements-invoked="2" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextR" start="1032" end="1051" line="37" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextR" start="1045" end="1047" line="37" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/DocumentStage/onPull" statement-count="12" statements-invoked="12" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="5119" end="5140" line="179" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="5093" end="5093" line="176" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="4880" end="4925" line="170" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="5073" end="5103" line="176" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="5018" end="5033" line="172" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="5130" end="5133" line="179" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="4892" end="4925" line="170" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="5094" end="5102" line="176" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="1127" end="1130" line="40" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="4818" end="4830" line="167" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="4769" end="4773" line="166" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onPull" start="4845" end="4859" line="168" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/DocumentStage/tailable" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="tailable" start="1284" end="1307" line="43" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/DocumentStage/nextD" statement-count="27" statements-invoked="8" statement-rate="29,63" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3243" end="3247" line="105" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3326" end="3357" line="107" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3710" end="3734" line="123" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3226" end="3257" line="105" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3377" end="3380" line="108" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3084" end="3087" line="100" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3582" end="3597" line="118" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3752" end="3755" line="124" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3230" end="3248" line="105" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3715" end="3733" line="123" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3630" end="3646" line="119" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3079" end="3096" line="100" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="2965" end="2979" line="98" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3703" end="3734" line="123" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3338" end="3356" line="107" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="2969" end="2978" line="98" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3497" end="3500" line="114" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3725" end="3732" line="123" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3333" end="3357" line="107" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3173" end="3190" line="103" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3492" end="3504" line="114" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3519" end="3534" line="115" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3372" end="3384" line="108" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3428" end="3430" line="111" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3635" end="3638" line="119" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3178" end="3181" line="103" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="nextD" start="3747" end="3759" line="124" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/DocumentStage/onFailure" statement-count="8" statements-invoked="8" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFailure" start="2666" end="2670" line="86" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFailure" start="2809" end="2812" line="92" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFailure" start="2653" end="2671" line="86" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFailure" start="2858" end="2873" line="93" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFailure" start="2681" end="2687" line="88" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFailure" start="2764" end="2766" line="91" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFailure" start="2697" end="2718" line="90" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFailure" start="2804" end="2820" line="92" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/DocumentStage/onFirst" statement-count="17" statements-invoked="14" statement-rate="82,35" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2118" end="2118" line="70" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2310" end="2347" line="74" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2444" end="2491" line="77" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2004" end="2045" line="69" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="1966" end="2563" line="68" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2310" end="2347" line="74" branch="true" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2022" end="2044" line="69" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2166" end="2527" line="71" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2330" end="2347" line="74" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2238" end="2282" line="73" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2234" end="2234" line="73" branch="true" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2234" end="2234" line="73" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="1994" end="2553" line="69" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2259" end="2282" line="73" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2090" end="2541" line="70" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2118" end="2118" line="70" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="onFirst" start="2284" end="2511" line="73" branch="true" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/DocumentStage/&lt;none&gt;" statement-count="11" statements-invoked="11" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="740" end="745" line="27" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="720" end="746" line="27" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="731" end="739" line="27" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="876" end="955" line="31" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="729" end="730" line="27" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="777" end="793" line="28" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="824" end="852" line="30" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="844" end="851" line="30" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="789" end="792" line="28" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="727" end="745" line="27" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="&lt;none&gt;" start="673" end="696" line="26" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/DocumentStage/kill" statement-count="7" statements-invoked="7" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="kill" start="1719" end="1755" line="58" branch="true" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="kill" start="1828" end="1875" line="61" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="kill" start="1650" end="1918" line="55" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="kill" start="1899" end="1910" line="64" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="kill" start="1719" end="1755" line="58" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="kill" start="1739" end="1755" line="58" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="DocumentStage" class-type="Class" top-level-class="DocumentStage" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/DocumentStage.scala" method="kill" start="1906" end="1910" line="64" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+                <class 
+                name="AkkaStreamCursorImpl" filename="cursor.scala" statement-count="12" statements-invoked="12" statement-rate="100,00" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.akkastream/AkkaStreamCursorImpl/nextResponse" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="nextResponse" start="4746" end="4775" line="119" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/AkkaStreamCursorImpl/makeRequest" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="makeRequest" start="4603" end="4631" line="117" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/AkkaStreamCursorImpl/documentIterator" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="documentIterator" start="4886" end="4920" line="121" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.akkastream/AkkaStreamCursorImpl/ec" statement-count="9" statements-invoked="9" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="4425" end="4483" line="112" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="4442" end="4482" line="112" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="3773" end="3843" line="95" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="4105" end="4203" line="103" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="4401" end="4419" line="110" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="4081" end="4209" line="102" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="4057" end="4075" line="100" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="3749" end="3849" line="94" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.akkastream" class="AkkaStreamCursorImpl" class-type="Class" top-level-class="AkkaStreamCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/akka-stream/src/main/scala/cursor.scala" method="ec" start="3725" end="3743" line="92" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+            </classes>
+        </package>
+        <package name="reactivemongo.play.iteratees" statement-count="15" statements-invoked="13" statement-rate="86,67">
+            <classes>
+                <class 
+                name="PlayIterateesFlattenedCursor" filename="cursor.scala" statement-count="6" statements-invoked="4" statement-rate="66,67" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.play.iteratees/PlayIterateesFlattenedCursor/responseEnumerator" statement-count="2" statements-invoked="0" statement-rate="0,00" branch-rate="0,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesFlattenedCursor" class-type="Class" top-level-class="PlayIterateesFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="responseEnumerator" start="4783" end="4829" line="97" branch="false" invocation-count="0" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesFlattenedCursor" class-type="Class" top-level-class="PlayIterateesFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="responseEnumerator" start="4764" end="4830" line="97" branch="false" invocation-count="0" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.play.iteratees/PlayIterateesFlattenedCursor/bulkEnumerator" statement-count="2" statements-invoked="2" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesFlattenedCursor" class-type="Class" top-level-class="PlayIterateesFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="bulkEnumerator" start="4534" end="4596" line="95" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesFlattenedCursor" class-type="Class" top-level-class="PlayIterateesFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="bulkEnumerator" start="4553" end="4595" line="95" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.play.iteratees/PlayIterateesFlattenedCursor/enumerator" statement-count="2" statements-invoked="2" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesFlattenedCursor" class-type="Class" top-level-class="PlayIterateesFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="enumerator" start="4309" end="4367" line="93" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesFlattenedCursor" class-type="Class" top-level-class="PlayIterateesFlattenedCursor" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="enumerator" start="4328" end="4366" line="93" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+                <class 
+                name="PlayIterateesCursorImpl" filename="cursor.scala" statement-count="6" statements-invoked="6" statement-rate="100,00" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.play.iteratees/PlayIterateesCursorImpl/errorHandler" statement-count="3" statements-invoked="3" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesCursorImpl" class-type="Class" top-level-class="PlayIterateesCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="errorHandler" start="2889" end="2898" line="61" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesCursorImpl" class-type="Class" top-level-class="PlayIterateesCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="errorHandler" start="2883" end="2899" line="61" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesCursorImpl" class-type="Class" top-level-class="PlayIterateesCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="errorHandler" start="2811" end="2822" line="54" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.play.iteratees/PlayIterateesCursorImpl/responseEnumerator" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesCursorImpl" class-type="Class" top-level-class="PlayIterateesCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="responseEnumerator" start="3795" end="3997" line="79" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.play.iteratees/PlayIterateesCursorImpl/bulkEnumerator" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesCursorImpl" class-type="Class" top-level-class="PlayIterateesCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="bulkEnumerator" start="3426" end="3627" line="72" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                        <method 
+                        name="reactivemongo.play.iteratees/PlayIterateesCursorImpl/enumerator" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="PlayIterateesCursorImpl" class-type="Class" top-level-class="PlayIterateesCursorImpl" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/cursor.scala" method="enumerator" start="3060" end="3259" line="65" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+                <class 
+                name="cursorFlattener" filename="package.scala" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.play.iteratees/cursorFlattener/flatten" statement-count="1" statements-invoked="1" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="cursorFlattener" class-type="Object" top-level-class="package" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/package.scala" method="flatten" start="731" end="771" line="21" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+                <class 
+                name="package" filename="package.scala" statement-count="2" statements-invoked="2" statement-rate="100,00" branch-rate="100,00">
+                    <methods>
+                        <method 
+                        name="reactivemongo.play.iteratees/package/produce" statement-count="2" statements-invoked="2" statement-rate="100,00" branch-rate="100,00">
+                            <statements>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="package" class-type="Class" top-level-class="package" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/package.scala" method="produce" start="247" end="250" line="8" branch="false" invocation-count="1" ignored="false">
+</statement>
+                                <statement 
+                                package="reactivemongo.play.iteratees" class="package" class-type="Class" top-level-class="package" source="/Users/cchantep/Projects/ReactiveMongo-Streaming/iteratees/src/main/scala/package.scala" method="produce" start="442" end="478" line="13" branch="false" invocation-count="1" ignored="false">
+</statement>
+                            </statements>
+</method>
+                    </methods>
+</class>
+            </classes>
+        </package>
+    </packages>
+</scoverage>

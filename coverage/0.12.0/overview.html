@@ -1,0 +1,639 @@
+<html>
+      <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+      <title id="title">Scoverage Code Coverage</title>
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css" type="text/css"/><script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script><link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css"/><script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+      </script>
+      <style>
+        .meter {
+        height: 14px;
+        position: relative;
+        background: #BB2020;
+}
+
+.meter span {
+	display: block;
+	height: 100%;
+	background-color: rgb(43,194,83);
+	background-image: -webkit-gradient(
+	  linear,
+	  left bottom,
+	  left top,
+	  color-stop(0, rgb(43,194,83)),
+	  color-stop(1, rgb(84,240,84))
+	 );
+	background-image: -webkit-linear-gradient(
+	  center bottom,
+	  rgb(43,194,83) 37%,
+	  rgb(84,240,84) 69%
+	 );
+	background-image: -moz-linear-gradient(
+	  center bottom,
+	  rgb(43,194,83) 37%,
+	  rgb(84,240,84) 69%
+	 );
+	background-image: -ms-linear-gradient(
+	  center bottom,
+	  rgb(43,194,83) 37%,
+	  rgb(84,240,84) 69%
+	 );
+	background-image: -o-linear-gradient(
+	  center bottom,
+	  rgb(43,194,83) 37%,
+	  rgb(84,240,84) 69%
+	 );
+	-webkit-box-shadow:
+	  inset 0 2px 9px  rgba(255,255,255,0.3),
+	  inset 0 -2px 6px rgba(0,0,0,0.4);
+	-moz-box-shadow:
+	  inset 0 2px 9px  rgba(255,255,255,0.3),
+	  inset 0 -2px 6px rgba(0,0,0,0.4);
+	position: relative;
+	overflow: hidden;
+}
+      </style>
+    </head><body style="font-family: monospace;">
+      <div class="alert alert-info">
+        <b>
+          SCoverage
+        </b>
+        generated at
+        Wed Sep 14 19:11:51 CEST 2016
+      </div>
+      <div class="overview">
+        <div class="stats">
+          <table class="table">
+      <tr>
+        <td>
+          Lines of code:
+        </td>
+        <td>
+          573
+        </td>
+        <td>
+          Files:
+        </td>
+        <td>
+          6
+        </td>
+        <td>
+          Classes:
+        </td>
+        <td>
+          9
+        </td>
+        <td>
+          Methods:
+        </td>
+        <td>
+          34
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Lines per file
+        </td>
+        <td>
+          95,50
+        </td>
+        <td>
+          Packages:
+        </td>
+        <td>
+          2
+        </td>
+        <td>
+          Clases per package:
+        </td>
+        <td>
+          4,50
+        </td>
+        <td>
+          Methods per class:
+        </td>
+        <td>
+          3,78
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Total statements:
+        </td>
+        <td>
+          208
+        </td>
+        <td>
+          Invoked statements:
+        </td>
+        <td>
+          180
+        </td>
+        <td>
+          Total branches:
+        </td>
+        <td>
+          8
+        </td>
+        <td>
+          Invoked branches:
+        </td>
+        <td>
+          8
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Ignored statements:
+        </td>
+        <td>
+          0
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          Statement coverage:
+        </td>
+        <td>
+          86,54
+          %
+        </td>
+        <td colspan="2">
+          <div class="meter">
+            <span style="width: 87%"></span>
+          </div>
+        </td>
+        <td>
+          Branch coverage:
+        </td>
+        <td>
+          100,00
+          %
+        </td>
+        <td colspan="2">
+          <div class="meter">
+            <span style="width: 100%"></span>
+          </div>
+        </td>
+      </tr>
+    </table>
+        </div>
+        <div>
+          <table class="tablesorter table table-striped" style="font-size:13px">
+      <thead>
+        <tr>
+          <th>
+            Class
+          </th>
+          <th>
+            Source file
+          </th>
+          <th>
+            Lines
+          </th>
+          <th>
+            Methods
+          </th>
+          <th>
+            Statements
+          </th>
+          <th>
+            Invoked
+          </th>
+          <th>
+            Coverage
+          </th>
+          <th>
+          </th>
+          <th>
+            Branches
+          </th>
+          <th>
+            Invoked
+          </th>
+          <th>
+            Coverage
+          </th>
+          <th>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+      <td>
+        <a href="cursor.scala.html">
+          AkkaStreamCursor
+        </a>
+      </td>
+      <td>
+        cursor.scala
+      </td>
+      <td>
+        83
+      </td>
+      <td>
+        3
+      </td>
+      <td>
+        3
+      </td>
+      <td>
+        3
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="cursor.scala.html">
+          AkkaStreamCursorImpl
+        </a>
+      </td>
+      <td>
+        cursor.scala
+      </td>
+      <td>
+        121
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        12
+      </td>
+      <td>
+        12
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="cursor.scala.html">
+          AkkaStreamFlattenedCursor
+        </a>
+      </td>
+      <td>
+        cursor.scala
+      </td>
+      <td>
+        149
+      </td>
+      <td>
+        1
+      </td>
+      <td>
+        15
+      </td>
+      <td>
+        15
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="DocumentStage.scala.html">
+          DocumentStage
+        </a>
+      </td>
+      <td>
+        DocumentStage.scala
+      </td>
+      <td>
+        179
+      </td>
+      <td>
+        9
+      </td>
+      <td>
+        99
+      </td>
+      <td>
+        77
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 78%"></span>
+        </div>
+      </td>
+      <td>
+        77,78
+        %
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="cursor.scala.html">
+          PlayIterateesCursorImpl
+        </a>
+      </td>
+      <td>
+        cursor.scala
+      </td>
+      <td>
+        79
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="cursor.scala.html">
+          PlayIterateesFlattenedCursor
+        </a>
+      </td>
+      <td>
+        cursor.scala
+      </td>
+      <td>
+        97
+      </td>
+      <td>
+        3
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 67%"></span>
+        </div>
+      </td>
+      <td>
+        66,67
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="ResponseStage.scala.html">
+          ResponseStage
+        </a>
+      </td>
+      <td>
+        ResponseStage.scala
+      </td>
+      <td>
+        102
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        60
+      </td>
+      <td>
+        57
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 95%"></span>
+        </div>
+      </td>
+      <td>
+        95,00
+        %
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="package.scala.html">
+          cursorFlattener
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        25
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="package.scala.html">
+          package
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        16
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        5
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 80%"></span>
+        </div>
+      </td>
+      <td>
+        80,00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100,00
+        %
+      </td>
+    </tr>
+      </tbody>
+    </table>
+        </div>
+      </div>
+    </body>
+    </html>

@@ -1,0 +1,392 @@
+<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title id="title">
+          cursor.scala.html
+        </title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css" type="text/css"/><script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script><link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css"/><script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+      </script>
+        <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+        </style>
+      </head>
+      <body style="font-family: monospace;">
+        <ul class="nav nav-tabs">
+          <li>
+            <a href="#codegrid" data-toggle="tab">Codegrid</a>
+          </li>
+          <li>
+            <a href="#statementlist" data-toggle="tab">Statement List</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier;'>1 <span style=''>package reactivemongo.play.iteratees
+</span>2 <span style=''>
+</span>3 <span style=''>import scala.concurrent.{ ExecutionContext, Future }
+</span>4 <span style=''>
+</span>5 <span style=''>import play.api.libs.iteratee.{ Concurrent, Enumerator }
+</span>6 <span style=''>
+</span>7 <span style=''>import reactivemongo.core.protocol.Response
+</span>8 <span style=''>import reactivemongo.api.{
+</span>9 <span style=''>  Cursor,
+</span>10 <span style=''>  FlattenedCursor,
+</span>11 <span style=''>  WrappedCursor
+</span>12 <span style=''>}, Cursor.{ ErrorHandler, FailOnError }
+</span>13 <span style=''>
+</span>14 <span style=''>sealed trait PlayIterateesCursor[T] extends Cursor[T] {
+</span>15 <span style=''>  /**
+</span>16 <span style=''>   * Produces an Enumerator of documents.
+</span>17 <span style=''>   *
+</span>18 <span style=''>   * @param maxDocs Enumerate up to `maxDocs` documents.
+</span>19 <span style=''>   * @param err The binary operator to be applied when failing to get the next response. Exception or [[reactivemongo.api.Cursor$.Fail Fail]] raised within the `suc` function cannot be recovered by this error handler. Only the errors when reading the inputs from the DB will be handle: if then an `Iteratee` is failing to process, the error is out of this mechanism scope.
+</span>20 <span style=''>   *
+</span>21 <span style=''>   * @return an Enumerator of documents.
+</span>22 <span style=''>   */
+</span>23 <span style=''>  def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T]
+</span>24 <span style=''>
+</span>25 <span style=''>  /**
+</span>26 <span style=''>   * Produces an Enumerator of Iterator of documents.
+</span>27 <span style=''>   *
+</span>28 <span style=''>   * @param maxDocs Enumerate up to `maxDocs` documents.
+</span>29 <span style=''>   * @param err The binary operator to be applied when failing to get the next response. Exception or [[reactivemongo.api.Cursor$.Fail Fail]] raised within the `suc` function cannot be recovered by this error handler. Only the errors when reading the inputs from the DB will be handle: if then an `Iteratee` is failing to process, the error is out of this mechanism scope.
+</span>30 <span style=''>   *
+</span>31 <span style=''>   * @return an Enumerator of Iterators of documents.
+</span>32 <span style=''>   */
+</span>33 <span style=''>  def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]]
+</span>34 <span style=''>
+</span>35 <span style=''>  /**
+</span>36 <span style=''>   * Produces an Enumerator of responses from the database.
+</span>37 <span style=''>   *
+</span>38 <span style=''>   * @param maxDocs Enumerate up to `maxDocs` documents.
+</span>39 <span style=''>   * @param err The binary operator to be applied when failing to get the next response. Exception or [[reactivemongo.api.Cursor$.Fail Fail]] raised within the `suc` function cannot be recovered by this error handler. Only the errors when reading the inputs from the DB will be handle: if then an `Iteratee` is failing to process, the error is out of this mechanism scope.
+</span>40 <span style=''>   *
+</span>41 <span style=''>   * @return an Enumerator of Responses.
+</span>42 <span style=''>   */
+</span>43 <span style=''>  def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response]
+</span>44 <span style=''>
+</span>45 <span style=''>}
+</span>46 <span style=''>
+</span>47 <span style=''>class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
+</span>48 <span style=''>    extends PlayIterateesCursor[T] with WrappedCursor[T] {
+</span>49 <span style=''>  import Cursor.{ Cont, Fail, State }
+</span>50 <span style=''>
+</span>51 <span style=''>  private def errorHandler[T](chan: Concurrent.Channel[T], err: ErrorHandler[Unit]): ErrorHandler[Unit] = {
+</span>52 <span style=''>    val after: State[Unit] => State[Unit] = {
+</span>53 <span style=''>      case f @ Fail(e) => {
+</span>54 <span style=''>        </span><span style='background: #AEF1AE'>chan.end(e)</span><span style=''>
+</span>55 <span style=''>        f
+</span>56 <span style=''>      }
+</span>57 <span style=''>
+</span>58 <span style=''>      case st => st
+</span>59 <span style=''>    }
+</span>60 <span style=''>
+</span>61 <span style=''>    (v, e) => </span><span style='background: #AEF1AE'>after(err(v, e))</span><span style=''>
+</span>62 <span style=''>  }
+</span>63 <span style=''>
+</span>64 <span style=''>  override def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T] =
+</span>65 <span style=''>    </span><span style='background: #AEF1AE'>Concurrent.unicast[T] { chan =>
+</span>66 <span style=''></span><span style='background: #AEF1AE'>      wrappee.foldWhile({}, maxDocs)(
+</span>67 <span style=''></span><span style='background: #AEF1AE'>        (_, res) => Cont(chan push res), errorHandler(chan, err)
+</span>68 <span style=''></span><span style='background: #AEF1AE'>      ).
+</span>69 <span style=''></span><span style='background: #AEF1AE'>        onComplete { case _ => chan.eofAndEnd() }
+</span>70 <span style=''></span><span style='background: #AEF1AE'>    }</span><span style=''>
+</span>71 <span style=''>
+</span>72 <span style=''>  override def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]] = </span><span style='background: #AEF1AE'>Concurrent.unicast[Iterator[T]] { chan =>
+</span>73 <span style=''></span><span style='background: #AEF1AE'>    wrappee.foldBulks({}, maxDocs)(
+</span>74 <span style=''></span><span style='background: #AEF1AE'>      (_, bulk) => Cont(chan push bulk), errorHandler(chan, err)
+</span>75 <span style=''></span><span style='background: #AEF1AE'>    ).
+</span>76 <span style=''></span><span style='background: #AEF1AE'>      onComplete { case _ => chan.eofAndEnd() }
+</span>77 <span style=''></span><span style='background: #AEF1AE'>  }</span><span style=''>
+</span>78 <span style=''>
+</span>79 <span style=''>  override def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response] = </span><span style='background: #AEF1AE'>Concurrent.unicast[Response] { chan =>
+</span>80 <span style=''></span><span style='background: #AEF1AE'>    wrappee.foldResponses({}, maxDocs)(
+</span>81 <span style=''></span><span style='background: #AEF1AE'>      (_, resp) => Cont(chan push resp), errorHandler(chan, err)
+</span>82 <span style=''></span><span style='background: #AEF1AE'>    ).
+</span>83 <span style=''></span><span style='background: #AEF1AE'>      onComplete { case _ => chan.eofAndEnd() }
+</span>84 <span style=''></span><span style='background: #AEF1AE'>  }</span><span style=''>
+</span>85 <span style=''>
+</span>86 <span style=''>}
+</span>87 <span style=''>
+</span>88 <span style=''>class PlayIterateesFlattenedCursor[T](
+</span>89 <span style=''>  val cursor: Future[PlayIterateesCursor[T]]
+</span>90 <span style=''>)
+</span>91 <span style=''>    extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
+</span>92 <span style=''>
+</span>93 <span style=''>  override def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T] = </span><span style='background: #AEF1AE'>Enumerator.flatten(cursor.map(_.enumerator(maxDocs, err)))</span><span style=''>
+</span>94 <span style=''>
+</span>95 <span style=''>  override def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]] = </span><span style='background: #AEF1AE'>Enumerator.flatten(cursor.map(_.bulkEnumerator(maxDocs, err)))</span><span style=''>
+</span>96 <span style=''>
+</span>97 <span style=''>  override def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response] = </span><span style='background: #F0ADAD'>Enumerator.flatten(cursor.map(_.responseEnumerator(maxDocs, err)))</span><span style=''>
+</span>98 <span style=''>
+</span>99 <span style=''>}
+</span></pre>
+          </div>
+          <div class="tab-pane" id="statementlist">
+            <table cellspacing="0" cellpadding="0" class="table statementlist">
+      <tr>
+        <th>Line</th>
+        <th>Stmt Id</th>
+        <th>Pos</th>
+        <th>Tree</th>
+        <th>Symbol</th>
+        <th>Code</th>
+      </tr><tr>
+        <td>
+          54
+        </td>
+        <td>
+          1
+        </td>
+        <td>
+          2811
+          -
+          2822
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          61
+        </td>
+        <td>
+          8
+        </td>
+        <td>
+          2889
+          -
+          2898
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          61
+        </td>
+        <td>
+          11
+        </td>
+        <td>
+          2883
+          -
+          2899
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          65
+        </td>
+        <td>
+          13
+        </td>
+        <td>
+          3060
+          -
+          3259
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          72
+        </td>
+        <td>
+          2
+        </td>
+        <td>
+          3426
+          -
+          3627
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          79
+        </td>
+        <td>
+          10
+        </td>
+        <td>
+          3795
+          -
+          3997
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          93
+        </td>
+        <td>
+          4
+        </td>
+        <td>
+          4309
+          -
+          4367
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          93
+        </td>
+        <td>
+          15
+        </td>
+        <td>
+          4328
+          -
+          4366
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          95
+        </td>
+        <td>
+          12
+        </td>
+        <td>
+          4534
+          -
+          4596
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          95
+        </td>
+        <td>
+          6
+        </td>
+        <td>
+          4553
+          -
+          4595
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #AEF1AE">
+          
+        </td>
+      </tr><tr>
+        <td>
+          97
+        </td>
+        <td>
+          9
+        </td>
+        <td>
+          4783
+          -
+          4829
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #F0ADAD">
+          
+        </td>
+      </tr><tr>
+        <td>
+          97
+        </td>
+        <td>
+          3
+        </td>
+        <td>
+          4764
+          -
+          4830
+        </td>
+        <td>
+          
+        </td>
+        <td>
+          
+        </td>
+        <td style="background: #F0ADAD">
+          
+        </td>
+      </tr>
+    </table>
+          </div>
+        </div>
+      </body>
+    </html>
