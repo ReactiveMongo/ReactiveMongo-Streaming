@@ -770,7 +770,7 @@ sealed trait CursorFixtures { specs: CursorSpec =>
   }
 
   val expectedList = List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-  def toSeq[T](src: Source[T, akka.NotUsed]): Future[Seq[T]] =
+  def toSeq[T](src: Source[T, _]): Future[Seq[T]] =
     src.runWith(Sink.seq[T])
 
   def withFixtures(col: BSONCollection)(implicit ee: EE): Future[BSONCollection] = Future.sequence((0 until 10) map { id =>
