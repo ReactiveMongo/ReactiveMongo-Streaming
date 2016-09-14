@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
 Then in your code:
 
 ```scala
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import reactivemongo.bson.{ BSONDocument, BSONDocumentReader }
@@ -33,7 +34,7 @@ import org.reactivestreams.Publisher
 import akka.stream.scaladsl.Source
 
 // ReactiveMongo extensions
-import reactivemongo.akkastream.{ AkkaStreamCursor, cursorProducer }
+import reactivemongo.akkastream.{ AkkaStreamCursor, cursorProducer, State }
 
 implicit val system = akka.actor.ActorSystem("reactivemongo-akkastream")
 implicit val materializer = akka.stream.ActorMaterializer.create(system)
@@ -42,13 +43,12 @@ implicit val reader = BSONDocumentReader[Int] { doc =>
   doc.getAsTry[Int]("age").get
 }
 
-def foo(collection: BSONCollection): (Source[Int, akka.NotUsed], Publisher[Int]) = {
+def foo(collection: BSONCollection): (Source[Int, Future[State]], Publisher[Int]) = {
   val cursor: AkkaStreamCursor[Int] =
     collection.find(BSONDocument.empty/* findAll */).
     sort(BSONDocument("id" -> 1)).cursor[Int]()
 
-  val src: Source[Int, akka.NotUsed] = cursor.documentSource()
-
+  val src: Source[Int, Future[State]] = cursor.documentSource()
   val pub: Publisher[Int] = cursor.documentPublisher()
 
   src -> pub
@@ -62,15 +62,3 @@ def foo(collection: BSONCollection): (Source[Int, akka.NotUsed], Publisher[Int])
 The developer guide is [available online](http://reactivemongo.org/releases/0.12/documentation/tutorial/streaming.html#akka-stream).
 
 The API documentation is [available online](https://reactivemongo.github.io/ReactiveMongo-Streaming/0.12/akka-stream/api/).
-
-## Build manually
-
-The Akka Streams extension for ReactiveMongo can be built from this source repository.
-
-    sbt publish-local
-
-To run the tests, use:
-
-    sbt test
-
-(https://travis-ci.org/ReactiveMongo/ReactiveMongo-Streaming): [![Build Status](https://travis-ci.org/ReactiveMongo/ReactiveMongo-Streaming.svg?branch=master)](https://travis-ci.org/ReactiveMongo/ReactiveMongo-Streaming)
