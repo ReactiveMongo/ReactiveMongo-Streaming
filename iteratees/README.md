@@ -27,15 +27,3 @@ libraryDependencies ++= Seq(
 The developer guide is [available online](http://reactivemongo.org/releases/0.12/documentation/tutorial/streaming.html#play-iteratees).
 
 The API documentation is [available online](https://reactivemongo.github.io/ReactiveMongo-Streaming/0.12/iteratees/api/).
-
-## Build manually
-
-The Iteratees extension for ReactiveMongo can be built from this source repository.
-
-    sbt publish-local
-
-To run the tests, use:
-
-    sbt test
-
-(https://travis-ci.org/ReactiveMongo/ReactiveMongo-Streaming): [![Build Status](https://travis-ci.org/ReactiveMongo/ReactiveMongo-Streaming.svg?branch=master)](https://travis-ci.org/ReactiveMongo/ReactiveMongo-Streaming)
