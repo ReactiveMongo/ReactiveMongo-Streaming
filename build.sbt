@@ -3,7 +3,7 @@ import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-version in ThisBuild := "0.12-RC3"
+version in ThisBuild := "0.12-RC4"
 
 scalaVersion in ThisBuild := "2.11.8"
 
