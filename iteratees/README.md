@@ -9,7 +9,7 @@ The [Play Iteratees](https://www.playframework.com/documentation/latest/Iteratee
 The dependencies can be updated as follows in your `project/Build.scala`:
 
 ```ocaml
-val reactiveMongoVer = "0.12-RC4"
+val reactiveMongoVer = "0.12-RC5"
 val playVer = "2.3.10" // or greater
 
 libraryDependencies ++= Seq(
