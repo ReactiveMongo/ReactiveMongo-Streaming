@@ -31,8 +31,6 @@ object State {
  * @define materialization It materializes a [[Future]] of [[State]] (for now with no detail, for future extension)
  */
 sealed trait AkkaStreamCursor[T] extends Cursor[T] {
-  /** The default parallelism */
-  val defaultParallelism = Runtime.getRuntime.availableProcessors
 
   /**
    * Returns a source of responses.

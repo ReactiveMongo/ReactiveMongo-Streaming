@@ -9,7 +9,7 @@ The [Play Iteratees](https://www.playframework.com/documentation/latest/Iteratee
 The dependencies can be updated as follows in your `project/Build.scala`:
 
 ```ocaml
-val reactiveMongoVer = "0.12-RC5"
+val reactiveMongoVer = "0.12-RC6"
 val playVer = "2.3.10" // or greater
 
 libraryDependencies ++= Seq(
@@ -27,15 +27,3 @@ libraryDependencies ++= Seq(
 The developer guide is [available online](http://reactivemongo.org/releases/0.12/documentation/tutorial/streaming.html#play-iteratees).
 
 The API documentation is [available online](https://reactivemongo.github.io/ReactiveMongo-Streaming/0.12/iteratees/api/).
-
-## Build manually
-
-The Iteratees extension for ReactiveMongo can be built from this source repository.
-
-    sbt publish-local
-
-To run the tests, use:
-
-    sbt test
-
-(https://travis-ci.org/ReactiveMongo/ReactiveMongo-Streaming): [![Build Status](https://travis-ci.org/ReactiveMongo/ReactiveMongo-Streaming.svg?branch=master)](https://travis-ci.org/ReactiveMongo/ReactiveMongo-Streaming)

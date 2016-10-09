@@ -652,7 +652,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
       // Concurrently populated the capped collection
       def populate(): Future[Unit] =
-        (0 until 10).foldLeft(Future successful {}) { (future, id) =>
+        (0 until 10).foldLeft(Future(Thread.sleep(1000))) { (future, id) =>
           for {
             _ <- future
             _ <- col.insert(BSONDocument("id" -> id))
@@ -660,7 +660,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
             try {
               Thread.sleep(200)
             } catch {
-              case _: InterruptedException => ()
+              case _: InterruptedException => println("no pause")
             }
           }
         }.map { _ =>
@@ -669,17 +669,18 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
       Await.result((for {
         _ <- col.createCapped(4096, Some(10))
-        _ = populate() // side-effect, doesn't wait for
-      } yield col), timeout)
+      } yield col), timeout) -> { populate _ }
     }
 
     def tailable(cb: Promise[Unit], n: String, database: DB = db)(implicit ee: EE) = {
       // ReactiveMongo extensions
       import reactivemongo.akkastream.cursorProducer
-
       implicit val reader = IdReader
-      capped(n, database, cb).find(BSONDocument.empty).
-        options(QueryOpts().tailable).cursor[Int]()
+
+      val (cursor, populate) = capped(n, database, cb)
+
+      cursor.find(BSONDocument.empty).
+        options(QueryOpts().tailable).cursor[Int]() -> populate
     }
 
     def recoverTimeout[A, B](f: => Future[A])(on: => B, to: FiniteDuration = timeout): Try[B] = {
@@ -700,8 +701,10 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
           }
         }
         val done = Promise[Unit]()
-        val cursor = tailable(done, "source20")
-        lazy val consume = cursor.responseSource().runWith(consumer)
+        val (cursor, populate) = tailable(done, "source20")
+        val consume = cursor.responseSource().runWith(consumer)
+
+        populate()
 
         done.future must beEqualTo({}).await(0, timeout) and {
           recoverTimeout(consume)(ranges.toList).
@@ -725,8 +728,10 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         val consumed = scala.collection.mutable.TreeSet.empty[Int]
         val consumer = Sink.foreach[Iterator[Int]] { consumed ++= _ }
         val done = Promise[Unit]()
-        val cursor = tailable(done, "source21")
+        val (cursor, populate) = tailable(done, "source21")
         def consume = cursor.bulkSource().runWith(consumer)
+
+        populate()
 
         done.future must beEqualTo({}).await(0, timeout) and {
           recoverTimeout(consume)(consumed.toList) must beSuccessfulTry(
@@ -741,8 +746,10 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         val consumed = scala.collection.mutable.TreeSet.empty[Int]
         val consumer = Sink.foreach[Int] { consumed += _ }
         val done = Promise[Unit]()
-        val cursor = tailable(done, "source22")
-        def consume = cursor.documentSource().runWith(consumer)
+        val (cursor, populate) = tailable(done, "source22")
+        val consume = cursor.documentSource().runWith(consumer)
+
+        populate()
 
         done.future must beEqualTo({}).await(0, timeout) and {
           recoverTimeout(consume)(consumed.toList) must beSuccessfulTry(
