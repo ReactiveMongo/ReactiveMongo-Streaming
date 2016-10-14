@@ -4,7 +4,7 @@ resolvers ++= Seq(
   // For Akka Stream Contrib TestKit
   "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/snapshots")
 
-val akkaVer = "2.4.10"
+val akkaVer = sys.env.get("AKKA_VERSION").getOrElse("2.4.8")
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % akkaVer,
