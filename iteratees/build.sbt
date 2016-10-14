@@ -1,7 +1,9 @@
 name := "reactivemongo-iteratees"
 
+val playVer = sys.env.get("PLAY_VERSION").getOrElse("2.3.10")
+
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-iteratees" % "2.3.10" % "provided"
+  "com.typesafe.play" %% "play-iteratees" % playVer % "provided"
 )
 
 // Publish
