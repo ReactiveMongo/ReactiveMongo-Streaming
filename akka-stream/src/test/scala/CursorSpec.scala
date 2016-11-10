@@ -1,7 +1,7 @@
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
-import scala.util.Try
+import scala.util.{ Failure, Try }
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
@@ -670,6 +670,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
       Await.result((for {
         _ <- col.createCapped(4096, Some(10))
       } yield col), timeout) -> { populate _ }
+      // (BSONCollection, () => Future[Unit])
     }
 
     def tailable(cb: Promise[Unit], n: String, database: DB = db)(implicit ee: EE) = {
@@ -681,13 +682,15 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
       cursor.find(BSONDocument.empty).
         options(QueryOpts().tailable).cursor[Int]() -> populate
+      // (Cursor[Int], () => Future[Unit]
     }
 
     def recoverTimeout[A, B](f: => Future[A])(on: => B, to: FiniteDuration = timeout): Try[B] = {
       lazy val v = on
-      Try(Await.result(f, to)).map(_ => v).recover {
-        case _: TimeoutException => v
-      }
+      Try(Await.result(f, to)).
+        flatMap(_ => Failure(new Exception("Timeout expected"))).recover {
+          case _: TimeoutException => println("Timeout"); v
+        }
     }
 
     // ---
@@ -738,7 +741,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
             List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
           )
         }
-      }
+      } tag "wip"
     }
 
     "be consumed as document source" >> {
