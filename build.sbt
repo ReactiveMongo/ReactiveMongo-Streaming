@@ -1,9 +1,10 @@
 import sbtunidoc.Plugin.UnidocKeys._
+
 import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-version in ThisBuild := "0.12.0"
+version in ThisBuild := s"${Common.nextRelease}-SNAPSHOT"
 
 scalaVersion in ThisBuild := "2.11.8"
 

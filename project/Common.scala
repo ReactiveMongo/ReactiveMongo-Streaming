@@ -2,7 +2,7 @@ import sbt.Keys._
 import sbt._
 
 object Common {
-  val nextMajor = "0.12.0"
+  val nextRelease = "0.12.1"
 
   val settings = Seq(
     scalacOptions ++= Seq(
@@ -12,13 +12,14 @@ object Common {
       "-Ywarn-dead-code", "-Ywarn-unused-import", "-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Streaming API") ++
-      Opts.doc.version(nextMajor),
+      Opts.doc.version(nextRelease),
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
       "specs2-core", "specs2-junit").map(
       "org.specs2" %% _ % "3.8.3" % Test) ++ Seq(
       Dependencies.slf4jSimple % Test)
-  ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings
+  ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
+    Publish.mimaSettings)
 
   val testCleanup: ClassLoader => Unit = { cl =>
     import scala.language.reflectiveCalls
@@ -85,11 +86,20 @@ object Findbugs {
 }
 
 object Publish {
+  import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
+  import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifacts
+
   @inline def env(n: String): String = sys.env.get(n).getOrElse(n)
 
+  val previousVersion = "0.12.0"
   val majorVersion = "0.12"
   lazy val repoName = env("PUBLISH_REPO_NAME")
   lazy val repoUrl = env("PUBLISH_REPO_URL")
+
+  val mimaSettings = mimaDefaultSettings ++ Seq(
+    previousArtifacts := Set(
+      organization.value %% moduleName.value % previousVersion)
+  )
 
   val settings = Seq(
     publishMavenStyle := true,
