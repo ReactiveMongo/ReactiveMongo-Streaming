@@ -17,11 +17,10 @@ import reactivemongo.api.{
 }, Cursor.{ Cont, Done, ErrorHandler, Fail }
 
 private[akkastream] class DocumentStage[T](
-  cursor: AkkaStreamCursorImpl[T],
-  maxDocs: Int,
-  err: ErrorHandler[Option[T]]
-)(implicit ec: ExecutionContext)
-    extends GraphStage[SourceShape[T]] {
+    cursor: AkkaStreamCursorImpl[T],
+    maxDocs: Int,
+    err: ErrorHandler[Option[T]]
+) extends GraphStage[SourceShape[T]] {
 
   override val toString = "ReactiveMongoDocument"
   val out: Outlet[T] = Outlet(s"${toString}.out")
@@ -33,12 +32,14 @@ private[akkastream] class DocumentStage[T](
   )
 
   @inline
-  private def nextR(r: Response): Future[Option[Response]] =
+  private def nextR(r: Response)(implicit ec: ExecutionContext): Future[Option[Response]] =
     nextResponse(ec, r)
 
   def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
     new GraphStageLogic(shape) with OutHandler {
       private var last = Option.empty[(Response, Iterator[T], Option[T])]
+
+      @inline private implicit def ec: ExecutionContext = materializer.executionContext
 
       @inline private def tailable = cursor.wrappee.tailable
 
