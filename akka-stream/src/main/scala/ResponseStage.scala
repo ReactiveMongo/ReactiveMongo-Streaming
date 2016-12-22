@@ -82,8 +82,6 @@ private[akkastream] class ResponseStage[T, Out](
 
       private val futureCB =
         getAsyncCallback((response: Try[Option[Response]]) => {
-          println(s"response = ${response.map(_.map(_.reply.numberReturned))}")
-
           response.map(_.map { r => r -> suc(r) }) match {
             case Failure(reason) => onFailure(reason)
 
