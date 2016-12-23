@@ -4,12 +4,17 @@ resolvers ++= Seq(
   // For Akka Stream Contrib TestKit
   "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/snapshots")
 
-val akkaVer = sys.env.get("AKKA_VERSION").getOrElse("2.4.8")
+val akkaVer = Def.setting[String] {
+  sys.env.get("AKKA_VERSION").getOrElse {
+    if (scalaVersion.value startsWith "2.11.") "2.4.8"
+    else "2.4.16"
+  }
+}
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-stream" % akkaVer,
-  "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer % Test,
-  "com.typesafe.akka" %% "akka-stream-contrib" % "0.3-9-gaeac7b2" % Test
+  "com.typesafe.akka" %% "akka-stream" % akkaVer.value,
+  "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer.value % Test,
+  "com.typesafe.akka" %% "akka-stream-contrib" % "0.6" % Test
 )
 
 // Publish

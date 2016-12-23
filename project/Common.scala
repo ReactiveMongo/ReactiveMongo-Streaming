@@ -5,8 +5,13 @@ object Common {
   val nextRelease = "0.12.1"
 
   val settings = Seq(
-    scalacOptions ++= Seq(
-      "-Ywarn-unused-import", "-unchecked", "-deprecation"),
+    scalacOptions in Compile ++= Seq(
+      "-unchecked", "-deprecation", "-Ywarn-unused-import",
+      "-Ywarn-value-discard", "-Ywarn-dead-code"),
+    scalacOptions in Compile ++= {
+      if (scalaVersion.value startsWith "2.10.") Nil
+      else Seq("-Ywarn-unused", "-Xlint:missing-interpolator")
+    },
     autoAPIMappings := true,
     scalacOptions in (Compile, doc) := Seq(
       "-Ywarn-dead-code", "-Ywarn-unused-import", "-unchecked", "-deprecation",
@@ -16,7 +21,7 @@ object Common {
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
       "specs2-core", "specs2-junit").map(
-      "org.specs2" %% _ % "3.8.3" % Test) ++ Seq(
+      "org.specs2" %% _ % "3.8.6" % Test) ++ Seq(
       Dependencies.slf4jSimple % Test)
   ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
     Publish.mimaSettings)
