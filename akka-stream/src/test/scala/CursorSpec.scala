@@ -566,8 +566,6 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
             "id" -> i, "record" -> s"record$i"
           )).map(_ => {})
         }
-        def fixtures =
-          coll.remove(BSONDocument.empty).map(_ => {}) +: futs
 
         Future.sequence(futs).map { _ =>
           //println(s"inserted $nDocs records")
@@ -665,6 +663,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
           }
         }.map { _ =>
           cb.success(println(s"All fixtures inserted in test collection '$n'"))
+          ()
         }
 
       Await.result((for {
@@ -702,6 +701,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
           if (resp.reply.numberReturned > 0) {
             ranges += (resp.reply.startingFrom -> resp.reply.numberReturned)
           }
+          ()
         }
         val done = Promise[Unit]()
         val (cursor, populate) = tailable(done, "source20")
@@ -729,7 +729,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
     "be consumed as bulk source" >> {
       "using a sink" in assertAllStagesStopped { implicit ee: EE =>
         val consumed = scala.collection.mutable.TreeSet.empty[Int]
-        val consumer = Sink.foreach[Iterator[Int]] { consumed ++= _ }
+        val consumer = Sink.foreach[Iterator[Int]] { i => consumed ++= i; () }
         val done = Promise[Unit]()
         val (cursor, populate) = tailable(done, "source21")
         def consume = cursor.bulkSource().runWith(consumer)
@@ -747,7 +747,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
     "be consumed as document source" >> {
       "using a sink" in assertAllStagesStopped { implicit ee: EE =>
         val consumed = scala.collection.mutable.TreeSet.empty[Int]
-        val consumer = Sink.foreach[Int] { consumed += _ }
+        val consumer = Sink.foreach[Int] { i => consumed += i; () }
         val done = Promise[Unit]()
         val (cursor, populate) = tailable(done, "source22")
         val consume = cursor.documentSource().runWith(consumer)

@@ -8,7 +8,7 @@ version in ThisBuild := s"${Common.nextRelease}-SNAPSHOT"
 
 scalaVersion in ThisBuild := "2.11.8"
 
-crossScalaVersions in ThisBuild := Seq("2.10.5", "2.11.8", "2.12.1")
+crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.1")
 
 crossVersion in ThisBuild := CrossVersion.binary
 
@@ -47,6 +47,9 @@ lazy val streaming = (project in file(".")).
           contains("ITERATEES_VERSION" -> playUpper)) ||
         (flags.contains("AKKA_VERSION" -> akkaUpper) && flags.
           contains("ITERATEES_VERSION" -> playLower))
+      }.collect {
+        case flags if (flags.map(_._1).toSet.size == specs.size) =>
+          flags.sortBy(_._1)
       }.toList
 
       @inline def integrationVars(flags: List[(String, String)]): String =
@@ -55,7 +58,8 @@ lazy val streaming = (project in file(".")).
       def integrationMatrix =
         integrationEnv.map(integrationVars).map { c => s"  - $c" }
 
-      def matrix = ((integrationMatrix :+ "matrix: " :+ "  exclude: ") ++ (
+      def matrix = (("env:" +: integrationMatrix :+
+        "matrix: " :+ "  exclude: ") ++ (
         integrationEnv.flatMap { flags =>
           if (/* time-compat exclusions: */
               flags.contains("ITERATEES_VERSION" -> playUpper) ||

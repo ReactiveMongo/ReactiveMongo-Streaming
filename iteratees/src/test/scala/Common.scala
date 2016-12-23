@@ -9,8 +9,6 @@ object Common {
 
   val logger = reactivemongo.util.LazyLogger("tests")
 
-  implicit val ec = ExecutionContext.Implicits.global
-
   val DefaultOptions = {
     val opts = MongoConnectionOptions()
 
@@ -44,6 +42,8 @@ object Common {
   //val timeoutMillis = timeout.toMillis.toInt
 
   lazy val db = {
+    import ExecutionContext.Implicits.global
+
     val _db = connection.database(
       "specs2-reactivemongo-iteratees", failoverStrategy
     )
