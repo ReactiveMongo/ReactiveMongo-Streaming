@@ -7,7 +7,7 @@ This is an [Akka Streams](http://akka.io) extension for the ReactiveMongo cursor
 In your `project/Build.scala`:
 
 ```ocaml
-val reactiveMongoVer = "0.12.0-SNAPSHOT"
+val reactiveMongoVer = "0.12.1-SNAPSHOT"
 
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 

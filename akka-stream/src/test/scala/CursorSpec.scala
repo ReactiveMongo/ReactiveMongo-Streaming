@@ -1,7 +1,7 @@
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
-import scala.util.Try
+import scala.util.{ Failure, Try }
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
@@ -566,8 +566,6 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
             "id" -> i, "record" -> s"record$i"
           )).map(_ => {})
         }
-        def fixtures =
-          coll.remove(BSONDocument.empty).map(_ => {}) +: futs
 
         Future.sequence(futs).map { _ =>
           //println(s"inserted $nDocs records")
@@ -665,11 +663,13 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
           }
         }.map { _ =>
           cb.success(println(s"All fixtures inserted in test collection '$n'"))
+          ()
         }
 
       Await.result((for {
         _ <- col.createCapped(4096, Some(10))
       } yield col), timeout) -> { populate _ }
+      // (BSONCollection, () => Future[Unit])
     }
 
     def tailable(cb: Promise[Unit], n: String, database: DB = db)(implicit ee: EE) = {
@@ -681,13 +681,15 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
       cursor.find(BSONDocument.empty).
         options(QueryOpts().tailable).cursor[Int]() -> populate
+      // (Cursor[Int], () => Future[Unit]
     }
 
     def recoverTimeout[A, B](f: => Future[A])(on: => B, to: FiniteDuration = timeout): Try[B] = {
       lazy val v = on
-      Try(Await.result(f, to)).map(_ => v).recover {
-        case _: TimeoutException => v
-      }
+      Try(Await.result(f, to)).
+        flatMap(_ => Failure(new Exception("Timeout expected"))).recover {
+          case _: TimeoutException => println("Timeout"); v
+        }
     }
 
     // ---
@@ -699,6 +701,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
           if (resp.reply.numberReturned > 0) {
             ranges += (resp.reply.startingFrom -> resp.reply.numberReturned)
           }
+          ()
         }
         val done = Promise[Unit]()
         val (cursor, populate) = tailable(done, "source20")
@@ -726,7 +729,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
     "be consumed as bulk source" >> {
       "using a sink" in assertAllStagesStopped { implicit ee: EE =>
         val consumed = scala.collection.mutable.TreeSet.empty[Int]
-        val consumer = Sink.foreach[Iterator[Int]] { consumed ++= _ }
+        val consumer = Sink.foreach[Iterator[Int]] { i => consumed ++= i; () }
         val done = Promise[Unit]()
         val (cursor, populate) = tailable(done, "source21")
         def consume = cursor.bulkSource().runWith(consumer)
@@ -738,13 +741,13 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
             List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
           )
         }
-      }
+      } tag "wip"
     }
 
     "be consumed as document source" >> {
       "using a sink" in assertAllStagesStopped { implicit ee: EE =>
         val consumed = scala.collection.mutable.TreeSet.empty[Int]
-        val consumer = Sink.foreach[Int] { consumed += _ }
+        val consumer = Sink.foreach[Int] { i => consumed += i; () }
         val done = Promise[Unit]()
         val (cursor, populate) = tailable(done, "source22")
         val consume = cursor.documentSource().runWith(consumer)

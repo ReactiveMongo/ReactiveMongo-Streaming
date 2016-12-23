@@ -49,7 +49,7 @@ class CursorSpec extends org.specs2.mutable.Specification {
     }
 
     "read empty cursor" >> {
-      @inline def cursor: PlayIterateesCursor[BSONDocument] =
+      def cursor(implicit ee: EE): PlayIterateesCursor[BSONDocument] =
         personColl.find(BSONDocument("plop" -> "plop")).cursor[BSONDocument]()
 
       "with success using enumerate" in { implicit ee: EE =>
@@ -164,7 +164,7 @@ class CursorSpec extends org.specs2.mutable.Specification {
     "stop on error" >> {
       val drv = new MongoDriver
       def con = drv.connection(List(primaryHost), DefaultOptions)
-      def scol(n: String = coll2.name) =
+      def scol(n: String = coll2.name)(implicit ee: EE) =
         Await.result(con.database(db.name).map(_.collection(n)), timeout)
 
       "when enumerating responses" >> {
@@ -390,7 +390,7 @@ class CursorSpec extends org.specs2.mutable.Specification {
     "continue on error" >> {
       val drv = new MongoDriver
       def con = drv.connection(List(primaryHost), DefaultOptions)
-      def scol(n: String = coll2.name) =
+      def scol(n: String = coll2.name)(implicit ee: EE) =
         Await.result(con.database(db.name).map(_(n)), timeout)
 
       "when enumerating responses" >> {
@@ -495,11 +495,11 @@ class CursorSpec extends org.specs2.mutable.Specification {
     }
 
     val expectedList = List(9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
-    val toList =
+    def toList(implicit ee: EE) =
       Iteratee.fold[Int, List[Int]](List.empty[Int]) { (l, i) => i :: l }
 
     "read from collection" >> {
-      def collection(n: String) = {
+      def collection(n: String)(implicit ee: EE) = {
         val col = db(s"somecollection_$n")
 
         Future.sequence((0 until 10) map { id =>
@@ -510,7 +510,7 @@ class CursorSpec extends org.specs2.mutable.Specification {
         }
       }
 
-      @inline def cursor(n: String): PlayIterateesCursor[Int] = {
+      def cursor(n: String)(implicit ee: EE): PlayIterateesCursor[Int] = {
         implicit val reader = IdReader
         Cursor.flatten(collection(n).map(_.find(BSONDocument()).
           sort(BSONDocument("id" -> 1)).cursor[Int]()))
@@ -537,7 +537,7 @@ class CursorSpec extends org.specs2.mutable.Specification {
     }
 
     "read from capped collection" >> {
-      def collection(n: String, database: DB) = {
+      def collection(n: String, database: DB)(implicit ee: EE) = {
         val col = database(s"somecollection_captail_$n")
 
         col.createCapped(4096, Some(10)).flatMap { _ =>
@@ -551,7 +551,7 @@ class CursorSpec extends org.specs2.mutable.Specification {
         col
       }
 
-      @inline def tailable(n: String, database: DB = db) = {
+      @inline def tailable(n: String, database: DB = db)(implicit ee: EE) = {
         implicit val reader = IdReader
         collection(n, database).find(BSONDocument()).options(
           QueryOpts().tailable
