@@ -2,7 +2,7 @@ import sbt.Keys._
 import sbt._
 
 object Common {
-  val nextRelease = "0.12.1"
+  val nextRelease = "0.12.2"
 
   val settings = Seq(
     scalacOptions in Compile ++= Seq(
