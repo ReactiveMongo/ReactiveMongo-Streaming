@@ -2,8 +2,6 @@ import sbt.Keys._
 import sbt._
 
 object Common {
-  val nextRelease = "0.12.2"
-
   val settings = Seq(
     scalacOptions in Compile ++= Seq(
       "-unchecked", "-deprecation", "-Ywarn-unused-import",
@@ -17,14 +15,14 @@ object Common {
       "-Ywarn-dead-code", "-Ywarn-unused-import", "-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Streaming API") ++
-      Opts.doc.version(nextRelease),
+      Opts.doc.version(Release.major.value),
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
       "specs2-core", "specs2-junit").map(
       "org.specs2" %% _ % "3.8.6" % Test) ++ Seq(
       Dependencies.slf4jSimple % Test)
   ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
-    Publish.mimaSettings)
+    Publish.mimaSettings ++ Release.settings)
 
   val testCleanup: ClassLoader => Unit = { cl =>
     import scala.language.reflectiveCalls
