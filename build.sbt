@@ -4,8 +4,6 @@ import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-version in ThisBuild := s"${Common.nextRelease}-SNAPSHOT"
-
 scalaVersion in ThisBuild := "2.11.8"
 
 crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.1")
@@ -23,10 +21,8 @@ lazy val `akka-stream` = project.in(file("akka-stream")).
 
 val travisEnv = taskKey[Unit]("Print Travis CI env")
 
-lazy val streaming = (project in file(".")).
-  settings(unidocSettings: _*).
-  settings(Publish.settings: _*).
-  settings(
+lazy val streaming = (project in file(".")).settings(
+  Seq(
     libraryDependencies += reactiveMongo % version.value % "provided",
     scalacOptions ++= Seq("-Ywarn-unused-import", "-unchecked"),
     scalacOptions in (Compile, doc) ++= List(
@@ -82,6 +78,6 @@ lazy val streaming = (project in file(".")).
 
       println(s"# Travis CI env\r\n$matrix")
     }
-  ).
-  dependsOn(iteratees, `akka-stream`).
+  ) ++ unidocSettings ++ Publish.settings ++ Release.settings
+).dependsOn(iteratees, `akka-stream`).
   aggregate(iteratees, `akka-stream`)

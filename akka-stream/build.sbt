@@ -7,7 +7,7 @@ resolvers ++= Seq(
 val akkaVer = Def.setting[String] {
   sys.env.get("AKKA_VERSION").getOrElse {
     if (scalaVersion.value startsWith "2.11.") "2.4.8"
-    else "2.4.16"
+    else "2.4.17"
   }
 }
 
