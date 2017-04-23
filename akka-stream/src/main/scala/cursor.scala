@@ -130,7 +130,8 @@ private[akkastream] class AkkaStreamCursorImpl[T](
 
   private[akkastream] def nextResponse(maxDocs: Int): (ExecutionContext, Response) => Future[Option[Response]] = wrappee.nextResponse(maxDocs)
 
-  private[akkastream] def documentIterator(response: Response)(implicit ec: ExecutionContext): Iterator[T] = wrappee.documentIterator(response)
+  private[akkastream] def documentIterator(response: Response): Iterator[T] =
+    wrappee.documentIterator(response)
 
 }
 

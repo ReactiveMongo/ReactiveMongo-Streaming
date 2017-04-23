@@ -1,14 +1,31 @@
 import sbt.Keys._
 import sbt._
 
+/*
+    "-g:vars",
+    "-Yconst-opt",
+    "-Yclosure-elim",
+    "-Ydead-code",
+    "-Yopt:_"
+ */
+
+import com.sksamuel.scapegoat.sbt.ScapegoatSbtPlugin
+
 object Common {
+  import ScapegoatSbtPlugin.autoImport._
+
   val settings = Seq(
     scalacOptions in Compile ++= Seq(
-      "-unchecked", "-deprecation", "-Ywarn-unused-import",
-      "-Ywarn-value-discard", "-Ywarn-dead-code"),
+      "-unchecked", "-deprecation",
+      "-Ywarn-unused",
+      "-Ywarn-unused-import",
+      "-Ywarn-value-discard",
+      "-Ywarn-numeric-widen",
+      "-Ywarn-infer-any",
+      "-Ywarn-dead-code"),
     scalacOptions in Compile ++= {
       if (scalaVersion.value startsWith "2.10.") Nil
-      else Seq("-Ywarn-unused", "-Xlint:missing-interpolator")
+      else Seq("-Ywarn-unused", "-Xlint")
     },
     autoAPIMappings := true,
     scalacOptions in (Compile, doc) := Seq(
@@ -20,7 +37,9 @@ object Common {
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
       "specs2-core", "specs2-junit").map(
       "org.specs2" %% _ % "3.8.6" % Test) ++ Seq(
-      Dependencies.slf4jSimple % Test)
+      Dependencies.slf4jSimple % Test),
+    scapegoatVersion := "1.3.0",
+    scapegoatReports := Seq("xml")
   ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
     Publish.mimaSettings ++ Release.settings)
 
