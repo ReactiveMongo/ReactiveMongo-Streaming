@@ -52,40 +52,40 @@ private[akkastream] class DocumentStage[T](
         }.map(Some(_))
       }
 
-      private def kill(): Unit = last.foreach {
-        case (r, _, _) =>
-          try {
-            cursor.wrappee kill r.reply.cursorID
-          } catch {
-            case reason: Throwable =>
-              logger.warn("fails to kill the cursor", reason)
-          }
-
-          last = None
-      }
-
       private def onFirst(): Unit = {
         request = { () =>
           last.fold(Future.successful(Option.empty[Response])) {
             case (lastResponse, _, _) => nextR(lastResponse).andThen {
               case Success(Some(response)) => last.foreach {
                 case (lr, _, _) =>
-                  if (lr.reply.cursorID != response.reply.cursorID) try {
-                    cursor.wrappee kill lr.reply.cursorID
-                  } catch {
-                    case reason: Throwable =>
-                      logger.warn("fails to kill the cursor", reason)
-                  }
+                  if (lr.reply.cursorID != response.reply.cursorID) kill(lr)
               }
             }
           }
         }
       }
 
+      private def killLast(): Unit = last.foreach {
+        case (r, _, _) => kill(r)
+      }
+
+      @SuppressWarnings(Array("CatchException"))
+      private def kill(r: Response): Unit = {
+        try {
+          cursor.wrappee kill r.reply.cursorID
+        } catch {
+          case reason: Exception => logger.warn(
+            s"fails to kill the cursor (${r.reply.cursorID})", reason
+          )
+        }
+
+        last = None
+      }
+
       private def onFailure(reason: Throwable): Unit = {
         val previous = last.flatMap(_._3)
 
-        kill()
+        killLast()
 
         err(previous, reason) match {
           case Cursor.Cont(_)     => ()
@@ -125,43 +125,42 @@ private[akkastream] class DocumentStage[T](
           }
         }
 
-      private val futureCB =
-        getAsyncCallback((response: Try[Option[Response]]) => {
-          response match {
-            case Failure(reason) => onFailure(reason)
+      private val futureCB = getAsyncCallback(asyncCallback).invoke _
 
-            case Success(resp @ Some(r)) => {
-              if (r.reply.numberReturned == 0) {
-                if (tailable) onPull()
-                else {
-                  last = None
+      private def asyncCallback: Try[Option[Response]] => Unit = {
+        case Failure(reason) => onFailure(reason)
 
-                  completeStage()
-                }
-              } else {
-                last = None
-
-                val bulkIter = cursor.documentIterator(r).
-                  take(maxDocs - r.reply.startingFrom)
-
-                nextD(r, bulkIter)
-              }
-            }
-
-            case Success(_) if (!tailable) => {
-              kill()
-
+        case Success(resp @ Some(r)) => {
+          if (r.reply.numberReturned == 0) {
+            if (tailable) onPull()
+            else {
               last = None
+
               completeStage()
             }
+          } else {
+            last = None
 
-            case Success(_) => {
-              last = None
-              Thread.sleep(1000) // TODO
-              onPull()
-            }
+            val bulkIter = cursor.documentIterator(r).
+              take(maxDocs - r.reply.startingFrom)
+
+            nextD(r, bulkIter)
           }
-        }).invoke _
+        }
+
+        case Success(_) if (!tailable) => {
+          killLast()
+
+          last = None
+          completeStage()
+        }
+
+        case Success(_) => {
+          last = None
+          Thread.sleep(1000) // TODO
+          onPull()
+        }
+      }
 
       def onPull(): Unit = last match {
         case Some((r, bulk, _)) if (bulk.hasNext) =>
