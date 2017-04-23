@@ -48,7 +48,7 @@ class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
     extends PlayIterateesCursor[T] with WrappedCursor[T] {
   import Cursor.{ Cont, Fail, State }
 
-  private def errorHandler[T](chan: Concurrent.Channel[T], err: ErrorHandler[Unit]): ErrorHandler[Unit] = {
+  private def errorHandler[A](chan: Concurrent.Channel[A], err: ErrorHandler[Unit]): ErrorHandler[Unit] = {
     val after: State[Unit] => State[Unit] = {
       case f @ Fail(e) => {
         chan.end(e)

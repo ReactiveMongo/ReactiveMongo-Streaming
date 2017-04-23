@@ -40,7 +40,7 @@ implicit val system = akka.actor.ActorSystem("reactivemongo-akkastream")
 implicit val materializer = akka.stream.ActorMaterializer.create(system)
 
 implicit val reader = BSONDocumentReader[Int] { doc =>
-  doc.getAsTry[Int]("age").get
+  doc.getAsTry[Int]("age").getOrElse(sys.error("Missing age"))
 }
 
 def foo(collection: BSONCollection): (Source[Int, Future[State]], Publisher[Int]) = {

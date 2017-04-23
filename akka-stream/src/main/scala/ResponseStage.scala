@@ -42,12 +42,7 @@ private[akkastream] class ResponseStage[T, Out](
                 case (lastResponse, _) => next(lastResponse).andThen {
                   case Success(Some(response)) => last.foreach {
                     case (lr, _) =>
-                      if (lr.reply.cursorID != response.reply.cursorID) try {
-                        cursor.wrappee kill lr.reply.cursorID
-                      } catch {
-                        case reason: Throwable =>
-                          logger.warn("fails to kill the cursor", reason)
-                      }
+                      if (lr.reply.cursorID != response.reply.cursorID) kill(lr)
                   }
                 }
               }
@@ -56,22 +51,27 @@ private[akkastream] class ResponseStage[T, Out](
         }.map(Some(_))
       }
 
-      private def kill(): Unit = last.foreach {
-        case (r, _) =>
-          try {
-            cursor.wrappee kill r.reply.cursorID
-          } catch {
-            case reason: Throwable =>
-              logger.warn("fails to kill the cursor", reason)
-          }
+      private def killLast(): Unit = last.foreach {
+        case (r, _) => kill(r)
+      }
 
-          last = None
+      @SuppressWarnings(Array("CatchException"))
+      private def kill(r: Response): Unit = {
+        try {
+          cursor.wrappee kill r.reply.cursorID
+        } catch {
+          case reason: Exception => logger.warn(
+            s"fails to kill the cursor (${r.reply.cursorID})", reason
+          )
+        }
+
+        last = None
       }
 
       private def onFailure(reason: Throwable): Unit = {
         val previous = last.map(_._2)
 
-        kill()
+        killLast()
 
         err(previous, reason) match {
           case Cursor.Cont(_)     => ()
@@ -91,7 +91,7 @@ private[akkastream] class ResponseStage[T, Out](
             }
 
             case Success(_) => {
-              kill()
+              killLast()
               completeStage()
             }
           }
