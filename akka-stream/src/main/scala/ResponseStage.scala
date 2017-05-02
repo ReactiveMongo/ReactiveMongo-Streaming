@@ -11,12 +11,11 @@ import reactivemongo.core.protocol.Response
 import reactivemongo.api.Cursor, Cursor.ErrorHandler
 
 private[akkastream] class ResponseStage[T, Out](
-  cursor: AkkaStreamCursorImpl[T],
-  maxDocs: Int,
-  suc: Response => Out,
-  err: ErrorHandler[Option[Out]]
-)(implicit ec: ExecutionContext)
-    extends GraphStage[SourceShape[Out]] {
+    cursor: AkkaStreamCursorImpl[T],
+    maxDocs: Int,
+    suc: Response => Out,
+    err: ErrorHandler[Option[Out]]
+) extends GraphStage[SourceShape[Out]] {
 
   override val toString = "ReactiveMongoResponse"
   val out: Outlet[Out] = Outlet(s"${toString}.out")
@@ -28,11 +27,13 @@ private[akkastream] class ResponseStage[T, Out](
   )
 
   @inline
-  private def next(r: Response): Future[Option[Response]] = nextResponse(ec, r)
+  private def next(r: Response)(implicit ec: ExecutionContext): Future[Option[Response]] = nextResponse(ec, r)
 
   def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
     new GraphStageLogic(shape) with OutHandler {
       private var last = Option.empty[(Response, Out)]
+
+      @inline private implicit def ec: ExecutionContext = materializer.executionContext
 
       private var request: () => Future[Option[Response]] = { () =>
         cursor.makeRequest(maxDocs).andThen {
