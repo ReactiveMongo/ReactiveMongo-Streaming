@@ -134,8 +134,6 @@ private[akkastream] class DocumentStage[T](
           if (r.reply.numberReturned == 0) {
             if (tailable) onPull()
             else {
-              last = None
-
               completeStage()
             }
           } else {
@@ -148,14 +146,11 @@ private[akkastream] class DocumentStage[T](
           }
         }
 
-        case Success(_) if (!tailable) => {
-          killLast()
-
-          last = None
+        case Success(None) if (!tailable) => {
           completeStage()
         }
 
-        case Success(_) => {
+        case Success(None) => {
           last = None
           Thread.sleep(1000) // TODO
           onPull()
@@ -175,6 +170,12 @@ private[akkastream] class DocumentStage[T](
           request().onComplete(futureCB)
       }
 
+      override def postStop(): Unit = {
+        killLast()
+        super.postStop()
+      }
+
       setHandler(out, this)
+
     }
 }

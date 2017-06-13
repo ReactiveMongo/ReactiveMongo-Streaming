@@ -90,8 +90,7 @@ private[akkastream] class ResponseStage[T, Out](
               push(out, result)
             }
 
-            case Success(_) => {
-              killLast()
+            case Success(None) => {
               completeStage()
             }
           }
@@ -99,6 +98,11 @@ private[akkastream] class ResponseStage[T, Out](
 
       def onPull(): Unit = request().onComplete(futureCB)
 
-      setHandler(out, this)
+      override def postStop(): Unit = {
+        killLast()
+        super.postStop()
+      }
+
+        setHandler(out, this)
     }
 }
