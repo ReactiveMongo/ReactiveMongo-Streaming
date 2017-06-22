@@ -90,9 +90,8 @@ private[akkastream] class ResponseStage[T, Out](
               push(out, result)
             }
 
-            case Success(None) => {
+            case _ =>
               completeStage()
-            }
           }
         }).invoke _
 
@@ -103,6 +102,6 @@ private[akkastream] class ResponseStage[T, Out](
         super.postStop()
       }
 
-        setHandler(out, this)
+      setHandler(out, this)
     }
 }

@@ -432,10 +432,21 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
       }
     }
 
-    "consumed with a max of 6 documents" in { implicit ee: EE =>
-      assertAllStagesStopped {
-        toSeq(cursor("source15").documentSource(6)).
-          aka("sequence") must beEqualTo(expectedList take 6).await(0, timeout)
+    "consumed with a max of 6 documents" >> {
+      "with limit in the query operation" in { implicit ee: EE =>
+        assertAllStagesStopped {
+          toSeq(cursor("source15a").documentSource(6)).
+            aka("sequence") must beEqualTo(expectedList take 6).
+            await(0, timeout)
+        }
+      }
+
+      "with limit on the stream" in { implicit ee: EE =>
+        assertAllStagesStopped {
+          toSeq(cursor("source15b").documentSource(10).take(6)).
+            aka("sequence") must beEqualTo(expectedList take 6).
+            await(0, timeout)
+        }
       }
     }
 

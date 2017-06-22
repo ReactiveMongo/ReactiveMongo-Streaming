@@ -66,7 +66,8 @@ private[akkastream] class DocumentStage[T](
       }
 
       private def killLast(): Unit = last.foreach {
-        case (r, _, _) => kill(r)
+        case (r, _, _) =>
+          kill(r)
       }
 
       @SuppressWarnings(Array("CatchException"))
@@ -133,9 +134,7 @@ private[akkastream] class DocumentStage[T](
         case Success(resp @ Some(r)) => {
           if (r.reply.numberReturned == 0) {
             if (tailable) onPull()
-            else {
-              completeStage()
-            }
+            else completeStage()
           } else {
             last = None
 
@@ -146,11 +145,10 @@ private[akkastream] class DocumentStage[T](
           }
         }
 
-        case Success(None) if (!tailable) => {
+        case Success(None) if (!tailable) =>
           completeStage()
-        }
 
-        case Success(None) => {
+        case _ => {
           last = None
           Thread.sleep(1000) // TODO
           onPull()
@@ -176,6 +174,5 @@ private[akkastream] class DocumentStage[T](
       }
 
       setHandler(out, this)
-
     }
 }
