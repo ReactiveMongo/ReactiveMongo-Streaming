@@ -19,7 +19,7 @@ package object akkastream {
 
   /** Provides flattener for Akka Streams cursor. */
   implicit object cursorFlattener
-      extends reactivemongo.api.CursorFlattener[AkkaStreamCursor] {
+    extends reactivemongo.api.CursorFlattener[AkkaStreamCursor] {
 
     def flatten[T](future: Future[AkkaStreamCursor[T]]): AkkaStreamCursor[T] =
       new AkkaStreamFlattenedCursor(future)

@@ -28,8 +28,7 @@ object Common {
 
   val DefaultOptions = {
     val opts = MongoConnectionOptions(
-      failoverStrategy = failoverStrategy
-    )
+      failoverStrategy = failoverStrategy)
 
     if (Option(System getProperty "test.enableSSL").exists(_ == "true")) {
       opts.copy(sslEnabled = true, sslAllowsInvalidCert = true)
@@ -43,8 +42,7 @@ object Common {
 
     val _db = for {
       d <- connection.database(
-        s"rm-akkastream-${System identityHashCode getClass}"
-      )
+        s"rm-akkastream-${System identityHashCode getClass}")
       _ <- d.drop()
     } yield d
 

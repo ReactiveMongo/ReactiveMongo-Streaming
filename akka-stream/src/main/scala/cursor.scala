@@ -96,15 +96,13 @@ sealed trait AkkaStreamCursor[T] extends Cursor[T] {
 }
 
 private[akkastream] class AkkaStreamCursorImpl[T](
-    val wrappee: Cursor[T] with CursorOps[T]
-) extends WrappedCursor[T] with AkkaStreamCursor[T] {
+    val wrappee: Cursor[T] with CursorOps[T]) extends WrappedCursor[T] with AkkaStreamCursor[T] {
 
   def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, Future[State]] = {
     implicit def ec: ExecutionContext = m.executionContext
 
     Source.fromGraph(
-      new ResponseStage[T, Response](this, maxDocs, identity[Response], err)
-    ).mapMaterializedValue(_ => State.materialized)
+      new ResponseStage[T, Response](this, maxDocs, identity[Response], err)).mapMaterializedValue(_ => State.materialized)
   }
 
   def bulkSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Iterator[T]]] = FailOnError())(implicit m: Materializer): Source[Iterator[T], Future[State]] = {
@@ -112,9 +110,7 @@ private[akkastream] class AkkaStreamCursorImpl[T](
 
     Source.fromGraph(
       new ResponseStage[T, Iterator[T]](
-        this, maxDocs, wrappee.documentIterator(_), err
-      )
-    ).mapMaterializedValue(_ => State.materialized)
+        this, maxDocs, wrappee.documentIterator(_), err)).mapMaterializedValue(_ => State.materialized)
   }
 
   def documentSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[T]] = FailOnError())(implicit m: Materializer): Source[T, Future[State]] = {
@@ -136,16 +132,14 @@ private[akkastream] class AkkaStreamCursorImpl[T](
 }
 
 class AkkaStreamFlattenedCursor[T](
-  val cursor: Future[AkkaStreamCursor[T]]
-)
-    extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
+    val cursor: Future[AkkaStreamCursor[T]])
+  extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
 
   def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, Future[State]] = {
     implicit def ec: ExecutionContext = m.executionContext
 
     Source.fromFuture(
-      cursor.map(_.responseSource(maxDocs, err))
-    ).flatMapMerge(1, identity).mapMaterializedValue(_ => State.materialized)
+      cursor.map(_.responseSource(maxDocs, err))).flatMapMerge(1, identity).mapMaterializedValue(_ => State.materialized)
   }
 
   def bulkSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Iterator[T]]] = FailOnError())(implicit m: Materializer): Source[Iterator[T], Future[State]] = {

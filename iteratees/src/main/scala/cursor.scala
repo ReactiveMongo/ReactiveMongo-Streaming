@@ -45,7 +45,7 @@ sealed trait PlayIterateesCursor[T] extends Cursor[T] {
 }
 
 class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
-    extends PlayIterateesCursor[T] with WrappedCursor[T] {
+  extends PlayIterateesCursor[T] with WrappedCursor[T] {
   import Cursor.{ Cont, Fail, State }
 
   private def errorHandler[A](chan: Concurrent.Channel[A], err: ErrorHandler[Unit]): ErrorHandler[Unit] = {
@@ -64,31 +64,27 @@ class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
   override def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T] =
     Concurrent.unicast[T] { chan =>
       wrappee.foldWhile({}, maxDocs)(
-        (_, res) => Cont(chan push res), errorHandler(chan, err)
-      ).
+        (_, res) => Cont(chan push res), errorHandler(chan, err)).
         onComplete { case _ => chan.eofAndEnd() }
     }
 
   override def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]] = Concurrent.unicast[Iterator[T]] { chan =>
     wrappee.foldBulks({}, maxDocs)(
-      (_, bulk) => Cont(chan push bulk), errorHandler(chan, err)
-    ).
+      (_, bulk) => Cont(chan push bulk), errorHandler(chan, err)).
       onComplete { case _ => chan.eofAndEnd() }
   }
 
   override def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response] = Concurrent.unicast[Response] { chan =>
     wrappee.foldResponses({}, maxDocs)(
-      (_, resp) => Cont(chan push resp), errorHandler(chan, err)
-    ).
+      (_, resp) => Cont(chan push resp), errorHandler(chan, err)).
       onComplete { case _ => chan.eofAndEnd() }
   }
 
 }
 
 class PlayIterateesFlattenedCursor[T](
-  val cursor: Future[PlayIterateesCursor[T]]
-)
-    extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
+    val cursor: Future[PlayIterateesCursor[T]])
+  extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
 
   override def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T] = Enumerator.flatten(cursor.map(_.enumerator(maxDocs, err)))
 
