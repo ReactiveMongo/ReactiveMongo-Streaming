@@ -43,12 +43,10 @@ private[akkastream] class DocumentStage[T](
       @inline private def tailable = cursor.wrappee.tailable
 
       private var request: () => Future[Option[Response]] = { () =>
+        // Call onFirst immediately to make sure only one request is sent.
         cursor.makeRequest(maxDocs).andThen {
-          case Success(r) if (
-            tailable && r.reply.numberReturned > 0
-          ) => onFirst()
-
-          case Success(_) if (!tailable) => onFirst()
+          case Success(_) =>
+            onFirst()
         }.map(Some(_))
       }
 
@@ -132,15 +130,16 @@ private[akkastream] class DocumentStage[T](
         case Failure(reason) => onFailure(reason)
 
         case Success(resp @ Some(r)) => {
+          val bulkIter = cursor.documentIterator(r).take(maxDocs - r.reply.startingFrom)
           if (r.reply.numberReturned == 0) {
-            if (tailable) onPull()
-            else completeStage()
+            if (tailable) {
+              last = Some((r, bulkIter, None))
+              onPull()
+            } else {
+              completeStage()
+            }
           } else {
             last = None
-
-            val bulkIter = cursor.documentIterator(r).
-              take(maxDocs - r.reply.startingFrom)
-
             nextD(r, bulkIter)
           }
         }
