@@ -15,6 +15,4 @@ libraryDependencies ++= Seq(
 apiURL := Some(url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/iteratees/api/"))
 
 // Tests
-fork in Test := false
-
-testOptions in Test += Tests.Cleanup(Common.testCleanup)
+fork in Test := true

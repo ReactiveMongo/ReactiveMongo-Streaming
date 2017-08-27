@@ -130,15 +130,14 @@ private[akkastream] class AkkaStreamCursorImpl[T](
 
   private[akkastream] def nextResponse(maxDocs: Int): (ExecutionContext, Response) => Future[Option[Response]] = wrappee.nextResponse(maxDocs)
 
-  private[akkastream] def documentIterator(response: Response): Iterator[T] =
-    wrappee.documentIterator(response)
+  private[akkastream] def documentIterator(response: Response, ctx: ExecutionContext): Iterator[T] = wrappee.documentIterator(response)
 
 }
 
 class AkkaStreamFlattenedCursor[T](
-  val cursor: Future[AkkaStreamCursor[T]]
+    val cursor: Future[AkkaStreamCursor[T]]
 )
-    extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
+  extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
 
   def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, Future[State]] = {
     implicit def ec: ExecutionContext = m.executionContext

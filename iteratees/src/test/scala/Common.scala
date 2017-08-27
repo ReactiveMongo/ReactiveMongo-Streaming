@@ -54,4 +54,8 @@ object Common {
   def close(): Unit = try {
     driver.close()
   } catch { case _: Throwable => () }
+
+  Runtime.getRuntime.addShutdownHook(new Thread() {
+    override def run() = close()
+  })
 }

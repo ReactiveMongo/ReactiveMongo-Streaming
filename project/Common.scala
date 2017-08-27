@@ -1,19 +1,7 @@
 import sbt.Keys._
 import sbt._
 
-/*
-    "-g:vars",
-    "-Yconst-opt",
-    "-Yclosure-elim",
-    "-Ydead-code",
-    "-Yopt:_"
- */
-
-import com.sksamuel.scapegoat.sbt.ScapegoatSbtPlugin
-
 object Common {
-  import ScapegoatSbtPlugin.autoImport._
-
   val settings = Seq(
     scalacOptions in Compile ++= Seq(
       "-unchecked", "-deprecation",
@@ -30,18 +18,16 @@ object Common {
     autoAPIMappings := true,
     scalacOptions in (Compile, doc) := Seq(
       "-Ywarn-dead-code", "-Ywarn-unused-import", "-unchecked", "-deprecation",
-      /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
+      /*"-diagrams", */ "-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Streaming API") ++
       Opts.doc.version(Release.major.value),
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
-      "specs2-core", "specs2-junit").map(
-      "org.specs2" %% _ % "3.8.6" % Test) ++ Seq(
-      Dependencies.slf4jSimple % Test),
-    scapegoatVersion := "1.3.0",
-    scapegoatReports := Seq("xml")
+        "specs2-core", "specs2-junit").map(
+          "org.specs2" %% _ % "3.9.4" % Test) ++ Seq(
+            Dependencies.slf4jSimple % Test)
   ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
-    Publish.mimaSettings ++ Release.settings)
+      Scapegoat.settings ++ Publish.mimaSettings ++ Release.settings)
 
   val testCleanup: ClassLoader => Unit = { cl =>
     import scala.language.reflectiveCalls
@@ -55,36 +41,40 @@ object Common {
 }
 
 object Format {
-  import com.typesafe.sbt.SbtScalariform._
-  import scalariform.formatter.preferences._
+  import com.typesafe.sbt.SbtScalariform, SbtScalariform._
 
-  val settings = scalariformSettings ++ Seq(
-    ScalariformKeys.preferences := ScalariformKeys.preferences.value.
-      setPreference(AlignParameters, false).
-      setPreference(AlignSingleLineCaseStatements, true).
-      setPreference(CompactControlReadability, false).
-      setPreference(CompactStringConcatenation, false).
-      setPreference(DoubleIndentClassDeclaration, true).
-      setPreference(FormatXml, true).
-      setPreference(IndentLocalDefs, false).
-      setPreference(IndentPackageBlocks, true).
-      setPreference(IndentSpaces, 2).
-      setPreference(MultilineScaladocCommentsStartOnFirstLine, false).
-      setPreference(PreserveSpaceBeforeArguments, false).
-      setPreference(PreserveDanglingCloseParenthesis, true).
-      setPreference(RewriteArrowSymbols, false).
-      setPreference(SpaceBeforeColon, false).
-      setPreference(SpaceInsideBrackets, false).
-      setPreference(SpacesAroundMultiImports, true).
-      setPreference(SpacesWithinPatternBinders, true)
-  )
+  val settings = {
+    import scalariform.formatter.preferences._
+    autoImport.scalariformSettings(autoformat = true) ++ Seq(
+      ScalariformKeys.preferences := ScalariformKeys.preferences.value.
+        setPreference(AlignParameters, false).
+        setPreference(AlignSingleLineCaseStatements, true).
+        setPreference(CompactControlReadability, false).
+        setPreference(CompactStringConcatenation, false).
+        setPreference(DoubleIndentConstructorArguments, true).
+        setPreference(FormatXml, true).
+        setPreference(IndentLocalDefs, false).
+        setPreference(IndentPackageBlocks, true).
+        setPreference(IndentSpaces, 2).
+        setPreference(MultilineScaladocCommentsStartOnFirstLine, false).
+        setPreference(PreserveSpaceBeforeArguments, false).
+        setPreference(DanglingCloseParenthesis, Preserve).
+        setPreference(RewriteArrowSymbols, false).
+        setPreference(SpaceBeforeColon, false).
+        setPreference(SpaceInsideBrackets, false).
+        setPreference(SpacesAroundMultiImports, true).
+        setPreference(SpacesWithinPatternBinders, true)
+    )
+  }
 }
 
 object Findbugs {
   import scala.xml.{ NodeSeq, XML }, XML.{ loadFile => loadXML }
 
   import de.johoop.findbugs4sbt.{ FindBugs, ReportType }, FindBugs.{
-    findbugsExcludeFilters, findbugsReportPath, findbugsReportType,
+    findbugsExcludeFilters,
+    findbugsReportPath,
+    findbugsReportType,
     findbugsSettings
   }
 
@@ -101,7 +91,7 @@ object Findbugs {
       }
 
       Some(
-        <FindBugsFilter>${commonFilters.child}${filters}</FindBugsFilter>
+        <FindBugsFilter>${ commonFilters.child }${ filters }</FindBugsFilter>
       )
     }
   )
@@ -109,7 +99,7 @@ object Findbugs {
 
 object Publish {
   import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
-  import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifacts
+  import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
 
   @inline def env(n: String): String = sys.env.get(n).getOrElse(n)
 
@@ -119,8 +109,13 @@ object Publish {
   lazy val repoUrl = env("PUBLISH_REPO_URL")
 
   val mimaSettings = mimaDefaultSettings ++ Seq(
-    previousArtifacts := Set(
-      organization.value %% moduleName.value % previousVersion)
+    mimaPreviousArtifacts := {
+      if (!scalaVersion.value.startsWith("2.12")) {
+        Set(organization.value %% moduleName.value % previousVersion)
+      } else {
+        Set.empty
+      }
+    }
   )
 
   val settings = Seq(

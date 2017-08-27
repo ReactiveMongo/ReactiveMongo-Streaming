@@ -17,11 +17,11 @@ import reactivemongo.api.{
 }, Cursor.{ Cont, Done, ErrorHandler, Fail }
 
 private[akkastream] class DocumentStage[T](
-  cursor: AkkaStreamCursorImpl[T],
-  maxDocs: Int,
-  err: ErrorHandler[Option[T]]
+    cursor: AkkaStreamCursorImpl[T],
+    maxDocs: Int,
+    err: ErrorHandler[Option[T]]
 )(implicit ec: ExecutionContext)
-    extends GraphStage[SourceShape[T]] {
+  extends GraphStage[SourceShape[T]] {
 
   override val toString = "ReactiveMongoDocument"
   val out: Outlet[T] = Outlet(s"${toString}.out")
@@ -111,7 +111,7 @@ private[akkastream] class DocumentStage[T](
 
             case Cont(_) => {}
 
-            case Done(current @ Some(v)) => {
+            case Done(Some(v)) => {
               push(out, v)
               completeStage()
             }
@@ -131,14 +131,14 @@ private[akkastream] class DocumentStage[T](
       private def asyncCallback: Try[Option[Response]] => Unit = {
         case Failure(reason) => onFailure(reason)
 
-        case Success(resp @ Some(r)) => {
+        case Success(Some(r)) => {
           if (r.reply.numberReturned == 0) {
             if (tailable) onPull()
             else completeStage()
           } else {
             last = None
 
-            val bulkIter = cursor.documentIterator(r).
+            val bulkIter = cursor.documentIterator(r, ec).
               take(maxDocs - r.reply.startingFrom)
 
             nextD(r, bulkIter)
