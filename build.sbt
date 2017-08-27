@@ -4,9 +4,9 @@ import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.12.3"
 
-crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.1")
+crossScalaVersions in ThisBuild := Seq("2.11.11", scalaVersion.value)
 
 crossVersion in ThisBuild := CrossVersion.binary
 
@@ -61,7 +61,7 @@ lazy val streaming = (project in file(".")).settings(
               flags.contains("ITERATEES_VERSION" -> playUpper) ||
               flags.contains("AKKA_VERSION" -> akkaUpper)) {
             List(
-              "    - scala: 2.11.8",
+              "    - scala: 2.11.11",
               s"      env: ${integrationVars(flags)}"
             )
           } else if (/* time-compat exclusions: */
@@ -69,7 +69,7 @@ lazy val streaming = (project in file(".")).settings(
               flags.contains("AKKA_VERSION" -> akkaLower)
           ) {
             List(
-              "    - scala: 2.12.1",
+              s"    - scala: ${scalaVersion.value}",
               s"      env: ${integrationVars(flags)}"
             )
           } else List.empty[String]

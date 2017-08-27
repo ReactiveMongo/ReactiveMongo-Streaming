@@ -45,7 +45,7 @@ sealed trait PlayIterateesCursor[T] extends Cursor[T] {
 }
 
 class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
-    extends PlayIterateesCursor[T] with WrappedCursor[T] {
+  extends PlayIterateesCursor[T] with WrappedCursor[T] {
   import Cursor.{ Cont, Fail, State }
 
   private def errorHandler[A](chan: Concurrent.Channel[A], err: ErrorHandler[Unit]): ErrorHandler[Unit] = {
@@ -86,9 +86,9 @@ class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
 }
 
 class PlayIterateesFlattenedCursor[T](
-  val cursor: Future[PlayIterateesCursor[T]]
+    val cursor: Future[PlayIterateesCursor[T]]
 )
-    extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
+  extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
 
   override def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T] = Enumerator.flatten(cursor.map(_.enumerator(maxDocs, err)))
 

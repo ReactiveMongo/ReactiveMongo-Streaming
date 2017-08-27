@@ -11,12 +11,12 @@ import reactivemongo.core.protocol.Response
 import reactivemongo.api.Cursor, Cursor.ErrorHandler
 
 private[akkastream] class ResponseStage[T, Out](
-  cursor: AkkaStreamCursorImpl[T],
-  maxDocs: Int,
-  suc: Response => Out,
-  err: ErrorHandler[Option[Out]]
+    cursor: AkkaStreamCursorImpl[T],
+    maxDocs: Int,
+    suc: Response => Out,
+    err: ErrorHandler[Option[Out]]
 )(implicit ec: ExecutionContext)
-    extends GraphStage[SourceShape[Out]] {
+  extends GraphStage[SourceShape[Out]] {
 
   override val toString = "ReactiveMongoResponse"
   val out: Outlet[Out] = Outlet(s"${toString}.out")
@@ -36,7 +36,7 @@ private[akkastream] class ResponseStage[T, Out](
 
       private var request: () => Future[Option[Response]] = { () =>
         cursor.makeRequest(maxDocs).andThen {
-          case Success(r) => {
+          case Success(_) => {
             request = { () =>
               last.fold(Future.successful(Option.empty[Response])) {
                 case (lastResponse, _) => next(lastResponse).andThen {
@@ -85,7 +85,7 @@ private[akkastream] class ResponseStage[T, Out](
           response.map(_.map { r => r -> suc(r) }) match {
             case Failure(reason) => onFailure(reason)
 
-            case Success(state @ Some((r, result))) => {
+            case Success(state @ Some((_, result))) => {
               last = state
               push(out, result)
             }
