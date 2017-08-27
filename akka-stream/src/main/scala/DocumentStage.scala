@@ -17,11 +17,10 @@ import reactivemongo.api.{
 }, Cursor.{ Cont, Done, ErrorHandler, Fail }
 
 private[akkastream] class DocumentStage[T](
-  cursor: AkkaStreamCursorImpl[T],
-  maxDocs: Int,
-  err: ErrorHandler[Option[T]]
-)(implicit ec: ExecutionContext)
-    extends GraphStage[SourceShape[T]] {
+    cursor: AkkaStreamCursorImpl[T],
+    maxDocs: Int,
+    err: ErrorHandler[Option[T]])(implicit ec: ExecutionContext)
+  extends GraphStage[SourceShape[T]] {
 
   override val toString = "ReactiveMongoDocument"
   val out: Outlet[T] = Outlet(s"${toString}.out")
@@ -29,8 +28,7 @@ private[akkastream] class DocumentStage[T](
 
   private val nextResponse = cursor.nextResponse(maxDocs)
   private val logger = reactivemongo.util.LazyLogger(
-    "reactivemongo.akkastream.DocumentStage"
-  )
+    "reactivemongo.akkastream.DocumentStage")
 
   @inline
   private def nextR(r: Response): Future[Option[Response]] =
@@ -45,8 +43,7 @@ private[akkastream] class DocumentStage[T](
       private var request: () => Future[Option[Response]] = { () =>
         cursor.makeRequest(maxDocs).andThen {
           case Success(r) if (
-            tailable && r.reply.numberReturned > 0
-          ) => onFirst()
+            tailable && r.reply.numberReturned > 0) => onFirst()
 
           case Success(_) if (!tailable) => onFirst()
         }.map(Some(_))
@@ -76,8 +73,7 @@ private[akkastream] class DocumentStage[T](
           cursor.wrappee kill r.reply.cursorID
         } catch {
           case reason: Exception => logger.warn(
-            s"fails to kill the cursor (${r.reply.cursorID})", reason
-          )
+            s"fails to kill the cursor (${r.reply.cursorID})", reason)
         }
 
         last = None

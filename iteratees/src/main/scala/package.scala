@@ -16,7 +16,7 @@ package object iteratees {
 
   /** Provides flattener for Play Iteratees cursor. */
   implicit object cursorFlattener
-      extends reactivemongo.api.CursorFlattener[PlayIterateesCursor] {
+    extends reactivemongo.api.CursorFlattener[PlayIterateesCursor] {
 
     def flatten[T](future: Future[PlayIterateesCursor[T]]): PlayIterateesCursor[T] = new PlayIterateesFlattenedCursor(future)
   }

@@ -4,9 +4,10 @@ import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.11.11"
 
-crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.1")
+crossScalaVersions in ThisBuild := Seq(
+  (scalaVersion in ThisBuild).value, "2.12.3")
 
 crossVersion in ThisBuild := CrossVersion.binary
 
@@ -29,7 +30,7 @@ lazy val streaming = (project in file(".")).settings(
       "-skip-packages", "highlightextractor"),
     travisEnv in Test := { // test:travisEnv from SBT CLI
       val (akkaLower, akkaUpper) = "2.4.8" -> "2.5.3"
-      val (playLower, playUpper) = "2.3.10" -> "2.6.1"
+      val (playLower, playUpper) = "2.3.10" -> "2.6.2"
       val specs = List[(String, List[String])](
         "AKKA_VERSION" -> List(akkaLower, akkaUpper),
         "ITERATEES_VERSION" -> List(playLower, playUpper)
@@ -61,7 +62,7 @@ lazy val streaming = (project in file(".")).settings(
               flags.contains("ITERATEES_VERSION" -> playUpper) ||
               flags.contains("AKKA_VERSION" -> akkaUpper)) {
             List(
-              "    - scala: 2.11.8",
+              "    - scala: 2.11.11",
               s"      env: ${integrationVars(flags)}"
             )
           } else if (/* time-compat exclusions: */
@@ -69,7 +70,7 @@ lazy val streaming = (project in file(".")).settings(
               flags.contains("AKKA_VERSION" -> akkaLower)
           ) {
             List(
-              "    - scala: 2.12.1",
+              "    - scala: 2.12.3",
               s"      env: ${integrationVars(flags)}"
             )
           } else List.empty[String]

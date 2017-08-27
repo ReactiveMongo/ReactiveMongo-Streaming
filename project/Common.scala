@@ -30,18 +30,17 @@ object Common {
     autoAPIMappings := true,
     scalacOptions in (Compile, doc) := Seq(
       "-Ywarn-dead-code", "-Ywarn-unused-import", "-unchecked", "-deprecation",
-      /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
+      /*"-diagrams", */ "-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Streaming API") ++
       Opts.doc.version(Release.major.value),
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
-      "specs2-core", "specs2-junit").map(
-      "org.specs2" %% _ % "3.8.6" % Test) ++ Seq(
-      Dependencies.slf4jSimple % Test),
+        "specs2-core", "specs2-junit").map(
+          "org.specs2" %% _ % "3.9.4" % Test) ++ Seq(
+            Dependencies.slf4jSimple % Test),
     scapegoatVersion := "1.3.0",
-    scapegoatReports := Seq("xml")
-  ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
-    Publish.mimaSettings ++ Release.settings)
+    scapegoatReports := Seq("xml")) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
+      Publish.mimaSettings ++ Release.settings)
 
   val testCleanup: ClassLoader => Unit = { cl =>
     import scala.language.reflectiveCalls
@@ -64,27 +63,27 @@ object Format {
       setPreference(AlignSingleLineCaseStatements, true).
       setPreference(CompactControlReadability, false).
       setPreference(CompactStringConcatenation, false).
-      setPreference(DoubleIndentClassDeclaration, true).
+      setPreference(DoubleIndentConstructorArguments, true).
       setPreference(FormatXml, true).
       setPreference(IndentLocalDefs, false).
       setPreference(IndentPackageBlocks, true).
       setPreference(IndentSpaces, 2).
       setPreference(MultilineScaladocCommentsStartOnFirstLine, false).
       setPreference(PreserveSpaceBeforeArguments, false).
-      setPreference(PreserveDanglingCloseParenthesis, true).
       setPreference(RewriteArrowSymbols, false).
       setPreference(SpaceBeforeColon, false).
       setPreference(SpaceInsideBrackets, false).
       setPreference(SpacesAroundMultiImports, true).
-      setPreference(SpacesWithinPatternBinders, true)
-  )
+      setPreference(SpacesWithinPatternBinders, true))
 }
 
 object Findbugs {
   import scala.xml.{ NodeSeq, XML }, XML.{ loadFile => loadXML }
 
   import de.johoop.findbugs4sbt.{ FindBugs, ReportType }, FindBugs.{
-    findbugsExcludeFilters, findbugsReportPath, findbugsReportType,
+    findbugsExcludeFilters,
+    findbugsReportPath,
+    findbugsReportType,
     findbugsSettings
   }
 
@@ -101,10 +100,8 @@ object Findbugs {
       }
 
       Some(
-        <FindBugsFilter>${commonFilters.child}${filters}</FindBugsFilter>
-      )
-    }
-  )
+        <FindBugsFilter>${ commonFilters.child }${ filters }</FindBugsFilter>)
+    })
 }
 
 object Publish {
@@ -120,8 +117,7 @@ object Publish {
 
   val mimaSettings = mimaDefaultSettings ++ Seq(
     previousArtifacts := Set(
-      organization.value %% moduleName.value % previousVersion)
-  )
+      organization.value %% moduleName.value % previousVersion))
 
   val settings = Seq(
     publishMavenStyle := true,
@@ -145,8 +141,7 @@ object Publish {
       </developers>),
     publishTo := Some(repoUrl).map(repoName at _),
     credentials += Credentials(repoName, env("PUBLISH_REPO_ID"),
-      env("PUBLISH_USER"), env("PUBLISH_PASS"))
-  )
+      env("PUBLISH_USER"), env("PUBLISH_PASS")))
 }
 
 object Dependencies {

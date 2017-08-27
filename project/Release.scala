@@ -49,8 +49,7 @@ object Release {
       ReleaseStateTransformations.inquireVersions,
       ReleaseStateTransformations.setReleaseVersion,
       ReleaseStateTransformations.commitNextVersion,
-      pushCurrentBranch.value
-    )
+      pushCurrentBranch.value)
   }
 
   // No tracking branch is set up -> set upstream
@@ -67,14 +66,13 @@ object Release {
       ReleaseStateTransformations.inquireVersions,
       ReleaseStateTransformations.setNextVersion,
       ReleaseStateTransformations.commitNextVersion,
-      pushCurrentBranch.value
-    )
+      pushCurrentBranch.value)
   }
 
   val major = Def.setting[String] {
     Version(version.value) match {
       case Some(Version(maj, Seq(min, _), _)) => s"${maj}.${min}"
-      case _ => sys.error(s"Invalid version: ${version.value}")
+      case _                                  => sys.error(s"Invalid version: ${version.value}")
     }
   }
 
@@ -102,6 +100,5 @@ object Release {
     releaseProcess := {
       if (version.value endsWith "-SNAPSHOT") releaseMaster.value
       else bumpMaster.value
-    }
-  )
+    })
 }
