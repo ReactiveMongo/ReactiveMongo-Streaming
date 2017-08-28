@@ -1,11 +1,11 @@
 package reactivemongo.akkastream
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 
 import scala.util.{ Failure, Success, Try }
 
 import akka.stream.{ Attributes, Outlet, SourceShape }
-import akka.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
+import akka.stream.stage.{ GraphStageWithMaterializedValue, GraphStageLogic, OutHandler }
 
 import reactivemongo.core.protocol.Response
 import reactivemongo.api.Cursor, Cursor.ErrorHandler
@@ -16,7 +16,7 @@ private[akkastream] class ResponseStage[T, Out](
     suc: Response => Out,
     err: ErrorHandler[Option[Out]]
 )(implicit ec: ExecutionContext)
-  extends GraphStage[SourceShape[Out]] {
+  extends GraphStageWithMaterializedValue[SourceShape[Out], Future[State]] {
 
   override val toString = "ReactiveMongoResponse"
   val out: Outlet[Out] = Outlet(s"${toString}.out")
@@ -30,8 +30,13 @@ private[akkastream] class ResponseStage[T, Out](
   @inline
   private def next(r: Response): Future[Option[Response]] = nextResponse(ec, r)
 
-  def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
-    new GraphStageLogic(shape) with OutHandler {
+  def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[State]) = {
+
+    val shutdownPromise = Promise[State]
+
+    (new GraphStageLogic(shape) with OutHandler {
+      private var count: Long = 0L
+
       private var last = Option.empty[(Response, Out)]
 
       private var request: () => Future[Option[Response]] = { () =>
@@ -71,13 +76,33 @@ private[akkastream] class ResponseStage[T, Out](
       private def onFailure(reason: Throwable): Unit = {
         val previous = last.map(_._2)
 
-        killLast()
-
         err(previous, reason) match {
-          case Cursor.Cont(_)     => ()
-          case Cursor.Fail(error) => fail(out, error)
-          case Cursor.Done(_)     => completeStage()
+          case Cursor.Cont(_) =>
+            ()
+            killLast()
+          case Cursor.Fail(error) =>
+            fail(error)
+          case Cursor.Done(_) =>
+            stopWithError(reason)
         }
+      }
+
+      private def stop(): Unit = {
+        killLast()
+        shutdownPromise.success(State.Successful(count))
+        completeStage()
+      }
+
+      private def stopWithError(reason: Throwable): Unit = {
+        killLast()
+        shutdownPromise.success(State.Failed(count, reason))
+        completeStage()
+      }
+
+      private def fail(reason: Throwable): Unit = {
+        killLast()
+        shutdownPromise.success(State.Failed(count, reason))
+        failStage(reason)
       }
 
       private val futureCB =
@@ -87,11 +112,12 @@ private[akkastream] class ResponseStage[T, Out](
 
             case Success(state @ Some((_, result))) => {
               last = state
+              count += 1
               push(out, result)
             }
 
             case _ =>
-              completeStage()
+              stop()
           }
         }).invoke _
 
@@ -99,9 +125,11 @@ private[akkastream] class ResponseStage[T, Out](
 
       override def postStop(): Unit = {
         killLast()
+        shutdownPromise.trySuccess(State.Successful(count))
         super.postStop()
       }
 
       setHandler(out, this)
-    }
+    }, shutdownPromise.future)
+  }
 }

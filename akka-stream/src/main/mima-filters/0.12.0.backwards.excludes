@@ -1,0 +1,6 @@
+# Package private changes:
+ProblemFilters.exclude[MissingTypesProblem]("reactivemongo.akkastream.DocumentStage")
+ProblemFilters.exclude[DirectMissingMethodProblem]("reactivemongo.akkastream.DocumentStage.createLogic")
+ProblemFilters.exclude[DirectMissingMethodProblem]("reactivemongo.akkastream.State.materialized")
+ProblemFilters.exclude[MissingTypesProblem]("reactivemongo.akkastream.ResponseStage")
+ProblemFilters.exclude[DirectMissingMethodProblem]("reactivemongo.akkastream.ResponseStage.createLogic")

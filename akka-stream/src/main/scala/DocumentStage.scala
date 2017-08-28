@@ -1,11 +1,11 @@
 package reactivemongo.akkastream
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 
 import scala.util.{ Failure, Success, Try }
 
 import akka.stream.{ Attributes, Outlet, SourceShape }
-import akka.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
+import akka.stream.stage.{ GraphStageWithMaterializedValue, GraphStageLogic, OutHandler }
 
 import reactivemongo.core.protocol.{
   ReplyDocumentIteratorExhaustedException,
@@ -21,7 +21,7 @@ private[akkastream] class DocumentStage[T](
     maxDocs: Int,
     err: ErrorHandler[Option[T]]
 )(implicit ec: ExecutionContext)
-  extends GraphStage[SourceShape[T]] {
+  extends GraphStageWithMaterializedValue[SourceShape[T], Future[State]] {
 
   override val toString = "ReactiveMongoDocument"
   val out: Outlet[T] = Outlet(s"${toString}.out")
@@ -36,8 +36,13 @@ private[akkastream] class DocumentStage[T](
   private def nextR(r: Response): Future[Option[Response]] =
     nextResponse(ec, r)
 
-  def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
-    new GraphStageLogic(shape) with OutHandler {
+  override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[State]) = {
+
+    val shutdownPromise = Promise[State]
+
+    (new GraphStageLogic(shape) with OutHandler {
+      private var count: Long = 0L
+
       private var last = Option.empty[(Response, Iterator[T], Option[T])]
 
       @inline private def tailable = cursor.wrappee.tailable
@@ -86,42 +91,65 @@ private[akkastream] class DocumentStage[T](
       private def onFailure(reason: Throwable): Unit = {
         val previous = last.flatMap(_._3)
 
-        killLast()
-
         err(previous, reason) match {
-          case Cursor.Cont(_)     => ()
-          case Cursor.Fail(error) => fail(out, error)
-          case Cursor.Done(_)     => completeStage()
+          case Cursor.Cont(_) =>
+            ()
+            killLast()
+          case Cursor.Fail(error) =>
+            fail(error)
+          case Cursor.Done(_) =>
+            stopWithError(reason)
         }
+      }
+
+      private def stop(): Unit = {
+        killLast()
+        shutdownPromise.success(State.Successful(count))
+        completeStage()
+      }
+
+      private def stopWithError(reason: Throwable): Unit = {
+        killLast()
+        shutdownPromise.success(State.Failed(count, reason))
+        completeStage()
+      }
+
+      private def fail(reason: Throwable): Unit = {
+        killLast()
+        shutdownPromise.success(State.Failed(count, reason))
+        failStage(reason)
       }
 
       private def nextD(r: Response, bulk: Iterator[T]): Unit =
         Try(bulk.next) match {
           case Failure(reason @ ReplyDocumentIteratorExhaustedException(_)) =>
-            fail(out, reason)
+            fail(reason)
 
           case Failure(reason @ CursorOps.Unrecoverable(_)) =>
-            fail(out, reason)
+            fail(reason)
 
           case Failure(reason) => err(last.flatMap(_._3), reason) match {
             case Cont(current @ Some(v)) => {
               last = Some((r, bulk, current))
+              count += 1
               push(out, v)
             }
 
             case Cont(_) => {}
 
             case Done(Some(v)) => {
+              count += 1
               push(out, v)
-              completeStage()
+              stopWithError(reason)
             }
 
-            case Done(_)     => completeStage()
-            case Fail(cause) => fail(out, cause)
+            case Done(_)     => stopWithError(reason)
+            case Fail(cause) => fail(cause)
           }
 
           case Success(v) => {
             last = Some((r, bulk, Some(v)))
+            count += 1
             push(out, v)
           }
         }
@@ -134,7 +162,7 @@ private[akkastream] class DocumentStage[T](
         case Success(Some(r)) => {
           if (r.reply.numberReturned == 0) {
             if (tailable) onPull()
-            else completeStage()
+            else stop()
           } else {
             last = None
 
@@ -146,7 +174,7 @@ private[akkastream] class DocumentStage[T](
         }
 
         case Success(None) if (!tailable) =>
-          completeStage()
+          stop()
 
         case _ => {
           last = None
@@ -161,7 +189,7 @@ private[akkastream] class DocumentStage[T](
 
         case _ if (tailable && !cursor.wrappee.connection.active) => {
           // Complete tailable source if the connection is no longer active
-          completeStage()
+          stop()
         }
 
         case _ =>
@@ -170,9 +198,11 @@ private[akkastream] class DocumentStage[T](
 
       override def postStop(): Unit = {
         killLast()
+        shutdownPromise.trySuccess(State.Successful(count))
         super.postStop()
       }
 
       setHandler(out, this)
-    }
+    }, shutdownPromise.future)
+  }
 }

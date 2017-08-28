@@ -1,6 +1,8 @@
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
+import reactivemongo.akkastream.State
+
 import scala.util.{ Failure, Try }
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
@@ -425,8 +427,11 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
               (count + 1L) -> (n + i)
           }
 
-          src.runWith(consume) must beEqualTo(
-            nDocs.toLong -> 136397386L
+          src.toMat(consume)((state, res) => state.flatMap(s => res.map((s, _)))).run() must beEqualTo(
+            (
+              State.Successful(nDocs.toLong),
+              nDocs.toLong -> 136397386L
+            )
           ).await(1, moreTime)
         }
       }

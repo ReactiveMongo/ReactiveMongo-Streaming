@@ -1,7 +1,7 @@
 package reactivemongo
 
 import scala.concurrent.Future
-import reactivemongo.api.{ Cursor, CursorProducer, CursorOps }
+import reactivemongo.api.{ Cursor, CursorOps, CursorProducer }
 
 package object akkastream {
   /** Provides Akka Streams instances for CursorProducer typeclass. */
