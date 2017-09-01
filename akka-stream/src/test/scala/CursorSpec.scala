@@ -772,6 +772,25 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         }
       }
     }
+
+    "be partially consumed as document source" >> {
+      "using maxDoc and a sink" in assertAllStagesStopped { implicit ee: EE =>
+        val consumed = scala.collection.mutable.ListBuffer.empty[Int]
+        val consumer = Sink.foreach[Int] { i => consumed += i; () }
+        val done = Promise[Unit]()
+        val (cursor, populate) = tailable(done, "source23")
+
+        populate()
+
+        val consume = cursor.documentSource(maxDocs = 2).runWith(consumer)
+
+        done.future must beEqualTo({}).await(0, timeout) and {
+          recoverTimeout(consume)(consumed.toList) must beSuccessfulTry(
+            List(0, 1)
+          )
+        }
+      }
+    }
   }
 
   "Aggregation" should {
@@ -781,7 +800,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
       import reactivemongo.akkastream.cursorProducer
 
       assertAllStagesStopped {
-        toSeq(Cursor.flatten(collection("source23").map { col =>
+        toSeq(Cursor.flatten(collection("source24").map { col =>
           import col.BatchCommands.AggregationFramework.{
             Ascending,
             Match,
