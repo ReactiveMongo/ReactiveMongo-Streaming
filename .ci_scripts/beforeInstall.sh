@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # Clean cache
 rm -rf "$HOME/.ivy2/local/org.reactivemongo"
@@ -12,16 +12,10 @@ cat > /dev/stdout <<EOF
 MongoDB major version: $MONGO_VER
 EOF
 
-MAX_CON=`ulimit -n`
-
-if [ $MAX_CON -gt 1024 ]; then
-    MAX_CON=`expr $MAX_CON - 1024`
-fi
-
-echo "Max connection: $MAX_CON"
-
 # OpenSSL
-if [ ! -L "$HOME/ssl/lib/libssl.so.1.0.0" ]; then
+if [ ! -L "$HOME/ssl/lib/libssl.so.1.0.0" ] && [ ! -f "$HOME/ssl/lib/libssl.so.1.0.0" ]; then
+  echo "[INFO] Building OpenSSL"
+
   cd /tmp
   curl -s -o - https://www.openssl.org/source/openssl-1.0.1s.tar.gz | tar -xzf -
   cd openssl-1.0.1s
@@ -29,45 +23,52 @@ if [ ! -L "$HOME/ssl/lib/libssl.so.1.0.0" ]; then
   ./config -shared enable-ssl2 --prefix="$HOME/ssl" > /dev/null
   make depend > /dev/null
   make install > /dev/null
-else
-  rm -f "$HOME/ssl/lib/libssl.so.1.0.0" "libcrypto.so.1.0.0"
-fi
 
-ln -s "$HOME/ssl/lib/libssl.so.1.0.0" "$HOME/ssl/lib/libssl.so.10"
-ln -s "$HOME/ssl/lib/libcrypto.so.1.0.0" "$HOME/ssl/lib/libcrypto.so.10"
+  ln -s "$HOME/ssl/lib/libssl.so.1.0.0" "$HOME/ssl/lib/libssl.so.10"
+  ln -s "$HOME/ssl/lib/libcrypto.so.1.0.0" "$HOME/ssl/lib/libcrypto.so.10"
+fi
 
 export LD_LIBRARY_PATH="$HOME/ssl/lib:$LD_LIBRARY_PATH"
 
 # Build MongoDB
-if [ "$MONGO_VER" = "3" ]; then
-    if [ ! -x "$HOME/mongodb-linux-x86_64-amazon-3.4.7/bin/mongod" ]; then
-        curl -s -o /tmp/mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.4.7.tgz
-        cd "$HOME" && rm -rf mongodb-linux-x86_64-amazon-3.4.7
-        tar -xzf /tmp/mongodb.tgz && rm -f /tmp/mongodb.tgz
-        chmod u+x mongodb-linux-x86_64-amazon-3.4.7/bin/mongod
+MONGO_MINOR="3.4.5"
+
+# Build MongoDB
+echo "[INFO] Building MongoDB ${MONGO_MINOR} ..."
+
+cd "$HOME"
+
+MONGO_ARCH="x86_64-amazon"
+MONGO_HOME="$HOME/mongodb-linux-$MONGO_ARCH-$MONGO_MINOR"
+
+if [ ! -x "$MONGO_HOME/bin/mongod" ]; then
+    if [ -d "$MONGO_HOME" ]; then
+      rm -rf "$MONGO_HOME"
     fi
 
-    export PATH="$HOME/mongodb-linux-x86_64-amazon-3.4.7/bin:$PATH"
-    cp "$SCRIPT_DIR/mongod3.conf" /tmp/mongod.conf
-
-    echo "  maxIncomingConnections: $MAX_CON" >> /tmp/mongod.conf
-else
-    if [ ! -x "$HOME/mongodb-linux-x86_64-2.6.12/bin/mongod" ]; then
-        curl -s -o /tmp/mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.6.12.tgz
-        cd "$HOME" && rm -rf mongodb-linux-x86_64-2.6.12
-        tar -xzf /tmp/mongodb.tgz && rm -f /tmp/mongodb.tgz
-        chmod u+x mongodb-linux-x86_64-2.6.12/bin/mongod
-    fi
-
-    export PATH="$HOME/mongodb-linux-x86_64-2.6.12/bin:$PATH"
-    cp "$SCRIPT_DIR/mongod26.conf" /tmp/mongod.conf
-
-    echo "  maxIncomingConnections: $MAX_CON" >> /tmp/mongod.conf
+    curl -s -o - "https://fastdl.mongodb.org/linux/mongodb-linux-$MONGO_ARCH-$MONGO_MINOR.tgz" | tar -xzf -
+    chmod u+x "$MONGO_HOME/bin/mongod"
 fi
+
+echo "[INFO] MongoDB available at $MONGO_HOME"
+
+PATH="$MONGO_HOME/bin:$PATH"
 
 mkdir /tmp/mongodb
 
-# MongoDB
+# MongoDB setup
+MAX_CON=`ulimit -n`
+
+if [ $MAX_CON -gt 1024 ]; then
+    MAX_CON=`expr $MAX_CON - 1024`
+fi
+
+echo "[INFO] Max connection: $MAX_CON"
+
+cp "$SCRIPT_DIR/mongod3.conf" /tmp/mongod.conf
+
+echo "  maxIncomingConnections: $MAX_CON" >> /tmp/mongod.conf
+
 echo "# MongoDB Configuration:"
 cat /tmp/mongod.conf
 
@@ -76,7 +77,7 @@ numactl --interleave=all mongod -f /tmp/mongod.conf --port 27017 --fork
 MONGOD_PID=`ps -o pid,comm -u $USER | grep 'mongod$' | awk '{ printf("%s\n", $1); }'`
 
 if [ "x$MONGOD_PID" = "x" ]; then
-    echo -e "\nERROR: Fails to start the custom 'mongod' instance" > /dev/stderr
+    echo -e "\n[ERROR] Fails to start the custom 'mongod' instance" > /dev/stderr
 
     mongod --version
     PID=`ps -o pid,comm -u $USER | grep 'mongod$' | awk '{ printf("%s\n", $1); }'`
@@ -84,7 +85,7 @@ if [ "x$MONGOD_PID" = "x" ]; then
     if [ ! "x$PID" = "x" ]; then
         pid -p $PID
     else
-        echo "ERROR: MongoDB process not found" > /dev/stderr
+        echo "[ERROR] MongoDB process not found" > /dev/stderr
     fi
 
     tail -n 100 /tmp/mongod.log
