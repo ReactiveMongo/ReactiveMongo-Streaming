@@ -113,9 +113,8 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
       assertAllStagesStopped {
         val expected = 2 /* batches */ -> List(
           3 -> true, // 1st batch
-          3 -> true
+          2 -> true
         ) // 2nd batch - true has the max stop before end
-        // got 6 docs, as the batch size is 3
 
         toSeq(cursor("source3").responseSource(5)).map { rs =>
           rs.size -> (rs.map { r =>
