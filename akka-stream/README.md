@@ -7,16 +7,14 @@ This is an [Akka Streams](http://akka.io) extension for the ReactiveMongo cursor
 In your `project/Build.scala`:
 
 ```ocaml
-val reactiveMongoVer = "0.12.0-SNAPSHOT"
-
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "rectivemongo" % reactiveMongoVer,
-  "org.reactivemongo" %% "reactivemongo-akkastream" % reactiveMongoVer)
+  "org.reactivemongo" %% "rectivemongo" % VERSION,
+  "org.reactivemongo" %% "reactivemongo-akkastream" % VERSION)
 ```
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastream_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-akkastream_2.11/)
+[![Maven](https://img.shields.io/maven-central/v/org.reactivemongo/reactivemongo-akkastream_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Creactivemongo-akkastream) [![Javadocs](https://javadoc.io/badge/org.reactivemongo/reactivemongo-akkastream_2.12.svg)](https://javadoc.io/doc/org.reactivemongo/reactivemongo-akkastream_2.12)
 
 > Java 1.8+ is required.
 

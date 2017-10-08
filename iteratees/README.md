@@ -9,16 +9,15 @@ The [Play Iteratees](https://www.playframework.com/documentation/latest/Iteratee
 The dependencies can be updated as follows in your `project/Build.scala`:
 
 ```ocaml
-val reactiveMongoVer = "0.12-RC2"
 val playVer = "2.3.10" // or greater
 
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "rectivemongo" % reactiveMongoVer,
-  "org.reactivemongo" %% "reactivemongo-iteratees" % reactiveMongoVer,
+  "org.reactivemongo" %% "rectivemongo" % VERSION,
+  "org.reactivemongo" %% "reactivemongo-iteratees" % VERSION,
   "com.typesafe.play" %% "play-iteratees" % playVer)
 ```
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-iteratees_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/reactivemongo-iteratees_2.11/)
+[![Maven](https://img.shields.io/maven-central/v/org.reactivemongo/reactivemongo-iteratees_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Creactivemongo-iteratees) [![Javadocs](https://javadoc.io/badge/org.reactivemongo/reactivemongo-iteratees_2.12.svg)](https://javadoc.io/doc/org.reactivemongo/reactivemongo-iteratees_2.12)
 
 > Java 1.8+ is required.
 
