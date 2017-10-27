@@ -1,10 +1,8 @@
-import sbtunidoc.Plugin.UnidocKeys._
-
 import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-scalaVersion in ThisBuild := "2.12.3"
+scalaVersion in ThisBuild := "2.12.4"
 
 crossScalaVersions in ThisBuild := Seq("2.11.11", scalaVersion.value)
 
@@ -23,13 +21,13 @@ val travisEnv = taskKey[Unit]("Print Travis CI env")
 
 lazy val streaming = (project in file(".")).settings(
   Seq(
-    libraryDependencies += reactiveMongo % version.value % "provided",
+    libraryDependencies += reactiveMongo % version.value % Provided,
     scalacOptions ++= Seq("-Ywarn-unused-import", "-unchecked"),
     scalacOptions in (Compile, doc) ++= List(
       "-skip-packages", "highlightextractor"),
     travisEnv in Test := { // test:travisEnv from SBT CLI
       val (akkaLower, akkaUpper) = "2.4.8" -> "2.5.4"
-      val (playLower, playUpper) = "2.3.10" -> "2.6.1"
+      val (playLower, playUpper) = "2.3.10" -> "2.6.6"
       val specs = List[(String, List[String])](
         "AKKA_VERSION" -> List(akkaLower, akkaUpper),
         "ITERATEES_VERSION" -> List(playLower, playUpper)
@@ -78,6 +76,6 @@ lazy val streaming = (project in file(".")).settings(
 
       println(s"# Travis CI env\r\n$matrix")
     }
-  ) ++ unidocSettings ++ Publish.settings ++ Release.settings
+  ) ++ Publish.settings ++ Release.settings
 ).dependsOn(iteratees, `akka-stream`).
   aggregate(iteratees, `akka-stream`)

@@ -29,7 +29,7 @@ import reactivemongo.api.collections.bson.BSONCollection
 
 import reactivemongo.akkastream.AkkaStreamCursor
 
-class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
+class CursorSpec extends org.specs2.mutable.Specification { //with CursorFixtures {
   "Cursor" title
 
   sequential
@@ -38,9 +38,13 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
   implicit val materializer = akka.stream.ActorMaterializer.create(system)
 
   import Common.primaryHost
+  Common.connection.actorSystem.registerOnTermination {
+    println("--> terminated")
+  }
   val db = Common.db
   @inline def timeout = Common.timeout
 
+  /*
   "Response source" should {
     "be fully consumed" >> {
       "using a sequence sink" in assertAllStagesStopped { implicit ee: EE =>
@@ -797,6 +801,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
       }
     }
   }
+   */
 }
 
 sealed trait CursorFixtures { specs: CursorSpec =>

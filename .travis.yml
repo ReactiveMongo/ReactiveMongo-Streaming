@@ -19,13 +19,13 @@ scala:
 jdk: oraclejdk8
 env:
   - AKKA_VERSION=2.4.8 ITERATEES_VERSION=2.3.10
-  - AKKA_VERSION=2.5.4 ITERATEES_VERSION=2.6.1
+  - AKKA_VERSION=2.5.4 ITERATEES_VERSION=2.6.6
 matrix: 
   exclude: 
     - scala: 2.12.3
       env: AKKA_VERSION=2.4.8 ITERATEES_VERSION=2.3.10
     - scala: 2.11.11
-      env: AKKA_VERSION=2.5.4 ITERATEES_VERSION=2.6.1
+      env: AKKA_VERSION=2.5.4 ITERATEES_VERSION=2.6.6
 before_install: ./.ci_scripts/beforeInstall.sh $TRAVIS_SCALA_VERSION
 script: ./.ci_scripts/validate.sh
 after_success: ./.ci_scripts/afterSuccess.sh
