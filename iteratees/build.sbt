@@ -8,7 +8,8 @@ val playVer = Def.setting[String] {
 }
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-iteratees" % playVer.value % "provided"
+  "com.typesafe.play" %% "play-iteratees" % playVer.value % Provided,
+  "com.typesafe.akka" %% "akka-slf4j" % "2.4.17" % Test
 )
 
 // Publish

@@ -26,7 +26,7 @@ object Common {
         "specs2-core", "specs2-junit").map(
           "org.specs2" %% _ % "3.9.4" % Test) ++ Seq(
             Dependencies.slf4jSimple % Test)
-  ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
+  ) ++ Format.settings ++ Publish.settings ++ (
       Scapegoat.settings ++ Publish.mimaSettings ++ Release.settings)
 
   val testCleanup: ClassLoader => Unit = { cl =>
@@ -66,35 +66,6 @@ object Format {
         setPreference(SpacesWithinPatternBinders, true)
     )
   }
-}
-
-object Findbugs {
-  import scala.xml.{ NodeSeq, XML }, XML.{ loadFile => loadXML }
-
-  import de.johoop.findbugs4sbt.{ FindBugs, ReportType }, FindBugs.{
-    findbugsExcludeFilters,
-    findbugsReportPath,
-    findbugsReportType,
-    findbugsSettings
-  }
-
-  val settings = findbugsSettings ++ Seq(
-    findbugsReportType := Some(ReportType.PlainHtml),
-    findbugsReportPath := Some(target.value / "findbugs.html"),
-    findbugsExcludeFilters := {
-      val commonFilters = loadXML(baseDirectory.value / ".." / "project" / (
-        "findbugs-exclude-filters.xml"))
-
-      val filters = {
-        val f = baseDirectory.value / "findbugs-exclude-filters.xml"
-        if (!f.exists) NodeSeq.Empty else loadXML(f).child
-      }
-
-      Some(
-        <FindBugsFilter>${ commonFilters.child }${ filters }</FindBugsFilter>
-      )
-    }
-  )
 }
 
 object Publish {

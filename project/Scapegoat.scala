@@ -7,7 +7,7 @@ object Scapegoat {
   import ScapegoatSbtPlugin.autoImport._
 
   val settings = Seq(
-    scapegoatVersion in ThisBuild := "1.3.2",
+    scapegoatVersion in ThisBuild := "1.3.3",
     scapegoatReports in ThisBuild := Seq("xml"),
     pomPostProcess := transformPomDependencies { dep =>
       if ((dep \ "groupId").text == "com.sksamuel.scapegoat") {
