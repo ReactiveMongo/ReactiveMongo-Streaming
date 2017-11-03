@@ -6,7 +6,7 @@ scalaVersion in ThisBuild := "2.12.4"
 
 crossScalaVersions in ThisBuild := Seq("2.11.11", scalaVersion.value)
 
-crossVersion in ThisBuild := CrossVersion.binary
+//crossVersion in ThisBuild := CrossVersion.binary
 
 resolvers in ThisBuild ++= Seq(
   "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/")
