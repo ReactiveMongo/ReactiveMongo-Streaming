@@ -23,7 +23,16 @@ object Common {
   val failoverRetries = Option(System getProperty "test.failoverRetries").
     flatMap(r => scala.util.Try(r.toInt).toOption).getOrElse(7)
 
-  lazy val driver = new MongoDriver
+  private val driverReg = Seq.newBuilder[MongoDriver]
+  def newDriver(): MongoDriver = driverReg.synchronized {
+    val drv = MongoDriver()
+
+    driverReg += drv
+
+    drv
+  }
+
+  lazy val driver = newDriver()
   lazy val connection = driver.connection(List(primaryHost), DefaultOptions)
 
   val failoverStrategy = FailoverStrategy(retries = failoverRetries)
@@ -51,9 +60,20 @@ object Common {
     Await.result(_db.flatMap { d => d.drop.map(_ => d) }, timeout)
   }
 
-  def close(): Unit = try {
-    driver.close()
-  } catch { case _: Throwable => () }
+  def close(): Unit = {
+    driverReg.result().foreach { driver =>
+      try {
+        driver.close(timeout)
+      } catch {
+        case e: Throwable =>
+          e.printStackTrace()
+        /*
+          logger.warn(s"Fails to stop driver: $e")
+          logger.debug("Fails to stop driver", e)
+           */
+      }
+    }
+  }
 
   Runtime.getRuntime.addShutdownHook(new Thread() {
     override def run() = close()

@@ -39,12 +39,15 @@ private[akkastream] class ResponseStage[T, Out](
           case Success(_) => {
             request = { () =>
               last.fold(Future.successful(Option.empty[Response])) {
-                case (lastResponse, _) => next(lastResponse).andThen {
-                  case Success(Some(response)) => last.foreach {
-                    case (lr, _) =>
-                      if (lr.reply.cursorID != response.reply.cursorID) kill(lr)
+                case (lastResponse, _) =>
+                  //println(s"lastResponse = ${lastResponse.reply}")
+
+                  next(lastResponse).andThen {
+                    case Success(Some(response)) => last.foreach {
+                      case (lr, _) =>
+                        if (lr.reply.cursorID != response.reply.cursorID) kill(lr)
+                    }
                   }
-                }
               }
             }
           }
@@ -74,14 +77,14 @@ private[akkastream] class ResponseStage[T, Out](
         killLast()
 
         err(previous, reason) match {
-          case Cursor.Cont(_)     => ()
+          case Cursor.Cont(_)     => onPull()
           case Cursor.Fail(error) => fail(out, error)
           case Cursor.Done(_)     => completeStage()
         }
       }
 
       private val futureCB =
-        getAsyncCallback((response: Try[Option[Response]]) => {
+        getAsyncCallback({ response: Try[Option[Response]] =>
           response.map(_.map { r => r -> suc(r) }) match {
             case Failure(reason) => onFailure(reason)
 

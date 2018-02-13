@@ -22,7 +22,6 @@ Then in your code:
 
 ```scala
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import reactivemongo.bson.{ BSONDocument, BSONDocumentReader }
 import reactivemongo.api.collections.bson.BSONCollection

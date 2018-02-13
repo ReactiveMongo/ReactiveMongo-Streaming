@@ -24,7 +24,7 @@ object Common {
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
         "specs2-core", "specs2-junit").map(
-          "org.specs2" %% _ % "3.9.4" % Test) ++ Seq(
+          "org.specs2" %% _ % "4.0.1" % Test) ++ Seq(
             Dependencies.slf4jSimple % Test)
   ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
       Scapegoat.settings ++ Publish.mimaSettings ++ Release.settings)
@@ -45,7 +45,8 @@ object Format {
 
   val settings = {
     import scalariform.formatter.preferences._
-    autoImport.scalariformSettings(autoformat = true) ++ Seq(
+    projectSettings ++ Seq(
+      autoImport.scalariformAutoformat := true,
       ScalariformKeys.preferences := ScalariformKeys.preferences.value.
         setPreference(AlignParameters, false).
         setPreference(AlignSingleLineCaseStatements, true).

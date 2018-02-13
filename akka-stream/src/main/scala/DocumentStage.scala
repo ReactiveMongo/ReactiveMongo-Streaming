@@ -45,10 +45,8 @@ private[akkastream] class DocumentStage[T](
       private var request: () => Future[Option[Response]] = { () =>
         cursor.makeRequest(maxDocs).andThen {
           case Success(r) if (
-            tailable && r.reply.numberReturned > 0
+            !tailable || r.reply.numberReturned > 0
           ) => onFirst()
-
-          case Success(_) if (!tailable) => onFirst()
         }.map(Some(_))
       }
 
@@ -89,13 +87,13 @@ private[akkastream] class DocumentStage[T](
         killLast()
 
         err(previous, reason) match {
-          case Cursor.Cont(_)     => ()
+          case Cursor.Cont(_)     => onPull()
           case Cursor.Fail(error) => fail(out, error)
           case Cursor.Done(_)     => completeStage()
         }
       }
 
-      private def nextD(r: Response, bulk: Iterator[T]): Unit =
+      private def nextD(r: Response, bulk: Iterator[T]): Unit = {
         Try(bulk.next) match {
           case Failure(reason @ ReplyDocumentIteratorExhaustedException(_)) =>
             fail(out, reason)
@@ -109,7 +107,7 @@ private[akkastream] class DocumentStage[T](
               push(out, v)
             }
 
-            case Cont(_) => {}
+            case Cont(_) => ()
 
             case Done(Some(v)) => {
               push(out, v)
@@ -125,6 +123,7 @@ private[akkastream] class DocumentStage[T](
             push(out, v)
           }
         }
+      }
 
       private val futureCB = getAsyncCallback(asyncCallback).invoke _
 
@@ -145,13 +144,14 @@ private[akkastream] class DocumentStage[T](
           }
         }
 
-        case Success(None) if (!tailable) =>
-          completeStage()
-
         case _ => {
-          last = None
-          Thread.sleep(1000) // TODO
-          onPull()
+          if (!tailable) {
+            completeStage()
+          } else {
+            last = None
+            //Thread.sleep(1000) // TODO
+            onPull()
+          }
         }
       }
 

@@ -1,12 +1,10 @@
-import sbtunidoc.Plugin.UnidocKeys._
-
 import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-scalaVersion in ThisBuild := "2.12.3"
+scalaVersion in ThisBuild := "2.12.4"
 
-crossScalaVersions in ThisBuild := Seq("2.11.11", scalaVersion.value)
+crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value)
 
 crossVersion in ThisBuild := CrossVersion.binary
 
@@ -78,6 +76,7 @@ lazy val streaming = (project in file(".")).settings(
 
       println(s"# Travis CI env\r\n$matrix")
     }
-  ) ++ unidocSettings ++ Publish.settings ++ Release.settings
+  ) ++ Publish.settings ++ Release.settings
 ).dependsOn(iteratees, `akka-stream`).
-  aggregate(iteratees, `akka-stream`)
+  aggregate(iteratees, `akka-stream`).
+  enablePlugins(ScalaUnidocPlugin)
