@@ -6,15 +6,12 @@ import play.api.libs.iteratee.Iteratee
 import reactivemongo.bson.{
   BSONDocument,
   BSONDocumentReader,
-  BSONDocumentWriter,
-  BSONInteger,
-  BSONString
+  BSONDocumentWriter
 }
 import reactivemongo.api.{
   Cursor,
   DB,
-  QueryOpts,
-  MongoDriver
+  QueryOpts
 }, Cursor.{ ContOnError, FailOnError }
 import reactivemongo.core.protocol.Response
 import reactivemongo.play.iteratees.PlayIterateesCursor
@@ -32,7 +29,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
   import reactivemongo.play.iteratees.cursorProducer
 
   "BSON collection" should {
-    "be provided the fixtures" >> {
+    "be provided the fixtures" in {
       val fixtures = List(
         Person("Jack", 25),
         Person("James", 16),
@@ -41,13 +38,11 @@ class CursorSpec(implicit ee: ExecutionEnv)
         Person("Joline", 34)
       )
 
-      "with insert" in {
-        implicit val writer = PersonWriter
+      implicit val writer = PersonWriter
 
-        Future.sequence(fixtures.map(personColl.insert(_).map(_.ok))).
-          aka("fixtures") must beEqualTo(List(true, true, true, true, true)).
-          await(0, timeout)
-      }
+      Future.sequence(fixtures.map(personColl.insert(_).map(_.ok))).
+        aka("fixtures") must beEqualTo(List(true, true, true, true, true)).
+        await(0, timeout)
     }
 
     "read empty cursor" >> {
@@ -88,18 +83,30 @@ class CursorSpec(implicit ee: ExecutionEnv)
       }).map(_ => i) must beEqualTo(4).await(0, timeout)
     }
 
-    "insert 16,517 records" in {
-      val futs = for (i <- 0 until 16517)
-        yield coll2.insert(BSONDocument(
-        "i" -> BSONInteger(i), "record" -> BSONString("record" + i)
-      ))
+    val nDocs = 16517
+    s"insert $nDocs records" in {
+      def insert(rem: Int, bulks: Seq[Future[Unit]]): Future[Unit] = {
+        if (rem == 0) {
+          Future.sequence(bulks).map(_ => {})
+        } else {
+          val len = if (rem < 256) rem else 256
+          val prepared = nDocs - rem
 
-      Future.sequence(futs).map(_ => {}) must beEqualTo({}).
-        await(0, 20.seconds)
-    }
+          def bulk = coll2.insert[BSONDocument](false).many(
+            for (i <- 0 until len) yield {
+              val n = i + prepared
+              BSONDocument("i" -> n, "record" -> s"record$n")
+            }).map(_ => {})
+
+          insert(rem - len, bulk +: bulks)
+        }
+      }
+
+      insert(nDocs, Seq.empty) must beEqualTo({}).await(0, 20.seconds)
+    } tag "wip"
 
     "enumerate" >> {
-      "all the 16,517 documents" in {
+      s"all the $nDocs documents" in {
         var i = 0
         coll2.find(BSONDocument.empty).cursor[BSONDocument]().enumerator() |>>> (
           Iteratee.foreach { e: BSONDocument =>
@@ -144,7 +151,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
     }
 
     "enumerate responses" >> {
-      "for all the 16,517 documents" in {
+      s"for all the $nDocs documents" in {
         var i = 0
         coll2.find(BSONDocument.empty).cursor[BSONDocument]().
           responseEnumerator() |>>> (Iteratee.foreach { r: Response =>
@@ -164,7 +171,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
     }
 
     "stop on error" >> {
-      val drv = new MongoDriver
+      val drv = Common.newDriver
       def con = drv.connection(List(primaryHost), DefaultOptions)
       def scol(n: String = coll2.name) =
         Await.result(con.database(db.name).map(_.collection(n)), timeout)
@@ -248,7 +255,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           (cursor.responseEnumerator(10, FailOnError[Unit]()) |>>> inc).
             map(_ => count).recover({ case _ => count }).
             aka("count") must beEqualTo(0).await(0, timeout)
-        }
+        } tag "wip"
       }
 
       "when enumerating bulks" >> {
@@ -272,18 +279,20 @@ class CursorSpec(implicit ee: ExecutionEnv)
         "if fails while processing with existing documents (#2)" in {
           var count = 0
           var i = 0
-          val inc = Iteratee.foreach[Iterator[BSONDocument]] { _ =>
+          val inc = Iteratee.foreach[Iterator[BSONDocument]] { x =>
             i = i + 1
             if (i % 2 == 0) sys.error("Foo")
             count = count + 1
           }
-          val c = scol()
-          val cursor = c.find(BSONDocument.empty).options(QueryOpts(
+          val cursor = scol().find(BSONDocument.empty).options(QueryOpts(
             batchSizeN = 4
           )).cursor()
 
-          (cursor.bulkEnumerator(128, ContOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).await(0, timeout)
+          def consumed: Future[Unit] =
+            cursor.bulkEnumerator(32, ContOnError[Unit]()) |>>> inc
+
+          consumed.map(_ => -1).recover({ case _ => count }).
+            aka("result") must beEqualTo(1).await(0, timeout)
         }
 
         "if fails while processing w/o documents (#1)" in {
@@ -366,7 +375,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
     }
 
     "continue on error" >> {
-      val drv = new MongoDriver
+      val drv = Common.newDriver
       def con = drv.connection(List(primaryHost), DefaultOptions)
       def scol(n: String = coll2.name) =
         Await.result(con.database(db.name).map(_(n)), timeout)

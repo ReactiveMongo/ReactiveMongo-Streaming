@@ -8,12 +8,13 @@ import scala.concurrent.duration._
 // Reactive streams imports
 import org.reactivestreams.Publisher
 
-import akka.stream.scaladsl.{ Sink, Source }
+import akka.stream.KillSwitches
+import akka.stream.scaladsl.{ Keep, Sink, Source }
 
 import akka.stream.testkit.TestSubscriber
 import akka.stream.contrib.TestKit.assertAllStagesStopped
 
-import org.specs2.concurrent.{ ExecutionEnv => EE }
+import org.specs2.concurrent.ExecutionEnv
 
 import reactivemongo.bson.{
   BSONDocument,
@@ -29,12 +30,17 @@ import reactivemongo.api.collections.bson.BSONCollection
 
 import reactivemongo.akkastream.AkkaStreamCursor
 
-class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
+class CursorSpec(implicit ee: ExecutionEnv)
+  extends org.specs2.mutable.Specification with CursorFixtures {
+
   "Cursor" title
 
   sequential
 
-  implicit val system = akka.actor.ActorSystem("reactivemongo-akkastream")
+  implicit val system = akka.actor.ActorSystem(
+    name = "reactivemongo-akkastream",
+    defaultExecutionContext = Some(ee.ec))
+
   implicit val materializer = akka.stream.ActorMaterializer.create(system)
 
   import Common.primaryHost
@@ -43,7 +49,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
   "Response source" should {
     "be fully consumed" >> {
-      "using a sequence sink" in assertAllStagesStopped { implicit ee: EE =>
+      "using a sequence sink" in assertAllStagesStopped {
         val expected = 4 /* batches */ -> List(
           3 -> true, // 1st batch
           3 -> true, // 2nd batch
@@ -58,7 +64,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         }.aka("sequence") must beEqualTo(expected).await(0, timeout)
       }
 
-      "using a publisher" in assertAllStagesStopped { implicit ee: EE =>
+      "using a publisher" in assertAllStagesStopped {
         val pub: Publisher[_ <: Response] =
           cursor("source2").responsePublisher(true)
 
@@ -109,107 +115,100 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
       }
     }
 
-    "consumed with a max of 5 documents" in { implicit ee: EE =>
-      assertAllStagesStopped {
-        val expected = 2 /* batches */ -> List(
-          3 -> true, // 1st batch
-          2 -> true
-        ) // 2nd batch - true has the max stop before end
+    "consumed with a max of 5 documents" in assertAllStagesStopped {
+      val expected = 2 /* batches */ -> List(
+        3 -> true, // 1st batch
+        2 -> false
+      )
 
-        toSeq(cursor("source3").responseSource(5)).map { rs =>
-          rs.size -> (rs.map { r =>
-            r.reply.numberReturned -> (r.reply.cursorID != 0)
-          }).toList
-        }.aka("sequence") must beEqualTo(expected).await(0, timeout)
-      }
+      toSeq(cursor("source3").responseSource(5)).map { rs =>
+        rs.size -> (rs.map { r =>
+          r.reply.numberReturned -> (r.reply.cursorID != 0) // !Mongo3
+        }).toList
+      }.aka("sequence") must beEqualTo(expected).await(0, timeout)
     }
 
     "consumed using a publisher with a max of 6 documents" in {
-      implicit ee: EE =>
-        assertAllStagesStopped {
-          val pub: Publisher[_ <: Response] =
-            cursor("source4").responsePublisher(true, 6)
+      assertAllStagesStopped {
+        val pub: Publisher[_ <: Response] =
+          cursor("source4").responsePublisher(true, 6)
 
-          val c = TestSubscriber.manualProbe[Response]()
+        val c = TestSubscriber.manualProbe[Response]()
 
-          pub subscribe c
+        pub subscribe c
 
-          val sub = c.expectSubscription()
-          sub.request(2)
+        val sub = c.expectSubscription()
+        sub.request(2)
 
-          c.expectNext must beLike[Response] {
-            case resp1 =>
-              val r = resp1.reply
-              r.numberReturned.aka("numberReturned #1") must_== 3 and {
-                (r.cursorID != 0L) aka "hasNext #1" must beTrue
-              }
-          } and {
-            c.expectNext must beLike[Response] {
-              case resp2 =>
-                val r = resp2.reply
-                r.numberReturned.aka("numberReturned #2") must_== 3 and {
-                  (r.cursorID != 0L) aka "hasNext #2" must beTrue
-                }
+        c.expectNext must beLike[Response] {
+          case resp1 =>
+            val r = resp1.reply
+            r.numberReturned.aka("numberReturned #1") must_== 3 and {
+              (r.cursorID != 0L) aka "hasNext #1" must beTrue
             }
-          } and {
-            c.expectComplete() aka "completed" must not(throwA[Throwable])
+        } and {
+          c.expectNext must beLike[Response] {
+            case resp2 =>
+              val r = resp2.reply
+              r.numberReturned.aka("numberReturned #2") must_== 3 and {
+                (r.cursorID != 0L) aka "hasNext #2" must beFalse
+              }
           }
+        } and {
+          c.expectComplete() aka "completed" must not(throwA[Throwable])
         }
+      }
     }
 
     "handle errors" >> {
-      "by failing with the default handler" in { implicit ee: EE =>
-        assertAllStagesStopped {
-          val drv = reactivemongo.api.MongoDriver()
-          val con = drv.connection(List(primaryHost))
-          def col(n: String) = con.database(db.name).flatMap { d =>
-            withFixtures(d.collection(n))
-          }
-
-          val sink = Sink.fold(0) { (count, r: Response) =>
-            if (count == 0) drv.close(3.second) // trigger error by closing
-            count + 1
-          }
-
-          Await.result(
-            cursor1("source5")(col).responseSource() runWith sink, timeout
-          ) aka "result" must throwA[ClosedException](
-              "This MongoConnection is closed"
-            )
+      "by failing with the default handler" in assertAllStagesStopped {
+        val drv = Common.newDriver()
+        val con = drv.connection(List(primaryHost))
+        def col(n: String) = con.database(db.name).flatMap { d =>
+          withFixtures(d.collection(n))
         }
+
+        val sink = Sink.fold(0) { (count, r: Response) =>
+          if (count == 0) drv.close(3.second) // trigger error by closing
+          count + 1
+        }
+
+        Await.result(
+          cursor1("source5")(col).responseSource() runWith sink, timeout
+        ) aka "result" must throwA[ClosedException](
+            "This MongoConnection is closed"
+          )
       }
 
-      "by stopping with the Done handler" in { implicit ee: EE =>
-        assertAllStagesStopped {
-          val drv = reactivemongo.api.MongoDriver()
-          val con = drv.connection(List(primaryHost))
-          def col(n: String) = con.database(db.name).flatMap { d =>
-            withFixtures(d.collection(n))
-          }
+      "by stopping with the Done handler" in assertAllStagesStopped {
+        val drv = Common.newDriver()
+        val con = drv.connection(List(primaryHost))
+        def col(n: String) = con.database(db.name).flatMap { d =>
+          withFixtures(d.collection(n))
+        }
 
-          val sink = Sink.fold(0) { (count, r: Response) =>
-            if (count == 1) drv.close(3.second) // trigger error by closing
-            count + 1
-          }
-          @volatile var err = Option.empty[Throwable]
+        val sink = Sink.fold(0) { (count, r: Response) =>
+          if (count == 1) drv.close(3.second) // trigger error by closing
+          count + 1
+        }
+        @volatile var err = Option.empty[Throwable]
 
-          cursor1("source6")(col).responseSource(
-            err = Cursor.DoneOnError { (_, e) => err = Some(e) }
-          ).runWith(sink) must beEqualTo(2).await(0, timeout) and {
-              err must beSome[Throwable].like {
-                case reason: ClosedException =>
-                  reason.getMessage must beMatching(
-                    ".*This MongoConnection is closed.*"
-                  )
+        cursor1("source6")(col).responseSource(
+          err = Cursor.DoneOnError { (_, e) => err = Some(e) }
+        ).runWith(sink) must beEqualTo(2).await(0, timeout) and {
+            err must beSome[Throwable].like {
+              case reason: ClosedException =>
+                reason.getMessage must beMatching(
+                  ".*This MongoConnection is closed.*"
+                )
 
-                case reason => sys.error(s"Cause: $reason")
-              }
+              case reason => sys.error(s"Cause: $reason")
             }
-        }
+          }
       }
 
-      "by trying to continue" in assertAllStagesStopped { implicit ee: EE =>
-        val drv = reactivemongo.api.MongoDriver()
+      "by trying to continue" in assertAllStagesStopped {
+        val drv = Common.newDriver()
         val con = drv.connection(List(primaryHost))
         def col(n: String) = con.database(db.name).flatMap { d =>
           withFixtures(d.collection(n))
@@ -223,7 +222,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
         Await.result(cursor1("source7")(col).responseSource(
           err = Cursor.ContOnError { (_, e) => err = Some(e) }
-        ).runWith(sink), timeout) must throwA[TimeoutException] and {
+        ).runWith(sink), timeout) must beEqualTo(3) and {
           err must beSome[Throwable].like {
             case reason: ClosedException =>
               reason.getMessage must beMatching(
@@ -237,7 +236,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
   "Bulk source" should {
     "be fully consumed" >> {
-      "using a sequence sink" in assertAllStagesStopped { implicit ee: EE =>
+      "using a sequence sink" in assertAllStagesStopped {
         val expected = expectedList.sliding(3, 3).toList
 
         toSeq(cursor("source8").bulkSource()).map(_.map(_.toList)).
@@ -245,7 +244,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
       }
 
-      "using a publisher" in assertAllStagesStopped { implicit ee: EE =>
+      "using a publisher" in assertAllStagesStopped {
         val pub: Publisher[_ <: Iterator[Int]] =
           cursor("source9").bulkPublisher(true)
 
@@ -273,9 +272,9 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
     }
 
     "handle errors" >> {
-      "by failing with the default handler" in { implicit ee: EE =>
+      "by failing with the default handler" in {
         assertAllStagesStopped {
-          val drv = reactivemongo.api.MongoDriver()
+          val drv = Common.newDriver()
           val con = drv.connection(List(primaryHost))
           def col(n: String) = con.database(db.name).flatMap { d =>
             withFixtures(d.collection(n))
@@ -294,9 +293,9 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         }
       }
 
-      "by stopping with the Done handler" in { implicit ee: EE =>
+      "by stopping with the Done handler" in {
         assertAllStagesStopped {
-          val drv = reactivemongo.api.MongoDriver()
+          val drv = Common.newDriver()
           val con = drv.connection(List(primaryHost))
           def col(n: String) = con.database(db.name).flatMap { d =>
             withFixtures(d.collection(n))
@@ -321,8 +320,8 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         }
       }
 
-      "by trying to continue" in assertAllStagesStopped { implicit ee: EE =>
-        val drv = reactivemongo.api.MongoDriver()
+      "by trying to continue" in assertAllStagesStopped {
+        val drv = Common.newDriver()
         val con = drv.connection(List(primaryHost))
         def col(n: String) = con.database(db.name).flatMap { d =>
           withFixtures(d.collection(n))
@@ -336,7 +335,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
         Await.result(cursor1("source12")(col).bulkSource(
           err = Cursor.ContOnError { (_, e) => err = Some(e) }
-        ).runWith(sink), timeout) must throwA[TimeoutException] and {
+        ).runWith(sink), timeout) must_=== 3 and {
           err must beSome[Throwable].like {
             case reason: ClosedException =>
               reason.getMessage must beMatching(
@@ -350,12 +349,12 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
   "Document source" should {
     "be fully consumed" >> {
-      "using a sequence sink" in assertAllStagesStopped { implicit ee: EE =>
+      "using a sequence sink" in assertAllStagesStopped {
         toSeq(cursor("source13").documentSource()).
           aka("sequence") must beEqualTo(expectedList).await(0, timeout)
       }
 
-      "using a publisher" in assertAllStagesStopped { implicit ee: EE =>
+      "using a publisher" in assertAllStagesStopped {
         val pub: Publisher[Int] =
           cursor("source14").documentPublisher(true)
 
@@ -398,21 +397,31 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
       }
 
       val nDocs = 16517
-      s"insert $nDocs records" in { implicit ee: EE =>
+      s"insert $nDocs records" in {
         val moreTime = FiniteDuration(
           timeout.toMillis * nDocs / 2, MILLISECONDS
         )
 
         val coll = db[BSONCollection](s"akka10_${System identityHashCode ee}")
-        val futs: Seq[Future[Unit]] = for (i <- 0 until nDocs) yield {
-          coll.insert(BSONDocument(
-            "i" -> i, "record" -> s"record$i"
-          )).map(_ => {})
+
+        def insert(rem: Int, bulks: Seq[Future[Unit]]): Future[Unit] = {
+          if (rem == 0) {
+            Future.sequence(bulks).map(_ => {})
+          } else {
+            val len = if (rem < 256) rem else 256
+            val prepared = nDocs - rem
+
+            def bulk = coll.insert[BSONDocument](false).many(
+              for (i <- 0 until len) yield {
+                val n = i + prepared
+                BSONDocument("i" -> n, "record" -> s"record$n")
+              }).map(_ => {})
+
+            insert(rem - len, bulk +: bulks)
+          }
         }
 
-        Future.sequence(futs).map { _ =>
-          //println(s"inserted $nDocs records")
-        } aka "fixtures" must beEqualTo({}).await(1, moreTime) and {
+        insert(nDocs, Seq.empty) must beEqualTo({}).await(1, moreTime) and {
           import reactivemongo.akkastream.cursorProducer
           val cursor: AkkaStreamCursor[BSONDocument] =
             coll.find(BSONDocument.empty).cursor[BSONDocument]()
@@ -432,7 +441,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
     }
 
     "consumed with a max of 6 documents" >> {
-      "with limit in the query operation" in { implicit ee: EE =>
+      "with limit in the query operation" in {
         assertAllStagesStopped {
           toSeq(cursor("source15a").documentSource(6)).
             aka("sequence") must beEqualTo(expectedList take 6).
@@ -440,7 +449,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         }
       }
 
-      "with limit on the stream" in { implicit ee: EE =>
+      "with limit on the stream" in {
         assertAllStagesStopped {
           toSeq(cursor("source15b").documentSource(10).take(6)).
             aka("sequence") must beEqualTo(expectedList take 6).
@@ -450,44 +459,43 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
     }
 
     "consumed using a publisher with a max of 7 documents" in {
-      implicit ee: EE =>
-        assertAllStagesStopped {
-          val pub: Publisher[Int] =
-            cursor("source16").documentPublisher(true, 7)
+      assertAllStagesStopped {
+        val pub: Publisher[Int] =
+          cursor("source16").documentPublisher(true, 7)
 
-          val c = TestSubscriber.manualProbe[Int]()
+        val c = TestSubscriber.manualProbe[Int]()
 
-          pub subscribe c
+        pub subscribe c
 
-          val sub = c.expectSubscription()
-          sub.request(2)
+        val sub = c.expectSubscription()
+        sub.request(2)
 
-          c.expectNext aka "document #1" must_== 0 and {
-            c.expectNext aka "document #2" must_== 1
-          } and {
-            c.expectNoMsg(200.millis) must not(throwA[Throwable])
-          } and {
-            sub.request(5) must not(throwA[Throwable])
-          } and {
-            c.expectNext aka "document #3" must_== 2
-          } and {
-            c.expectNext aka "document #4" must_== 3
-          } and {
-            c.expectNext aka "document #5" must_== 4
-          } and {
-            c.expectNext aka "document #6" must_== 5
-          } and {
-            c.expectNext aka "document #7" must_== 6
-          } and {
-            c.expectComplete() aka "completed" must not(throwA[Throwable])
-          }
+        c.expectNext aka "document #1" must_== 0 and {
+          c.expectNext aka "document #2" must_== 1
+        } and {
+          c.expectNoMsg(200.millis) must not(throwA[Throwable])
+        } and {
+          sub.request(5) must not(throwA[Throwable])
+        } and {
+          c.expectNext aka "document #3" must_== 2
+        } and {
+          c.expectNext aka "document #4" must_== 3
+        } and {
+          c.expectNext aka "document #5" must_== 4
+        } and {
+          c.expectNext aka "document #6" must_== 5
+        } and {
+          c.expectNext aka "document #7" must_== 6
+        } and {
+          c.expectComplete() aka "completed" must not(throwA[Throwable])
         }
+      }
     }
 
     "handle errors" >> {
-      "by failing with the default handler" in { implicit ee: EE =>
+      "by failing with the default handler" in {
         assertAllStagesStopped {
-          val drv = reactivemongo.api.MongoDriver()
+          val drv = Common.newDriver()
           val con = drv.connection(List(primaryHost))
           def col(n: String) = con.database(db.name).flatMap { d =>
             withFixtures(d.collection(n))
@@ -506,9 +514,9 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         }
       }
 
-      "by stopping with the Done handler" in { implicit ee: EE =>
+      "by stopping with the Done handler" in {
         assertAllStagesStopped {
-          val drv = reactivemongo.api.MongoDriver()
+          val drv = Common.newDriver
           val con = drv.connection(List(primaryHost))
           def col(n: String) = con.database(db.name).flatMap { d =>
             withFixtures(d.collection(n))
@@ -534,8 +542,8 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         }
       }
 
-      "by trying to continue" in assertAllStagesStopped { implicit ee: EE =>
-        val drv = reactivemongo.api.MongoDriver()
+      "by trying to continue" in assertAllStagesStopped {
+        val drv = Common.newDriver()
         val con = drv.connection(List(primaryHost))
         def col(n: String) = con.database(db.name).flatMap { d =>
           withFixtures(d.collection(n))
@@ -549,7 +557,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
         Await.result(cursor1("source19")(col).documentSource(
           err = Cursor.ContOnError { (_, e) => err = Some(e) }
-        ).runWith(sink), timeout) must throwA[TimeoutException] and {
+        ).runWith(sink), timeout) must_=== 3 and {
           err must beSome[Throwable].like {
             case reason: ClosedException =>
               reason.getMessage must beMatching(
@@ -567,10 +575,11 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
       implicit def reader = IdReader
       val nDocs = 16517
       val coll = db(s"akka-large-1-${System identityHashCode db}")
-      def cursor(implicit ee: EE) = coll.find(BSONDocument.empty).
+      def cursor = coll.find(BSONDocument.empty).
         sort(BSONDocument("id" -> 1)).cursor[Int]()
 
-      s"insert $nDocs records" in { implicit ee: EE =>
+      s"insert $nDocs records" in {
+        // TODO: bulk
         def futs: Seq[Future[Unit]] = for (i <- 0 until nDocs) yield {
           coll.insert(BSONDocument(
             "id" -> i, "record" -> s"record$i"
@@ -582,7 +591,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
         } aka "fixtures" must beEqualTo({}).await(0, timeout)
       }
 
-      "using a fold sink" in assertAllStagesStopped { implicit ee: EE =>
+      "using a fold sink" in assertAllStagesStopped {
         val source = cursor.documentSource()
 
         source.runWith(Sink.fold[Int, Int](-1) { (prev, i) =>
@@ -592,7 +601,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
       }
 
       "using a publisher" >> {
-        "with consumer #1" in assertAllStagesStopped { implicit ee: EE =>
+        "with consumer #1" in assertAllStagesStopped {
           val pub: Publisher[_ <: Int] = cursor.documentPublisher(true)
           val c = TestSubscriber.manualProbe[Int]()
 
@@ -610,7 +619,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
           }
         }
 
-        "with consumer #2" in assertAllStagesStopped { implicit ee: EE =>
+        "with consumer #2" in assertAllStagesStopped {
           val pub: Publisher[_ <: Int] = cursor.documentPublisher(true)
           val c = TestSubscriber.manualProbe[Int]()
 
@@ -655,11 +664,11 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
   "Capped collection" should {
     import scala.concurrent.Promise
 
-    def capped(n: String, database: DB, cb: Promise[Unit])(implicit ee: EE) = {
+    def capped(n: String, database: DB, cb: Promise[Unit])(implicit ee: ExecutionEnv) = {
       val col = database(s"akka_${n}_${System identityHashCode ee}")
 
       // Concurrently populated the capped collection
-      def populate(): Future[Unit] =
+      def populate: Future[Unit] =
         (0 until 10).foldLeft(Future(Thread.sleep(1000))) { (future, id) =>
           for {
             _ <- future
@@ -678,11 +687,11 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
       Await.result((for {
         _ <- col.createCapped(4096, Some(10))
-      } yield col), timeout) -> { populate _ }
+      } yield col), timeout) -> { () => populate }
       // (BSONCollection, () => Future[Unit])
     }
 
-    def tailable(cb: Promise[Unit], n: String, database: DB = db)(implicit ee: EE) = {
+    def tailable(cb: Promise[Unit], n: String, database: DB = db)(implicit ee: ExecutionEnv) = {
       // ReactiveMongo extensions
       import reactivemongo.akkastream.cursorProducer
       implicit val reader = IdReader
@@ -704,71 +713,100 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
 
     // ---
 
-    "be consumed as response source" >> {
-      "using a sink" in assertAllStagesStopped { implicit ee: EE =>
-        val ranges = scala.collection.mutable.TreeSet.empty[(Int, Int)]
-        val consumer = Sink.foreach[Response] { resp =>
+    "be consumed as response source using a sink" in assertAllStagesStopped {
+      val ranges = scala.collection.mutable.TreeSet.empty[(Int, Int)]
+      val done = Promise[Unit]()
+      val (cursor, populate) = tailable(done, "source20")
+      val src = cursor.responseSource()
+
+      def consume = {
+        val sink = Sink.foreach[Response] { resp =>
           if (resp.reply.numberReturned > 0) {
             ranges += (resp.reply.startingFrom -> resp.reply.numberReturned)
           }
           ()
         }
-        val done = Promise[Unit]()
-        val (cursor, populate) = tailable(done, "source20")
-        val consume = cursor.responseSource().runWith(consumer)
 
-        populate()
+        src.viaMat(KillSwitches.single)(Keep.right).
+          toMat(sink)(Keep.both).run()
+      }
 
-        done.future must beEqualTo({}).await(0, timeout) and {
-          recoverTimeout(consume)(ranges.toList).
-            aka("consumed") must beSuccessfulTry[List[(Int, Int)]].which {
-              _.foldLeft((true, 0, 0)) {
-                case ((ordered, last, count), (start, c)) =>
-                  if (start < last) (false, start, count + c)
-                  else (ordered, start, count + c)
+      populate()
 
-              } must beLike[(Boolean, Int, Int)] {
-                case (ordered, _, count) =>
-                  ordered must beTrue and (count must_== 10)
-              }
-            }
+      done.future must beEqualTo({}).await(0, timeout) and {
+        val (swtch, c) = consume
+
+        {
+          val res = recoverTimeout(c)(ranges.toList)
+          swtch.shutdown()
+          res
+        } must beSuccessfulTry[List[(Int, Int)]].which {
+          _.foldLeft((true, 0, 0)) {
+            case ((ordered, last, count), (start, c)) =>
+              if (start < last) (false, start, count + c)
+              else (ordered, start, count + c)
+
+          } must beLike[(Boolean, Int, Int)] {
+            case (ordered, _, count) =>
+              ordered must beTrue and (count must_== 10)
+          }
         }
       }
     }
 
-    "be consumed as bulk source" >> {
-      "using a sink" in assertAllStagesStopped { implicit ee: EE =>
-        val consumed = scala.collection.mutable.TreeSet.empty[Int]
-        val consumer = Sink.foreach[Iterator[Int]] { i => consumed ++= i; () }
-        val done = Promise[Unit]()
-        val (cursor, populate) = tailable(done, "source21")
-        def consume = cursor.bulkSource().runWith(consumer)
+    "be consumed as bulk source using a sink" in assertAllStagesStopped {
+      val consumed = scala.collection.mutable.TreeSet.empty[Int]
+      val done = Promise[Unit]()
+      val (cursor, populate) = tailable(done, "source21")
 
-        populate()
+      val src = cursor.bulkSource()
+      def consume = {
+        def sink = Sink.foreach[Iterator[Int]] { i => consumed ++= i; () }
 
-        done.future must beEqualTo({}).await(0, timeout) and {
-          recoverTimeout(consume)(consumed.toList) must beSuccessfulTry(
-            List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-          )
-        }
+        src.viaMat(KillSwitches.single)(Keep.right).
+          toMat(sink)(Keep.both).run()
+      }
+
+      populate()
+
+      done.future must beEqualTo({}).await(0, timeout) and {
+        val (swtch, c) = consume
+
+        {
+          val res = recoverTimeout(c)(consumed.toList)
+          swtch.shutdown()
+          res
+        } must beSuccessfulTry(
+          List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+        )
       }
     }
 
-    "be consumed as document source" >> {
-      "using a sink" in assertAllStagesStopped { implicit ee: EE =>
-        val consumed = scala.collection.mutable.TreeSet.empty[Int]
-        val consumer = Sink.foreach[Int] { i => consumed += i; () }
-        val done = Promise[Unit]()
-        val (cursor, populate) = tailable(done, "source22")
-        val consume = cursor.documentSource().runWith(consumer)
+    "be consumed as document source using a sink" in assertAllStagesStopped {
+      val consumed = scala.collection.mutable.TreeSet.empty[Int]
+      val done = Promise[Unit]()
+      val (cursor, populate) = tailable(done, "source22")
+      val src = cursor.documentSource()
 
-        populate()
+      def consume = {
+        val sink = Sink.foreach[Int] { i => consumed += i; () }
 
-        done.future must beEqualTo({}).await(0, timeout) and {
-          recoverTimeout(consume)(consumed.toList) must beSuccessfulTry(
-            List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-          )
-        }
+        src.viaMat(KillSwitches.single)(Keep.right).
+          toMat(sink)(Keep.both).run()
+      }
+
+      populate()
+
+      done.future must beEqualTo({}).await(0, timeout) and {
+        val (swtch, c) = consume
+
+        {
+          val res = recoverTimeout(c)(consumed.toList)
+          swtch.shutdown()
+          res
+        } must beSuccessfulTry(
+          List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+        )
       }
     }
   }
@@ -776,7 +814,7 @@ class CursorSpec extends org.specs2.mutable.Specification with CursorFixtures {
   "Aggregation" should {
     implicit def reader = IdReader
 
-    "should match index greater than or equal" in { implicit ee: EE =>
+    "should match index greater than or equal" in {
       import reactivemongo.akkastream.cursorProducer
 
       assertAllStagesStopped {
@@ -812,20 +850,19 @@ sealed trait CursorFixtures { specs: CursorSpec =>
   def toSeq[T](src: Source[T, _]): Future[Seq[T]] =
     src.runWith(Sink.seq[T])
 
-  @inline def cursor(n: String)(implicit ee: EE): AkkaStreamCursor[Int] =
-    cursor1(n)(collection(_))
+  @inline def cursor(n: String)(implicit ee: ExecutionEnv): AkkaStreamCursor[Int] = cursor1(n)(collection(_))
 
-  @inline def cursor1(n: String)(col: String => Future[BSONCollection])(implicit ee: EE): AkkaStreamCursor[Int] = {
+  @inline def cursor1(n: String)(col: String => Future[BSONCollection])(implicit ee: ExecutionEnv): AkkaStreamCursor[Int] = {
     implicit val reader = IdReader
     Cursor.flatten(col(n).map(_.find(BSONDocument()).
       options(QueryOpts(batchSizeN = 3)).
       sort(BSONDocument("id" -> 1)).cursor[Int]()))
   }
 
-  def collection(n: String)(implicit ee: EE): Future[BSONCollection] =
+  def collection(n: String)(implicit ee: ExecutionEnv): Future[BSONCollection] =
     withFixtures(db(s"akka${n}_${System identityHashCode ee}"))
 
-  def withFixtures(col: BSONCollection)(implicit ee: EE): Future[BSONCollection] =
+  def withFixtures(col: BSONCollection)(implicit ee: ExecutionEnv): Future[BSONCollection] =
     Future
       .sequence((0 until 10).map(n => col.insert(BSONDocument("id" -> n))))
       .map(_ => col)

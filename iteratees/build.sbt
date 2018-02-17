@@ -1,6 +1,6 @@
 name := "reactivemongo-iteratees"
 
-val playVer = Def.setting[String] {
+lazy val playVer = Def.setting[String] {
   sys.env.get("ITERATEES_VERSION").getOrElse {
     if (scalaVersion.value startsWith "2.11.") "2.3.10"
     else "2.6.1"
@@ -8,7 +8,8 @@ val playVer = Def.setting[String] {
 }
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-iteratees" % playVer.value % "provided"
+  "com.typesafe.play" %% "play-iteratees" % playVer.value % Provided,
+  "com.typesafe.akka" %% "akka-slf4j" % "2.5.4" % Test
 )
 
 // Publish
