@@ -15,17 +15,17 @@ cache:
   - $HOME/ssl
   - $HOME/mongodb-linux-x86_64-amazon-3.4.7
 scala:
-- 2.11.11
-- 2.12.3
+- 2.11.12
+- 2.12.6
 jdk: oraclejdk8
 env:
   - AKKA_VERSION=2.4.8 ITERATEES_VERSION=2.3.10
   - AKKA_VERSION=2.5.4 ITERATEES_VERSION=2.6.1
 matrix: 
   exclude: 
-    - scala: 2.12.3
+    - scala: 2.12.6
       env: AKKA_VERSION=2.4.8 ITERATEES_VERSION=2.3.10
-    - scala: 2.11.11
+    - scala: 2.11.12
       env: AKKA_VERSION=2.5.4 ITERATEES_VERSION=2.6.1
 before_install: ./.ci_scripts/beforeInstall.sh $TRAVIS_SCALA_VERSION
 script: ./.ci_scripts/validate.sh
