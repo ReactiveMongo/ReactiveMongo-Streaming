@@ -24,9 +24,9 @@ object Common {
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
         "specs2-core", "specs2-junit").map(
-          "org.specs2" %% _ % "4.0.1" % Test) ++ Seq(
+          "org.specs2" %% _ % "4.2.0" % Test) ++ Seq(
             Dependencies.slf4jSimple % Test)
-  ) ++ Format.settings ++ Findbugs.settings ++ Publish.settings ++ (
+  ) ++ Format.settings ++ Publish.settings ++ (
       Scapegoat.settings ++ Publish.mimaSettings ++ Release.settings)
 
   val testCleanup: ClassLoader => Unit = { cl =>
@@ -69,38 +69,12 @@ object Format {
   }
 }
 
-object Findbugs {
-  import scala.xml.{ NodeSeq, XML }, XML.{ loadFile => loadXML }
-
-  import de.johoop.findbugs4sbt.{ FindBugs, ReportType }, FindBugs.{
-    findbugsExcludeFilters,
-    findbugsReportPath,
-    findbugsReportType,
-    findbugsSettings
-  }
-
-  val settings = findbugsSettings ++ Seq(
-    findbugsReportType := Some(ReportType.PlainHtml),
-    findbugsReportPath := Some(target.value / "findbugs.html"),
-    findbugsExcludeFilters := {
-      val commonFilters = loadXML(baseDirectory.value / ".." / "project" / (
-        "findbugs-exclude-filters.xml"))
-
-      val filters = {
-        val f = baseDirectory.value / "findbugs-exclude-filters.xml"
-        if (!f.exists) NodeSeq.Empty else loadXML(f).child
-      }
-
-      Some(
-        <FindBugsFilter>${ commonFilters.child }${ filters }</FindBugsFilter>
-      )
-    }
-  )
-}
-
 object Publish {
+  import com.typesafe.tools.mima.core._, ProblemFilters._
   import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
-  import com.typesafe.tools.mima.plugin.MimaKeys.mimaPreviousArtifacts
+  import com.typesafe.tools.mima.plugin.MimaKeys.{
+    mimaPreviousArtifacts, mimaBinaryIssueFilters
+  }
 
   @inline def env(n: String): String = sys.env.get(n).getOrElse(n)
 
@@ -115,6 +89,15 @@ object Publish {
         Set(organization.value %% moduleName.value % previousVersion)
       } else {
         Set.empty
+      }
+    },
+    mimaBinaryIssueFilters ++= {
+      if (!scalaVersion.value.startsWith("2.12")) {
+        Seq("Writes", "Reads").map { m =>
+          ProblemFilters.exclude[InheritedNewAbstractMethodProblem](s"reactivemongo.play.json.BSONFormats#PartialFormat.reactivemongo$$play$$json$$BSONFormats$$Partial${m}$$$$$$outer")
+        }
+      } else {
+        Seq.empty
       }
     }
   )
