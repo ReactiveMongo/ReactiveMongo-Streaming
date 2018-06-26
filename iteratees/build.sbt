@@ -9,7 +9,7 @@ lazy val playVer = Def.setting[String] {
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-iteratees" % playVer.value % Provided,
-  "com.typesafe.akka" %% "akka-slf4j" % "2.5.4" % Test
+  "com.typesafe.akka" %% "akka-slf4j" % "2.5.13" % Test
 )
 
 // Publish

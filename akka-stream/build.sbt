@@ -1,18 +1,19 @@
 name := "reactivemongo-akkastream"
 
 resolvers ++= Seq(
+  Resolver.sonatypeRepo("snapshots"),
   // For Akka Stream Contrib TestKit
   "Tatami Snapshot" at "https://raw.github.com/cchantep/tatami/master/snapshots")
 
 lazy val akkaVer = Def.setting[String] {
   sys.env.get("AKKA_VERSION").getOrElse {
     if (scalaVersion.value startsWith "2.11.") "2.4.8"
-    else "2.5.4"
+    else "2.5.13"
   }
 }
 
 val akkaContribVer = Def.setting[String] {
-  if (!akkaVer.value.startsWith("2.5")) "0.9"
+  if (!akkaVer.value.startsWith("2.5")) "0.9+19-a0bb1e41-SNAPSHOT"
   else "0.6-6-g12a86f9-SNAPSHOT"
 }
 
