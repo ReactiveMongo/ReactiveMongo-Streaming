@@ -12,7 +12,6 @@ import akka.stream.KillSwitches
 import akka.stream.scaladsl.{ Keep, Sink, Source }
 
 import akka.stream.testkit.TestSubscriber
-import akka.stream.contrib.TestKit.assertAllStagesStopped
 
 import org.specs2.concurrent.ExecutionEnv
 
@@ -46,6 +45,10 @@ class CursorSpec(implicit ee: ExecutionEnv)
   import Common.primaryHost
   val db = Common.db
   @inline def timeout = Common.timeout
+
+  // Akka-Contrib issue with Akka-Stream > 2.5.4
+  //import akka.stream.contrib.TestKit.assertAllStagesStopped
+  def assertAllStagesStopped[T](f: => T) = f
 
   "Response source" should {
     "be fully consumed" >> {
