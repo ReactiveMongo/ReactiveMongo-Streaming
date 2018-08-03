@@ -42,7 +42,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
       Future.sequence(fixtures.map(personColl.insert(_).map(_.ok))).
         aka("fixtures") must beEqualTo(List(true, true, true, true, true)).
-        await(0, timeout)
+        awaitFor(timeout)
     }
 
     "read empty cursor" >> {
@@ -54,7 +54,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         val enumerator = cur.enumerator(10)
 
         (enumerator |>>> Iteratee.fold(0) { (r, doc) => r + 1 }).
-          aka("read") must beEqualTo(0).await(0, timeout)
+          aka("read") must beEqualTo(0).awaitFor(timeout)
       }
     }
 
@@ -68,7 +68,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         i += 1
         //println(s"\tgot doc: $doc")
       } map (_ => -1)).
-        recover({ case _ => i }) must beEqualTo(3).await(0, timeout)
+        recover({ case _ => i }) must beEqualTo(3).awaitFor(timeout)
     }
 
     "read documents skipping errors" in {
@@ -80,7 +80,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
       (enumerator |>>> Iteratee.foreach { doc =>
         i += 1
         //println(s"\t(skipping [$i]) got doc: $doc")
-      }).map(_ => i) must beEqualTo(4).await(0, timeout)
+      }).map(_ => i) must beEqualTo(4).awaitFor(timeout)
     }
 
     val nDocs = 16517
@@ -92,7 +92,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val len = if (rem < 256) rem else 256
           val prepared = nDocs - rem
 
-          def bulk = coll2.insert[BSONDocument](false).many(
+          def bulk = coll2.insert[BSONDocument](ordered = false).many(
             for (i <- 0 until len) yield {
               val n = i + prepared
               BSONDocument("i" -> n, "record" -> s"record$n")
@@ -102,7 +102,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         }
       }
 
-      insert(nDocs, Seq.empty) must beEqualTo({}).await(0, 20.seconds)
+      insert(nDocs, Seq.empty) must beEqualTo({}).awaitFor(20.seconds)
     } tag "wip"
 
     "enumerate" >> {
@@ -113,7 +113,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             //println(s"doc $i => $e")
             i += 1
           }
-        ).map(_ => i) must beEqualTo(16517).await(0, 21.seconds)
+        ).map(_ => i) must beEqualTo(16517).awaitFor(21.seconds)
       }
 
       "only 1024 documents" in {
@@ -122,7 +122,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           enumerator(1024) |>>> (Iteratee.foreach { e: BSONDocument =>
             //println(s"doc $i => $e")
             i += 1
-          }).map(_ => i) must beEqualTo(1024).await(0, timeout)
+          }).map(_ => i) must beEqualTo(1024).awaitFor(timeout)
       }
     }
 
@@ -135,7 +135,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
               //println(s"doc $i => $e")
               i += it.size
             }
-          ).map(_ => i) must beEqualTo(16517).await(0, 21.seconds)
+          ).map(_ => i) must beEqualTo(16517).awaitFor(21.seconds)
       }
 
       "for only 1024 documents" in {
@@ -146,7 +146,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
               //println(s"doc $i => $e")
               i += it.size
             }
-          ).map(_ => i) must beEqualTo(1024).await(0, timeout)
+          ).map(_ => i) must beEqualTo(1024).awaitFor(timeout)
       }
     }
 
@@ -157,7 +157,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           responseEnumerator() |>>> (Iteratee.foreach { r: Response =>
             //println(s"doc $i => $e")
             i += r.reply.numberReturned
-          }).map(_ => i) must beEqualTo(16517).await(0, 21.seconds)
+          }).map(_ => i) must beEqualTo(16517).awaitFor(21.seconds)
       }
 
       "for only 1024 documents" in {
@@ -166,7 +166,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           responseEnumerator(1024) |>>> (Iteratee.foreach { r: Response =>
             //println(s"doc $i => $e")
             i += r.reply.numberReturned
-          }).map(_ => i) must beEqualTo(1024).await(0, timeout)
+          }).map(_ => i) must beEqualTo(1024).awaitFor(timeout)
       }
     }
 
@@ -191,7 +191,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
           (cursor.responseEnumerator(10, FailOnError[Unit]()) |>>> inc).
             map(_ => count).recover({ case _ => count }).
-            aka("enumerating") must beEqualTo(1).await(0, timeout)
+            aka("enumerating") must beEqualTo(1).awaitFor(timeout)
 
         }
 
@@ -210,7 +210,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           )).cursor()
 
           (cursor.responseEnumerator(128, ContOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).await(0, timeout)
+            recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
         }
 
         "if fails while processing w/o documents (#1)" in {
@@ -225,7 +225,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           ).cursor()
 
           (cursor.responseEnumerator(10, FailOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).await(0, timeout)
+            recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
         }
 
         "if fails while processing w/o documents (#2)" in {
@@ -240,7 +240,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             options(QueryOpts(batchSizeN = 2)).cursor()
 
           (cursor.responseEnumerator(64, ContOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).await(0, timeout)
+            recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
         }
 
         "if fails to send request" in {
@@ -249,12 +249,14 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.close()
-          // Close connection to make the related cursor erroneous
+          c.db.connection.askClose().map(_ => {}).
+            aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
+              // Close connection to make the related cursor erroneous
 
-          (cursor.responseEnumerator(10, FailOnError[Unit]()) |>>> inc).
-            map(_ => count).recover({ case _ => count }).
-            aka("count") must beEqualTo(0).await(0, timeout)
+              (cursor.responseEnumerator(10, FailOnError[Unit]()) |>>> inc).
+                map(_ => count).recover({ case _ => count }).
+                aka("count") must beEqualTo(0).awaitFor(timeout)
+            }
         } tag "wip"
       }
 
@@ -273,7 +275,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
           (cursor.bulkEnumerator(10, FailOnError[Unit]()) |>>> inc).
             recover({ case _ => count }).
-            aka("enumerating") must beEqualTo(1).await(0, timeout)
+            aka("enumerating") must beEqualTo(1).awaitFor(timeout)
         }
 
         "if fails while processing with existing documents (#2)" in {
@@ -292,7 +294,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             cursor.bulkEnumerator(32, ContOnError[Unit]()) |>>> inc
 
           consumed.map(_ => -1).recover({ case _ => count }).
-            aka("result") must beEqualTo(1).await(0, timeout)
+            aka("result") must beEqualTo(1).awaitFor(timeout)
         }
 
         "if fails while processing w/o documents (#1)" in {
@@ -307,7 +309,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           ).cursor()
 
           (cursor.bulkEnumerator(10, FailOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).await(0, timeout)
+            recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
         }
 
         "if fails while processing w/o documents (#2)" in {
@@ -321,7 +323,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             options(QueryOpts(batchSizeN = 2)).cursor()
 
           (cursor.bulkEnumerator(64, ContOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).await(0, timeout)
+            recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
         }
 
         "if fails to send request" in {
@@ -332,11 +334,13 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.close()
-          // Close connection to make the related cursor erroneous
+          c.db.connection.askClose().map(_ => {}).
+            aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
+              // Close connection to make the related cursor erroneous
 
-          (cursor.bulkEnumerator(10, FailOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(0).await(0, timeout)
+              (cursor.bulkEnumerator(10, FailOnError[Unit]()) |>>> inc).
+                recover({ case _ => count }) must beEqualTo(0).awaitFor(timeout)
+            }
         }
       }
 
@@ -352,7 +356,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val cursor = c.find(BSONDocument.empty).cursor()
 
           (cursor.enumerator(10, FailOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(5).await(0, timeout)
+            recover({ case _ => count }) must beEqualTo(5).awaitFor(timeout)
         }
 
         "if fails to send request" in {
@@ -361,11 +365,13 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.close()
-          // Close connection to make the related cursor erroneous
+          c.db.connection.askClose().map(_ => {}).
+            aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
+              // Close connection to make the related cursor erroneous
 
-          (cursor.enumerator(10, FailOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(0).await(0, timeout)
+              (cursor.enumerator(10, FailOnError[Unit]()) |>>> inc).
+                recover({ case _ => count }) must beEqualTo(0).awaitFor(timeout)
+            }
         }
       }
 
@@ -387,11 +393,13 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.close()
-          // Close connection to make the related cursor erroneous
+          c.db.connection.askClose().map(_ => {}).
+            aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
+              // Close connection to make the related cursor erroneous
 
-          (cursor.responseEnumerator(128, ContOnError[Unit]()) |>>> inc).
-            map(_ => count) must beEqualTo(0).await(0, timeout)
+              (cursor.responseEnumerator(128, ContOnError[Unit]()) |>>> inc).
+                map(_ => count) must beEqualTo(0).awaitFor(timeout)
+            }
         }
       }
 
@@ -404,11 +412,13 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.close()
-          // Close connection to make the related cursor erroneous
+          c.db.connection.askClose().map(_ => {}).
+            aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
+              // Close connection to make the related cursor erroneous
 
-          (cursor.bulkEnumerator(128, ContOnError[Unit]()) |>>> inc).
-            map(_ => count) must beEqualTo(0).await(0, timeout)
+              (cursor.bulkEnumerator(128, ContOnError[Unit]()) |>>> inc).
+                map(_ => count) must beEqualTo(0).awaitFor(timeout)
+            }
         }
       }
 
@@ -427,7 +437,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           )).cursor()
 
           (cursor.enumerator(128, ContOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).await(0, timeout)
+            recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
         }
 
         "if fails while processing w/o documents" in {
@@ -441,7 +451,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             options(QueryOpts(batchSizeN = 2)).cursor()
 
           (cursor.enumerator(64, ContOnError[Unit]()) |>>> inc).map(_ => count).
-            aka("enumerating") must beEqualTo(0).await(0, timeout)
+            aka("enumerating") must beEqualTo(0).awaitFor(timeout)
         }
 
         "if fails to send request" in {
@@ -452,11 +462,13 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.close()
-          // Close connection to make the related cursor erroneous
+          c.db.connection.askClose().map(_ => {}).
+            aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
+              // Close connection to make the related cursor erroneous
 
-          (cursor.enumerator(128, ContOnError[Unit]()) |>>> inc).
-            map(_ => count) must beEqualTo(0).await(0, timeout)
+              (cursor.enumerator(128, ContOnError[Unit]()) |>>> inc).
+                map(_ => count) must beEqualTo(0).awaitFor(timeout)
+            }
         }
       }
 
@@ -480,7 +492,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         val col = db(s"somecollection_$n")
 
         Future.sequence((0 until 10) map { id =>
-          col.insert(BSONDocument("id" -> id))
+          col.insert[BSONDocument](ordered = true).one(BSONDocument("id" -> id))
         }) map { _ =>
           logger.debug(s"-- all documents inserted in test collection $n")
           col
@@ -496,7 +508,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
       "successfully using cursor enumerator" >> {
         "per document" in {
           (cursor("senum1").enumerator(10) |>>> toList).
-            aka("enumerated") must beEqualTo(expectedList).await(0, timeout)
+            aka("enumerated") must beEqualTo(expectedList).awaitFor(timeout)
         }
 
         "per bulk" in {
@@ -505,7 +517,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           ) { _ ++ _ }
 
           (cursor("senum2").bulkEnumerator(10) |>>> collect).map(_.reverse).
-            aka("enumerated") must beEqualTo(expectedList).await(0, timeout)
+            aka("enumerated") must beEqualTo(expectedList).awaitFor(timeout)
         }
       }
     }
@@ -516,8 +528,10 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
         col.createCapped(4096, Some(10)).flatMap { _ =>
           (0 until 10).foldLeft(Future successful {}) { (f, id) =>
-            f.flatMap(_ => col.insert(BSONDocument("id" -> id)).map(_ =>
-              Thread.sleep(200)))
+            f.flatMap(_ =>
+              col.insert[BSONDocument](ordered = true).
+                one(BSONDocument("id" -> id)).map(_ => Thread.sleep(200)))
+
           }.map(_ =>
             logger.debug(s"-- all documents inserted in test collection $n"))
         }
@@ -534,7 +548,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
       "successfully using tailable enumerator with maxDocs" in {
         (tailable("tenum1").enumerator(10) |>>> toList).
-          aka("enumerated") must beEqualTo(expectedList).await(0, timeout)
+          aka("enumerated") must beEqualTo(expectedList).awaitFor(timeout)
       }
 
       "with timeout using tailable enumerator w/o maxDocs" in {

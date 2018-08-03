@@ -64,7 +64,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           rs.size -> (rs.map { r =>
             r.reply.numberReturned -> (r.reply.cursorID != 0)
           }).toList
-        }.aka("sequence") must beEqualTo(expected).await(0, timeout)
+        }.aka("sequence") must beTypedEqualTo(expected).awaitFor(timeout)
       }
 
       "using a publisher" in assertAllStagesStopped {
@@ -81,14 +81,14 @@ class CursorSpec(implicit ee: ExecutionEnv)
         c.expectNext must beLike[Response] {
           case resp1 =>
             val r = resp1.reply
-            r.numberReturned.aka("numberReturned #1") must_== 3 and {
+            r.numberReturned.aka("numberReturned #1") must_=== 3 and {
               (r.cursorID != 0L) aka "hasNext #1" must beTrue
             }
         } and {
           c.expectNext must beLike[Response] {
             case resp2 =>
               val r = resp2.reply
-              r.numberReturned.aka("numberReturned #2") must_== 3 and {
+              r.numberReturned.aka("numberReturned #2") must_=== 3 and {
                 (r.cursorID != 0L) aka "hasNext #2" must beTrue
               }
           }
@@ -100,7 +100,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           c.expectNext must beLike[Response] {
             case resp3 =>
               val r = resp3.reply
-              r.numberReturned.aka("numberReturned #3") must_== 3 and {
+              r.numberReturned.aka("numberReturned #3") must_=== 3 and {
                 (r.cursorID != 0L) aka "hasNext #3" must beTrue
               }
           }
@@ -108,7 +108,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           c.expectNext must beLike[Response] {
             case resp4 =>
               val r = resp4.reply
-              r.numberReturned.aka("numberReturned #4") must_== 1 and {
+              r.numberReturned.aka("numberReturned #4") must_=== 1 and {
                 (r.cursorID != 0L) aka "hasNext #4" must beFalse
               }
           }
@@ -128,7 +128,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         rs.size -> (rs.map { r =>
           r.reply.numberReturned -> (r.reply.cursorID != 0) // !Mongo3
         }).toList
-      }.aka("sequence") must beEqualTo(expected).await(0, timeout)
+      }.aka("sequence") must beTypedEqualTo(expected).awaitFor(timeout)
     }
 
     "consumed using a publisher with a max of 6 documents" in {
@@ -146,14 +146,14 @@ class CursorSpec(implicit ee: ExecutionEnv)
         c.expectNext must beLike[Response] {
           case resp1 =>
             val r = resp1.reply
-            r.numberReturned.aka("numberReturned #1") must_== 3 and {
+            r.numberReturned.aka("numberReturned #1") must_=== 3 and {
               (r.cursorID != 0L) aka "hasNext #1" must beTrue
             }
         } and {
           c.expectNext must beLike[Response] {
             case resp2 =>
               val r = resp2.reply
-              r.numberReturned.aka("numberReturned #2") must_== 3 and {
+              r.numberReturned.aka("numberReturned #2") must_=== 3 and {
                 (r.cursorID != 0L) aka "hasNext #2" must beFalse
               }
           }
@@ -198,7 +198,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
         cursor1("source6")(col).responseSource(
           err = Cursor.DoneOnError { (_, e) => err = Some(e) }
-        ).runWith(sink) must beEqualTo(2).await(0, timeout) and {
+        ).runWith(sink) must beTypedEqualTo(2).awaitFor(timeout) and {
             err must beSome[Throwable].like {
               case reason: ClosedException =>
                 reason.getMessage must beMatching(
@@ -225,7 +225,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
         Await.result(cursor1("source7")(col).responseSource(
           err = Cursor.ContOnError { (_, e) => err = Some(e) }
-        ).runWith(sink), timeout) must beEqualTo(3) and {
+        ).runWith(sink), timeout) must beTypedEqualTo(3) and {
           err must beSome[Throwable].like {
             case reason: ClosedException =>
               reason.getMessage must beMatching(
@@ -240,10 +240,10 @@ class CursorSpec(implicit ee: ExecutionEnv)
   "Bulk source" should {
     "be fully consumed" >> {
       "using a sequence sink" in assertAllStagesStopped {
-        val expected = expectedList.sliding(3, 3).toList
+        val expected = expectedSeq.sliding(3, 3).toSeq
 
         toSeq(cursor("source8").bulkSource()).map(_.map(_.toList)).
-          aka("sequence") must beEqualTo(expected).await(0, timeout)
+          aka("sequence") must beTypedEqualTo(expected).awaitFor(timeout)
 
       }
 
@@ -258,16 +258,16 @@ class CursorSpec(implicit ee: ExecutionEnv)
         val sub = c.expectSubscription()
         sub.request(3)
 
-        c.expectNext.toList aka "bulk #1" must_== List(0, 1, 2) and {
-          c.expectNext.toList aka "bulk #2" must_== List(3, 4, 5)
+        c.expectNext.toList aka "bulk #1" must_=== List(0, 1, 2) and {
+          c.expectNext.toList aka "bulk #2" must_=== List(3, 4, 5)
         } and {
-          c.expectNext.toList aka "bulk #3" must_== List(6, 7, 8)
+          c.expectNext.toList aka "bulk #3" must_=== List(6, 7, 8)
         } and {
           c.expectNoMsg(200.millis) must not(throwA[Throwable])
         } and {
           sub.request(2) must not(throwA[Throwable])
         } and {
-          c.expectNext.toList aka "bulk #4" must_== List(9)
+          c.expectNext.toList aka "bulk #4" must_=== List(9)
         } and {
           c.expectComplete() aka "completed" must not(throwA[Throwable])
         }
@@ -312,7 +312,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
           cursor1("source11")(col).bulkSource(
             err = Cursor.DoneOnError { (_, e) => err = Some(e) }
-          ).runWith(sink) must beEqualTo(2).await(0, timeout) and {
+          ).runWith(sink) must beTypedEqualTo(2).awaitFor(timeout) and {
               err must beSome[Throwable].like {
                 case reason: ClosedException =>
                   reason.getMessage must beMatching(
@@ -354,7 +354,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
     "be fully consumed" >> {
       "using a sequence sink" in assertAllStagesStopped {
         toSeq(cursor("source13").documentSource()).
-          aka("sequence") must beEqualTo(expectedList).await(0, timeout)
+          aka("sequence") must beTypedEqualTo(expectedSeq).awaitFor(timeout)
       }
 
       "using a publisher" in assertAllStagesStopped {
@@ -368,32 +368,32 @@ class CursorSpec(implicit ee: ExecutionEnv)
         val sub = c.expectSubscription()
         sub.request(4)
 
-        c.expectNext aka "document #1" must_== 0 and {
-          c.expectNext aka "document #2" must_== 1
+        c.expectNext aka "document #1" must_=== 0 and {
+          c.expectNext aka "document #2" must_=== 1
         } and {
-          c.expectNext aka "document #3" must_== 2
+          c.expectNext aka "document #3" must_=== 2
         } and {
-          c.expectNext aka "document #4" must_== 3
+          c.expectNext aka "document #4" must_=== 3
         } and {
           c.expectNoMsg(200.millis) must not(throwA[Throwable])
         } and {
           sub.request(5) must not(throwA[Throwable])
         } and {
-          c.expectNext aka "document #5" must_== 4
+          c.expectNext aka "document #5" must_=== 4
         } and {
-          c.expectNext aka "document #6" must_== 5
+          c.expectNext aka "document #6" must_=== 5
         } and {
-          c.expectNext aka "document #7" must_== 6
+          c.expectNext aka "document #7" must_=== 6
         } and {
-          c.expectNext aka "document #8" must_== 7
+          c.expectNext aka "document #8" must_=== 7
         } and {
-          c.expectNext aka "document #9" must_== 8
+          c.expectNext aka "document #9" must_=== 8
         } and {
           c.expectNoMsg(500.millis) must not(throwA[Throwable])
         } and {
           sub.request(2) must not(throwA[Throwable])
         } and {
-          c.expectNext aka "document #10" must_== 9
+          c.expectNext aka "document #10" must_=== 9
         } and {
           c.expectComplete() aka "completed" must not(throwA[Throwable])
         }
@@ -414,7 +414,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             val len = if (rem < 256) rem else 256
             val prepared = nDocs - rem
 
-            def bulk = coll.insert[BSONDocument](false).many(
+            def bulk = coll.insert[BSONDocument](ordered = false).many(
               for (i <- 0 until len) yield {
                 val n = i + prepared
                 BSONDocument("i" -> n, "record" -> s"record$n")
@@ -424,22 +424,23 @@ class CursorSpec(implicit ee: ExecutionEnv)
           }
         }
 
-        insert(nDocs, Seq.empty) must beEqualTo({}).await(1, moreTime) and {
-          import reactivemongo.akkastream.cursorProducer
-          val cursor: AkkaStreamCursor[BSONDocument] =
-            coll.find(BSONDocument.empty).cursor[BSONDocument]()
+        insert(nDocs, Seq.empty) must beTypedEqualTo({}).
+          await(1, moreTime) and {
+            import reactivemongo.akkastream.cursorProducer
+            val cursor: AkkaStreamCursor[BSONDocument] =
+              coll.find(BSONDocument.empty).cursor[BSONDocument]()
 
-          def src = cursor.documentSource()
-          val consume = Sink.fold[(Long, Long), BSONDocument](0L -> 0L) {
-            case ((count, n), doc) =>
-              val i = doc.getAs[BSONNumberLike]("i").map(_.toLong).get
-              (count + 1L) -> (n + i)
+            def src = cursor.documentSource()
+            val consume = Sink.fold[(Long, Long), BSONDocument](0L -> 0L) {
+              case ((count, n), doc) =>
+                val i = doc.getAs[BSONNumberLike]("i").map(_.toLong).get
+                (count + 1L) -> (n + i)
+            }
+
+            src.runWith(consume) must beTypedEqualTo(
+              nDocs.toLong -> 136397386L
+            ).await(1, moreTime)
           }
-
-          src.runWith(consume) must beEqualTo(
-            nDocs.toLong -> 136397386L
-          ).await(1, moreTime)
-        }
       }
     }
 
@@ -447,16 +448,16 @@ class CursorSpec(implicit ee: ExecutionEnv)
       "with limit in the query operation" in {
         assertAllStagesStopped {
           toSeq(cursor("source15a").documentSource(6)).
-            aka("sequence") must beEqualTo(expectedList take 6).
-            await(0, timeout)
+            aka("sequence") must beTypedEqualTo(expectedSeq take 6).
+            awaitFor(timeout)
         }
       }
 
       "with limit on the stream" in {
         assertAllStagesStopped {
           toSeq(cursor("source15b").documentSource(10).take(6)).
-            aka("sequence") must beEqualTo(expectedList take 6).
-            await(0, timeout)
+            aka("sequence") must beTypedEqualTo(expectedSeq take 6).
+            awaitFor(timeout)
         }
       }
     }
@@ -473,22 +474,22 @@ class CursorSpec(implicit ee: ExecutionEnv)
         val sub = c.expectSubscription()
         sub.request(2)
 
-        c.expectNext aka "document #1" must_== 0 and {
-          c.expectNext aka "document #2" must_== 1
+        c.expectNext aka "document #1" must_=== 0 and {
+          c.expectNext aka "document #2" must_=== 1
         } and {
           c.expectNoMsg(200.millis) must not(throwA[Throwable])
         } and {
           sub.request(5) must not(throwA[Throwable])
         } and {
-          c.expectNext aka "document #3" must_== 2
+          c.expectNext aka "document #3" must_=== 2
         } and {
-          c.expectNext aka "document #4" must_== 3
+          c.expectNext aka "document #4" must_=== 3
         } and {
-          c.expectNext aka "document #5" must_== 4
+          c.expectNext aka "document #5" must_=== 4
         } and {
-          c.expectNext aka "document #6" must_== 5
+          c.expectNext aka "document #6" must_=== 5
         } and {
-          c.expectNext aka "document #7" must_== 6
+          c.expectNext aka "document #7" must_=== 6
         } and {
           c.expectComplete() aka "completed" must not(throwA[Throwable])
         }
@@ -533,8 +534,8 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
           cursor1("source18")(col).documentSource(
             err = Cursor.DoneOnError { (_, e) => err = Some(e) }
-          ).runWith(sink) must beEqualTo(3 /* = bulk size */ ).
-            await(0, timeout) and {
+          ).runWith(sink) must beTypedEqualTo(3 /* = bulk size */ ).
+            awaitFor(timeout) and {
               err must beSome[Throwable].like {
                 case reason: ClosedException =>
                   reason.getMessage must beMatching(
@@ -582,16 +583,26 @@ class CursorSpec(implicit ee: ExecutionEnv)
         sort(BSONDocument("id" -> 1)).cursor[Int]()
 
       s"insert $nDocs records" in {
-        // TODO: bulk
-        def futs: Seq[Future[Unit]] = for (i <- 0 until nDocs) yield {
-          coll.insert(BSONDocument(
-            "id" -> i, "record" -> s"record$i"
-          )).map(_ => {})
+        def insert(rem: Int, bulks: Seq[Future[Unit]]): Future[Unit] = {
+          if (rem == 0) {
+            Future.sequence(bulks).map(_ => {})
+          } else {
+            val len = if (rem < 256) rem else 256
+            val prepared = nDocs - rem
+
+            def bulk = coll.insert[BSONDocument](ordered = false).many(
+              for (i <- 0 until len) yield {
+                val n = i + prepared
+                BSONDocument("id" -> n, "record" -> s"record$n")
+              }).map(_ => {})
+
+            insert(rem - len, bulk +: bulks)
+          }
         }
 
-        Future.sequence(futs).map { _ =>
+        insert(nDocs, Seq.empty).map { _ =>
           //println(s"inserted $nDocs records")
-        } aka "fixtures" must beEqualTo({}).await(0, timeout)
+        } aka "fixtures" must beTypedEqualTo({}).awaitFor(timeout)
       }
 
       "using a fold sink" in assertAllStagesStopped {
@@ -600,7 +611,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         source.runWith(Sink.fold[Int, Int](-1) { (prev, i) =>
           val expected = prev + 1
           if (expected == i) expected else -1
-        }) aka "fold result" must beEqualTo(16516).await(0, timeout * 2)
+        }) aka "fold result" must beTypedEqualTo(16516).awaitFor(timeout * 2)
       }
 
       "using a publisher" >> {
@@ -617,7 +628,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             val expected = prev + 1
             val i = c.expectNext
             if (expected == i) expected else -1
-          } aka "fold result" must beEqualTo(16516) and {
+          } aka "fold result" must beTypedEqualTo(16516) and {
             c.expectComplete aka "completed" must not(throwA[Throwable])
           }
         }
@@ -636,16 +647,16 @@ class CursorSpec(implicit ee: ExecutionEnv)
             val expected = prev + 1
             val i = c.expectNext
             if (expected == i) expected else -1
-          } aka "fold result #1" must beEqualTo(8257) and {
+          } aka "fold result #1" must beTypedEqualTo(8257) and {
             c.expectNoMsg(200.millis) must not(throwA[Throwable])
           } and {
             sub.request(3) must not(throwA[Throwable])
           } and {
-            c.expectNext must_== 8258
+            c.expectNext must_=== 8258
           } and {
-            c.expectNext must_== 8259
+            c.expectNext must_=== 8259
           } and {
-            c.expectNext must_== 8260
+            c.expectNext must_=== 8260
           } and {
             c.expectNoMsg(500.millis) must not(throwA[Throwable])
           } and {
@@ -655,7 +666,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
               val expected = prev + 1
               val i = c.expectNext
               if (expected == i) expected else -1
-            } aka "fold result #2" must beEqualTo(16516)
+            } aka "fold result #2" must beTypedEqualTo(16516)
           } and {
             c.expectComplete aka "completed" must not(throwA[Throwable])
           }
@@ -736,7 +747,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
       populate()
 
-      done.future must beEqualTo({}).await(0, timeout) and {
+      done.future must beTypedEqualTo({}).awaitFor(timeout) and {
         val (swtch, c) = consume
 
         {
@@ -751,7 +762,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
           } must beLike[(Boolean, Int, Int)] {
             case (ordered, _, count) =>
-              ordered must beTrue and (count must_== 10)
+              ordered must beTrue and (count must_=== 10)
           }
         }
       }
@@ -772,7 +783,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
       populate()
 
-      done.future must beEqualTo({}).await(0, timeout) and {
+      done.future must beTypedEqualTo({}).awaitFor(timeout) and {
         val (swtch, c) = consume
 
         {
@@ -800,7 +811,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
       populate()
 
-      done.future must beEqualTo({}).await(0, timeout) and {
+      done.future must beTypedEqualTo({}).awaitFor(timeout) and {
         val (swtch, c) = consume
 
         {
@@ -832,9 +843,9 @@ class CursorSpec(implicit ee: ExecutionEnv)
             Match(BSONDocument("id" -> BSONDocument("$gte" -> 3))),
             List(Sort(Ascending("id")))
           ).prepared[AkkaStreamCursor].cursor
-        }).documentSource()) must beEqualTo(
-          expectedList.filter(_ >= 3)
-        ).await(0, timeout)
+        }).documentSource()) must beTypedEqualTo(
+          expectedSeq.filter(_ >= 3)
+        ).awaitFor(timeout)
       }
     }
   }
@@ -848,7 +859,7 @@ sealed trait CursorFixtures { specs: CursorSpec =>
     def read(doc: BSONDocument): Int = doc.getAs[Int]("id").get
   }
 
-  val expectedList = List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+  val expectedSeq = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 
   def toSeq[T](src: Source[T, _]): Future[Seq[T]] =
     src.runWith(Sink.seq[T])
