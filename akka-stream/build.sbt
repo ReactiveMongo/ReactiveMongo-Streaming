@@ -1,3 +1,10 @@
+import com.typesafe.tools.mima.core._, ProblemFilters._
+import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
+import com.typesafe.tools.mima.plugin.MimaKeys.{
+  mimaBinaryIssueFilters,
+  mimaPreviousArtifacts
+}
+
 name := "reactivemongo-akkastream"
 
 resolvers ++= Seq(
@@ -23,6 +30,32 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer.value % Test,
   "com.typesafe.akka" %% "akka-stream-contrib" % akkaContribVer.value % Test
 )
+
+// MiMa
+mimaBinaryIssueFilters ++= {
+  val dmm = ProblemFilters.exclude[DirectMissingMethodProblem](_)
+  val imt = ProblemFilters.exclude[IncompatibleMethTypeProblem](_)
+  val pkg = "reactivemongo.akkastream"
+
+  Seq(
+    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses$$default$$1"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses$$default$$2"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.rawEnumerateResponses"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.rawEnumerateResponses$$default$$1"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateBulks"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateBulks$$default$$1"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateBulks$$default$$2"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.toList"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.toList$$default$$1"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.toList$$default$$2"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerate"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerate$$default$$2"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerate$$default$$1"),
+    imt(s"${pkg}.AkkaStreamCursorImpl.collect"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.collect$$default$$1"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.collect$$default$$2"))
+}
 
 // Publish
 apiURL := Some(url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/akka-stream/api/"))

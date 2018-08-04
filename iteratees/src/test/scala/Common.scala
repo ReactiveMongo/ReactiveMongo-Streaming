@@ -43,7 +43,7 @@ object Common {
       d + (fos.initialDelay * ((timeoutFactor * fos.delayFactor(i)).toLong))
     }
 
-  val timeout = {
+  implicit val timeout: FiniteDuration = {
     val maxTimeout = estTimeout(failoverStrategy)
     if (maxTimeout < 10.seconds) 10.seconds else maxTimeout
   }
