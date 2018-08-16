@@ -414,7 +414,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             val len = if (rem < 256) rem else 256
             val prepared = nDocs - rem
 
-            def bulk = coll.insert[BSONDocument](ordered = false).many(
+            def bulk = coll.insert.many(
               for (i <- 0 until len) yield {
                 val n = i + prepared
                 BSONDocument("i" -> n, "record" -> s"record$n")
@@ -590,7 +590,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             val len = if (rem < 256) rem else 256
             val prepared = nDocs - rem
 
-            def bulk = coll.insert[BSONDocument](ordered = false).many(
+            def bulk = coll.insert.many(
               for (i <- 0 until len) yield {
                 val n = i + prepared
                 BSONDocument("id" -> n, "record" -> s"record$n")
@@ -686,7 +686,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         (0 until 10).foldLeft(Future(Thread.sleep(1000))) { (future, id) =>
           for {
             _ <- future
-            _ <- col.insert(BSONDocument("id" -> id))
+            _ <- col.insert.one(BSONDocument("id" -> id))
           } yield {
             try {
               Thread.sleep(200)
@@ -878,6 +878,6 @@ sealed trait CursorFixtures { specs: CursorSpec =>
 
   def withFixtures(col: BSONCollection)(implicit ee: ExecutionEnv): Future[BSONCollection] =
     Future
-      .sequence((0 until 10).map(n => col.insert(BSONDocument("id" -> n))))
+      .sequence((0 until 10).map(n => col.insert.one(BSONDocument("id" -> n))))
       .map(_ => col)
 }

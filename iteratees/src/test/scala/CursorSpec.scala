@@ -40,7 +40,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
       implicit val writer = PersonWriter
 
-      Future.sequence(fixtures.map(personColl.insert(_).map(_.ok))).
+      Future.sequence(fixtures.map(personColl.insert.one(_).map(_.ok))).
         aka("fixtures") must beEqualTo(List(true, true, true, true, true)).
         awaitFor(timeout)
     }
@@ -92,7 +92,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val len = if (rem < 256) rem else 256
           val prepared = nDocs - rem
 
-          def bulk = coll2.insert[BSONDocument](ordered = false).many(
+          def bulk = coll2.insert(ordered = false).many(
             for (i <- 0 until len) yield {
               val n = i + prepared
               BSONDocument("i" -> n, "record" -> s"record$n")
@@ -492,7 +492,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         val col = db(s"somecollection_$n")
 
         Future.sequence((0 until 10) map { id =>
-          col.insert[BSONDocument](ordered = true).one(BSONDocument("id" -> id))
+          col.insert(ordered = true).one(BSONDocument("id" -> id))
         }) map { _ =>
           logger.debug(s"-- all documents inserted in test collection $n")
           col
@@ -529,7 +529,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         col.createCapped(4096, Some(10)).flatMap { _ =>
           (0 until 10).foldLeft(Future successful {}) { (f, id) =>
             f.flatMap(_ =>
-              col.insert[BSONDocument](ordered = true).
+              col.insert(ordered = true).
                 one(BSONDocument("id" -> id)).map(_ => Thread.sleep(200)))
 
           }.map(_ =>
