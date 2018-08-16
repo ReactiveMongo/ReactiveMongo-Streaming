@@ -13,20 +13,17 @@ cache:
   - $HOME/.ivy2
   - $HOME/.sbt
   - $HOME/ssl
-  - $HOME/mongodb-linux-x86_64-amazon-3.4.7
-scala:
-- 2.11.12
-- 2.12.6
-jdk: oraclejdk8
+  - $HOME/mongodb-linux-x86_64-amazon-3.6.6
 env:
-  - AKKA_VERSION=2.4.8 ITERATEES_VERSION=2.3.10
-  - AKKA_VERSION=2.5.13 ITERATEES_VERSION=2.6.1
-matrix: 
-  exclude: 
-    - scala: 2.12.6
-      env: AKKA_VERSION=2.4.8 ITERATEES_VERSION=2.3.10
-    - scala: 2.11.12
-      env: AKKA_VERSION=2.5.13 ITERATEES_VERSION=2.6.1
+  - _DISABLED=true
+matrix:
+  include:
+  - env: AKKA_VERSION=2.4.8 ITERATEES_VERSION=2.3.10
+    jdk: oraclejdk9
+    scala: 2.11.12
+  - env: AKKA_VERSION=2.5.13 ITERATEES_VERSION=2.6.1 PUBLISHABLE=yes
+    jdk: oraclejdk8
+    scala: 2.12.6
 before_install: ./.ci_scripts/beforeInstall.sh $TRAVIS_SCALA_VERSION
 script: ./.ci_scripts/validate.sh
-after_success: ./.ci_scripts/afterSuccess.sh
+after_success: CI_BRANCH=$TRAVIS_BRANCH ./.ci_scripts/afterSuccess.sh

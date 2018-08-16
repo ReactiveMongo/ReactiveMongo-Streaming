@@ -28,7 +28,7 @@ object State {
  * @define maxDocsParam the maximum number of documents to be retrieved
  * @define materializerParam the stream materializer
  * @define fanoutParam see [[http://doc.akka.io/api/akka/2.4.7/index.html#akka.stream.scaladsl.Sink$@asPublisher[T](fanout:Boolean):akka.stream.scaladsl.Sink[T,org.reactivestreams.Publisher[T]] Sink.asPublisher]] (default: false)
- * @define materialization It materializes a [[Future]] of [[State]] (for now with no detail, for future extension)
+ * @define materialization It materializes a `Future` of [[State]] (for now with no detail, for future extension)
  */
 sealed trait AkkaStreamCursor[T] extends Cursor[T] {
 
