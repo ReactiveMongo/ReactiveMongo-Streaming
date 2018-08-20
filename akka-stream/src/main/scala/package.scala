@@ -1,26 +1,20 @@
 package reactivemongo
 
 import scala.concurrent.Future
-import reactivemongo.api.{ Cursor, CursorProducer, CursorOps }
+import reactivemongo.api.{ Cursor, CursorFlattener, CursorProducer }
 
 package object akkastream {
   /** Provides Akka Streams instances for CursorProducer typeclass. */
   implicit def cursorProducer[T] = new CursorProducer[T] {
-    type BaseCursor = Cursor[T] with CursorOps[T]
-    type ProducedCursor = AkkaStreamCursor[T]
+    type ProducedCursor = AkkaStreamCursor.WithOps[T]
 
     // Returns a cursor with Akka Streams operations.
-    def produce(base: Cursor[T]): AkkaStreamCursor[T] = base match {
-      case c: BaseCursor @unchecked => new AkkaStreamCursorImpl[T](c)
-      case c =>
-        sys.error(s"expected Cursor with CursorOps, got ${c.getClass.getName}")
-    }
+    def produce(c: Cursor.WithOps[T]): ProducedCursor =
+      new AkkaStreamCursorImpl[T](c)
   }
 
   /** Provides flattener for Akka Streams cursor. */
-  implicit object cursorFlattener
-    extends reactivemongo.api.CursorFlattener[AkkaStreamCursor] {
-
+  implicit object cursorFlattener extends CursorFlattener[AkkaStreamCursor] {
     def flatten[T](future: Future[AkkaStreamCursor[T]]): AkkaStreamCursor[T] =
       new AkkaStreamFlattenedCursor(future)
   }

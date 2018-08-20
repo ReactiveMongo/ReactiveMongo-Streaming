@@ -9,7 +9,7 @@ package object iteratees {
     type ProducedCursor = PlayIterateesCursor[T]
 
     // Returns a cursor with Play Iteratees operations.
-    def produce(base: Cursor[T]): PlayIterateesCursor[T] =
+    def produce(base: Cursor.WithOps[T]): PlayIterateesCursor[T] =
       new PlayIterateesCursorImpl[T](base)
 
   }

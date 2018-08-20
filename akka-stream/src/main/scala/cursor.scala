@@ -7,7 +7,8 @@ import reactivemongo.api.{
   Cursor,
   CursorOps,
   FlattenedCursor,
-  WrappedCursor
+  WrappedCursor,
+  WrappedCursorOps
 }, Cursor.{ ErrorHandler, FailOnError }
 
 import org.reactivestreams.Publisher
@@ -95,9 +96,14 @@ sealed trait AkkaStreamCursor[T] extends Cursor[T] {
 
 }
 
+object AkkaStreamCursor {
+  type WithOps[T] = AkkaStreamCursor[T] with CursorOps[T]
+}
+
 private[akkastream] class AkkaStreamCursorImpl[T](
-    val wrappee: Cursor[T] with CursorOps[T]
-) extends WrappedCursor[T] with AkkaStreamCursor[T] {
+    val wrappee: Cursor.WithOps[T]
+) extends WrappedCursor[T] with WrappedCursorOps[T] with AkkaStreamCursor[T] {
+  @inline def opsWrappee = wrappee
 
   def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, Future[State]] = {
     implicit def ec: ExecutionContext = m.executionContext
@@ -123,21 +129,11 @@ private[akkastream] class AkkaStreamCursorImpl[T](
     Source.fromGraph(new DocumentStage[T](this, maxDocs, err)).
       mapMaterializedValue(_ => State.materialized)
   }
-
-  // ---
-
-  private[akkastream] def makeRequest(maxDocs: Int)(implicit ctx: ExecutionContext): Future[Response] = wrappee.makeRequest(maxDocs)
-
-  private[akkastream] def nextResponse(maxDocs: Int): (ExecutionContext, Response) => Future[Option[Response]] = wrappee.nextResponse(maxDocs)
-
-  private[akkastream] def documentIterator(response: Response, ctx: ExecutionContext): Iterator[T] = wrappee.documentIterator(response)
-
 }
 
 class AkkaStreamFlattenedCursor[T](
     val cursor: Future[AkkaStreamCursor[T]]
-)
-  extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
+) extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
 
   def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, Future[State]] = {
     implicit def ec: ExecutionContext = m.executionContext
