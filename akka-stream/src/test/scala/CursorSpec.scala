@@ -93,7 +93,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
               }
           }
         } and {
-          c.expectNoMsg(200.millis) must not(throwA[Throwable])
+          expectNoMsg(c, 200.millis) must not(throwA[Throwable])
         } and {
           sub.request(3) must not(throwA[Throwable])
         } and {
@@ -263,7 +263,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         } and {
           c.expectNext.toList aka "bulk #3" must_=== List(6, 7, 8)
         } and {
-          c.expectNoMsg(200.millis) must not(throwA[Throwable])
+          expectNoMsg(c, 200.millis) must not(throwA[Throwable])
         } and {
           sub.request(2) must not(throwA[Throwable])
         } and {
@@ -375,7 +375,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         } and {
           c.expectNext aka "document #4" must_=== 3
         } and {
-          c.expectNoMsg(200.millis) must not(throwA[Throwable])
+          expectNoMsg(c, 200.millis) must not(throwA[Throwable])
         } and {
           sub.request(5) must not(throwA[Throwable])
         } and {
@@ -389,7 +389,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         } and {
           c.expectNext aka "document #9" must_=== 8
         } and {
-          c.expectNoMsg(500.millis) must not(throwA[Throwable])
+          expectNoMsg(c, 500.millis) must not(throwA[Throwable])
         } and {
           sub.request(2) must not(throwA[Throwable])
         } and {
@@ -477,7 +477,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         c.expectNext aka "document #1" must_=== 0 and {
           c.expectNext aka "document #2" must_=== 1
         } and {
-          c.expectNoMsg(200.millis) must not(throwA[Throwable])
+          expectNoMsg(c, 200.millis) must not(throwA[Throwable])
         } and {
           sub.request(5) must not(throwA[Throwable])
         } and {
@@ -648,7 +648,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             val i = c.expectNext
             if (expected == i) expected else -1
           } aka "fold result #1" must beTypedEqualTo(8257) and {
-            c.expectNoMsg(200.millis) must not(throwA[Throwable])
+            expectNoMsg(c, 200.millis) must not(throwA[Throwable])
           } and {
             sub.request(3) must not(throwA[Throwable])
           } and {
@@ -658,7 +658,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           } and {
             c.expectNext must_=== 8260
           } and {
-            c.expectNoMsg(500.millis) must not(throwA[Throwable])
+            expectNoMsg(c, 500.millis) must not(throwA[Throwable])
           } and {
             sub.request(Int.MaxValue) must not(throwA[Throwable])
           } and {
@@ -832,7 +832,9 @@ class CursorSpec(implicit ee: ExecutionEnv)
       import reactivemongo.akkastream.cursorProducer
 
       assertAllStagesStopped {
-        toSeq(Cursor.flatten(collection("source23").map { col =>
+        val flatten = Cursor.flatten[Int, AkkaStreamCursor] _
+
+        toSeq(flatten(collection("source23").map { col =>
           import col.BatchCommands.AggregationFramework.{
             Ascending,
             Match,
@@ -842,13 +844,17 @@ class CursorSpec(implicit ee: ExecutionEnv)
           col.aggregatorContext[Int](
             Match(BSONDocument("id" -> BSONDocument("$gte" -> 3))),
             List(Sort(Ascending("id")))
-          ).prepared[AkkaStreamCursor].cursor
+          ).prepared[AkkaStreamCursor.WithOps].cursor
         }).documentSource()) must beTypedEqualTo(
           expectedSeq.filter(_ >= 3)
         ).awaitFor(timeout)
       }
     }
   }
+
+  // ---
+
+  @com.github.ghik.silencer.silent @inline def expectNoMsg[T](c: akka.stream.testkit.TestSubscriber.ManualProbe[T], timeout: FiniteDuration) = c.expectNoMsg(timeout)
 }
 
 sealed trait CursorFixtures { specs: CursorSpec =>

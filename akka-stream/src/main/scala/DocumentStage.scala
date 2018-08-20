@@ -137,7 +137,7 @@ private[akkastream] class DocumentStage[T](
           } else {
             last = None
 
-            val bulkIter = cursor.documentIterator(r, ec).
+            val bulkIter = cursor.documentIterator(r).
               take(maxDocs - r.reply.startingFrom)
 
             nextD(r, bulkIter)

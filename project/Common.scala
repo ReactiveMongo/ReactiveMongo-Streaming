@@ -2,25 +2,7 @@ import sbt.Keys._
 import sbt._
 
 object Common {
-  val settings = Seq(
-    scalacOptions in Compile ++= Seq(
-      "-unchecked", "-deprecation",
-      "-Ywarn-unused",
-      "-Ywarn-unused-import",
-      "-Ywarn-value-discard",
-      "-Ywarn-numeric-widen",
-      "-Ywarn-infer-any",
-      "-Ywarn-dead-code"),
-    scalacOptions in Compile ++= {
-      if (scalaVersion.value startsWith "2.10.") Nil
-      else Seq("-Ywarn-unused", "-Xlint")
-    },
-    autoAPIMappings := true,
-    scalacOptions in (Compile, doc) := Seq(
-      "-Ywarn-dead-code", "-Ywarn-unused-import", "-unchecked", "-deprecation",
-      /*"-diagrams", */ "-implicits", "-skip-packages", "samples") ++
-      Opts.doc.title("ReactiveMongo Streaming API") ++
-      Opts.doc.version(Release.major.value),
+  val settings = Compiler.settings ++ Seq(
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
         "specs2-core", "specs2-junit").map(

@@ -38,4 +38,10 @@ EOF
 
 export JVM_OPTS
 
-sbt ++$TRAVIS_SCALA_VERSION ";findbugs ;scapegoat ;mimaReportBinaryIssues ;testOnly"
+TEST_ARGS=";findbugs ;mimaReportBinaryIssues ;testOnly"
+
+if [ "v$TRAVIS_SCALA_VERSION" = "v2.12.6" ]; then
+    TEST_ARGS=";scapegoat $TEST_ARGS"
+fi
+
+sbt ++$TRAVIS_SCALA_VERSION "$TEST_ARGS"

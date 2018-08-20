@@ -38,6 +38,7 @@ mimaBinaryIssueFilters ++= {
   val pkg = "reactivemongo.akkastream"
 
   Seq(
+    dmm(s"${pkg}.AkkaStreamCursorImpl.documentIterator"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses$$default$$1"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses$$default$$2"),
