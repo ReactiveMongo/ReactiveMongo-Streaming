@@ -34,7 +34,9 @@ import akka.stream.scaladsl.Source
 import reactivemongo.akkastream.{ AkkaStreamCursor, cursorProducer, State }
 
 implicit val system = akka.actor.ActorSystem("reactivemongo-akkastream")
+implicit val ec = system.dispatcher
 implicit val materializer = akka.stream.ActorMaterializer.create(system)
+
 
 implicit val reader = BSONDocumentReader[Int] { doc =>
   doc.getAsTry[Int]("age").getOrElse(sys.error("Missing age"))
