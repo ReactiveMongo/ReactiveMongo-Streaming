@@ -55,7 +55,7 @@ sealed trait AkkaStreamCursor[T] extends Cursor[T] {
 
   /**
    * Returns a source of document bulks
-   * (see [[reactivemongo.api.QueryOpts.batchSize]]).
+   * (see `reactivemongo.api.QueryOpts.batchSize`).
    * $materialization.
    *
    * @param maxDocs $maxDocsParam
