@@ -36,7 +36,7 @@ object Common {
   lazy val driver = newDriver()
 
   val DefaultOptions = {
-    val opts = MongoConnectionOptions(
+    val opts = MongoConnectionOptions.default.copy(
       failoverStrategy = failoverStrategy
     )
 
