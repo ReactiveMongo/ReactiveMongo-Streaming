@@ -10,7 +10,7 @@ object Common {
   val logger = reactivemongo.util.LazyLogger("tests")
 
   val DefaultOptions = {
-    val opts = MongoConnectionOptions()
+    val opts = MongoConnectionOptions.default
 
     if (Option(System getProperty "test.enableSSL").exists(_ == "true")) {
       opts.copy(sslEnabled = true, sslAllowsInvalidCert = true)
