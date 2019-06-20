@@ -68,14 +68,12 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
         content: Array[Byte]) = actual.filename must_=== expected.filename and {
         actual.uploadDate must beSome
       } and (actual.contentType must_=== expected.contentType) and {
-        import scala.collection.mutable.ArrayBuilder
-
         def consume() = streams.source(actual).
-          runWith(Sink.fold(ArrayBuilder.make[Byte]()) { _ ++= _ })
+          runWith(Sink.fold(Seq.newBuilder[Byte]) { _ ++= _ })
 
         val buf = new java.io.ByteArrayOutputStream()
 
-        consume.map(_.result()) must beTypedEqualTo(content).
+        consume.map(_.result().toArray) must beTypedEqualTo(content).
           await(1, timeout) and {
             gfs.readToOutputStream(actual, buf).
               map(_ => buf.toByteArray) must beTypedEqualTo(content).

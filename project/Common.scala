@@ -6,10 +6,10 @@ object Common {
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
         "specs2-core", "specs2-junit").map(
-          "org.specs2" %% _ % "4.3.2" % Test) ++ Seq(
+          "org.specs2" %% _ % "4.5.1" % Test) ++ Seq(
             Dependencies.slf4jSimple % Test)
   ) ++ Format.settings ++ Publish.settings ++ (
-      Scapegoat.settings ++ Publish.mimaSettings ++ Release.settings)
+    Publish.mimaSettings ++ Release.settings)
 
   val testCleanup: ClassLoader => Unit = { cl =>
     import scala.language.reflectiveCalls
@@ -67,7 +67,7 @@ object Publish {
 
   val mimaSettings = mimaDefaultSettings ++ Seq(
     mimaPreviousArtifacts := {
-      if (!scalaVersion.value.startsWith("2.12")) {
+      if (scalaVersion.value.startsWith("2.11")) {
         Set(organization.value %% moduleName.value % previousVersion)
       } else {
         Set.empty

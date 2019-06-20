@@ -15,12 +15,12 @@ resolvers ++= Seq(
 lazy val akkaVer = Def.setting[String] {
   sys.env.get("AKKA_VERSION").getOrElse {
     if (scalaVersion.value startsWith "2.11.") "2.4.10"
-    else "2.5.13"
+    else "2.5.23"
   }
 }
 
 val akkaContribVer = Def.setting[String] {
-  if (akkaVer.value startsWith "2.5") "0.9+19-a0bb1e41-SNAPSHOT"
+  if (akkaVer.value startsWith "2.5") "0.10+2-78d1b592"
   else "0.6-6-g12a86f9-SNAPSHOT"
 }
 

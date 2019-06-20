@@ -86,7 +86,7 @@ class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
 }
 
 class PlayIterateesFlattenedCursor[T](
-    val cursor: Future[PlayIterateesCursor[T]]
+    cursor: Future[PlayIterateesCursor[T]]
 )
   extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
 

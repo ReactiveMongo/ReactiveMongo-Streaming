@@ -7,6 +7,11 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{
 
 name := "reactivemongo-iteratees"
 
+sourceDirectory := { 
+  if (scalaVersion.value startsWith "2.13.") new java.io.File("/no/sources")
+  else sourceDirectory.value
+}
+
 lazy val playVer = Def.setting[String] {
   sys.env.get("ITERATEES_VERSION").getOrElse {
     if (scalaVersion.value startsWith "2.11.") "2.3.10"
@@ -14,10 +19,16 @@ lazy val playVer = Def.setting[String] {
   }
 }
 
-libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-iteratees" % playVer.value % Provided,
-  "com.typesafe.akka" %% "akka-slf4j" % "2.5.13" % Test
-)
+libraryDependencies ++= {
+  if (!scalaVersion.value.startsWith("2.13.")) {
+    Seq(
+      "com.typesafe.play" %% "play-iteratees" % playVer.value % Provided,
+      "com.typesafe.akka" %% "akka-slf4j" % "2.5.23" % Test
+    )
+  } else {
+    Seq.empty
+  }
+}
 
 // MiMa
 mimaBinaryIssueFilters ++= {
