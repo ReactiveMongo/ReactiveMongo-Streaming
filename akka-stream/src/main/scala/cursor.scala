@@ -132,7 +132,7 @@ private[akkastream] class AkkaStreamCursorImpl[T](
 }
 
 class AkkaStreamFlattenedCursor[T](
-    val cursor: Future[AkkaStreamCursor[T]]
+    cursor: Future[AkkaStreamCursor[T]]
 ) extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
 
   def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, Future[State]] = {

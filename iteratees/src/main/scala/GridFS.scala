@@ -108,7 +108,7 @@ final class GridFS[P <: SerializationPack with Singleton] private[iteratees] (db
         val uploadDate = file.uploadDate.getOrElse(System.currentTimeMillis)
 
         for {
-          f <- writeChunk(n, previous)
+          _ <- writeChunk(n, previous)
           md5 <- digestFinalize(md)
           bson = BSONDocument(idProducer("_id" -> file.id)) ++ (
             "filename" -> file.filename.map(BSONString(_)),

@@ -53,7 +53,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         val cur = cursor
         val enumerator = cur.enumerator(10)
 
-        (enumerator |>>> Iteratee.fold(0) { (r, doc) => r + 1 }).
+        (enumerator |>>> Iteratee.fold(0) { (r, _) => r + 1 }).
           aka("read") must beEqualTo(0).awaitFor(timeout)
       }
     }
@@ -64,7 +64,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         cursor[Person]().enumerator()
 
       var i = 0
-      (enumerator |>>> Iteratee.foreach { doc =>
+      (enumerator |>>> Iteratee.foreach { _ =>
         i += 1
         //println(s"\tgot doc: $doc")
       } map (_ => -1)).
@@ -77,7 +77,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         cursor[Person]().enumerator(err = ContOnError[Unit]())
 
       var i = 0
-      (enumerator |>>> Iteratee.foreach { doc =>
+      (enumerator |>>> Iteratee.foreach { _ =>
         i += 1
         //println(s"\t(skipping [$i]) got doc: $doc")
       }).map(_ => i) must beEqualTo(4).awaitFor(timeout)
@@ -109,7 +109,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
       s"all the $nDocs documents" in {
         var i = 0
         coll2.find(BSONDocument.empty).cursor[BSONDocument]().enumerator() |>>> (
-          Iteratee.foreach { e: BSONDocument =>
+          Iteratee.foreach { _: BSONDocument =>
             //println(s"doc $i => $e")
             i += 1
           }
@@ -119,7 +119,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
       "only 1024 documents" in {
         var i = 0
         coll2.find(BSONDocument.empty).cursor[BSONDocument]().
-          enumerator(1024) |>>> (Iteratee.foreach { e: BSONDocument =>
+          enumerator(1024) |>>> (Iteratee.foreach { _: BSONDocument =>
             //println(s"doc $i => $e")
             i += 1
           }).map(_ => i) must beEqualTo(1024).awaitFor(timeout)
@@ -281,7 +281,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
         "if fails while processing with existing documents (#2)" in {
           var count = 0
           var i = 0
-          val inc = Iteratee.foreach[Iterator[BSONDocument]] { x =>
+          val inc = Iteratee.foreach[Iterator[BSONDocument]] { _ =>
             i = i + 1
             if (i % 2 == 0) sys.error("Foo")
             count = count + 1

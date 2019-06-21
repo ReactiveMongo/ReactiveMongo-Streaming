@@ -171,7 +171,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           withFixtures(d.collection(n))
         }
 
-        val sink = Sink.fold(0) { (count, r: Response) =>
+        val sink = Sink.fold(0) { (count, _: Response) =>
           if (count == 0) drv.close(3.second) // trigger error by closing
           count + 1
         }
@@ -190,7 +190,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           withFixtures(d.collection(n))
         }
 
-        val sink = Sink.fold(0) { (count, r: Response) =>
+        val sink = Sink.fold(0) { (count, _: Response) =>
           if (count == 1) drv.close(3.second) // trigger error by closing
           count + 1
         }
@@ -217,7 +217,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           withFixtures(d.collection(n))
         }
 
-        val sink = Sink.fold(0) { (count, r: Response) =>
+        val sink = Sink.fold(0) { (count, _: Response) =>
           if (count == 2) drv.close(3.second) // trigger error by closing
           count + 1
         }
@@ -283,7 +283,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             withFixtures(d.collection(n))
           }
 
-          val sink = Sink.fold(0) { (count, bulk: Iterator[Int]) =>
+          val sink = Sink.fold(0) { (count, _: Iterator[Int]) =>
             if (count == 0) drv.close(3.second) // trigger error by closing
             count + 1
           }
@@ -304,7 +304,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
             withFixtures(d.collection(n))
           }
 
-          val sink = Sink.fold(0) { (count, bulk: Iterator[Int]) =>
+          val sink = Sink.fold(0) { (count, _: Iterator[Int]) =>
             if (count == 1) drv.close(3.second) // trigger error by closing
             count + 1
           }
@@ -330,7 +330,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           withFixtures(d.collection(n))
         }
 
-        val sink = Sink.fold(0) { (count, bulk: Iterator[Int]) =>
+        val sink = Sink.fold(0) { (count, _: Iterator[Int]) =>
           if (count == 2) drv.close(3.second) // trigger error by closing
           count + 1
         }

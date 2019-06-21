@@ -4,7 +4,7 @@ organization in ThisBuild := "org.reactivemongo"
 
 scalaVersion in ThisBuild := "2.12.6"
 
-crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value)
+crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value, "2.13.0")
 
 crossVersion in ThisBuild := CrossVersion.binary
 
@@ -14,7 +14,7 @@ resolvers in ThisBuild ++= Seq(
     "https://raw.github.com/cchantep/tatami/master/snapshots"))
 
 libraryDependencies in ThisBuild ++= {
-  val silencerVer = "1.2-SNAPSHOT"
+  val silencerVer = "1.4.1"
 
   Seq(
     compilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVer),
@@ -34,7 +34,6 @@ val travisEnv = taskKey[Unit]("Print Travis CI env")
 lazy val streaming = (project in file(".")).settings(
   Seq(
     libraryDependencies += reactiveMongo % version.value % "provided",
-    scalacOptions ++= Seq("-Ywarn-unused-import", "-unchecked"),
     scalacOptions in (Compile, doc) ++= List(
       "-skip-packages", "highlightextractor"),
   ) ++ Travis.settings ++ Publish.settings ++ Release.settings

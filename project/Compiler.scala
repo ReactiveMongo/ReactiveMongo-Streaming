@@ -3,9 +3,6 @@ import sbt._
 
 object Compiler {
   lazy val settings = Seq(
-    scalaVersion := "2.12.6",
-    crossScalaVersions := Seq("2.11.12", scalaVersion.value),
-    crossVersion in ThisBuild := CrossVersion.binary,
     scalacOptions ++= Seq(
       "-encoding", "UTF-8", "-target:jvm-1.8",
       "-unchecked",
@@ -13,13 +10,18 @@ object Compiler {
       "-feature",
       "-Xfatal-warnings",
       "-Xlint",
-      "-Ywarn-numeric-widen",
-      "-Ywarn-dead-code",
-      "-Ywarn-value-discard",
-      "-Ywarn-infer-any",
-      "-Ywarn-unused",
-      "-Ywarn-unused-import",
       "-g:vars"),
+    scalacOptions ++= {
+      if (!scalaVersion.value.startsWith("2.13.")) {
+        Seq(
+          "-Ywarn-numeric-widen",
+          "-Ywarn-dead-code",
+          "-Ywarn-value-discard",
+          "-Ywarn-infer-any",
+          "-Ywarn-unused",
+          "-Ywarn-unused-import")
+      } else Nil
+    },
     scalacOptions += { // Silencer
       "-P:silencer:globalFilters=Response\\ in\\ package\\ protocol\\ is\\ deprecated;killCursor;Use\\ \\`find\\`\\ with\\ optional\\ \\`projection\\`"
     },
