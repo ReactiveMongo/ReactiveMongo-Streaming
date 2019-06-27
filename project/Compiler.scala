@@ -46,7 +46,7 @@ object Compiler {
       }
     },
     scalacOptions in (Compile, doc) ++= Seq(
-      "-Ywarn-dead-code", "-Ywarn-unused-import", "-unchecked", "-deprecation",
+      "-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Streaming API") ++
       Opts.doc.version(Release.major.value)
