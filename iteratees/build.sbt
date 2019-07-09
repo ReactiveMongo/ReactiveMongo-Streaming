@@ -1,9 +1,4 @@
 import com.typesafe.tools.mima.core._, ProblemFilters._
-import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.{
-  mimaBinaryIssueFilters,
-  mimaPreviousArtifacts
-}
 
 name := "reactivemongo-iteratees"
 
@@ -37,6 +32,8 @@ mimaBinaryIssueFilters ++= {
   val pkg = "reactivemongo.play.iteratees"
 
   Seq(
+    ProblemFilters.exclude[IncompatibleSignatureProblem](
+      s"${pkg}.PlayIterateesFlattenedCursor.cursor"),
     dmm(s"${pkg}.PlayIterateesCursorImpl.enumerateResponses"),
     dmm(s"${pkg}.PlayIterateesCursorImpl.enumerateResponses$$default$$1"),
     dmm(s"${pkg}.PlayIterateesCursorImpl.enumerateResponses$$default$$2"),

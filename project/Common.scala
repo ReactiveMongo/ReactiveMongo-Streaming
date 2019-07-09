@@ -1,8 +1,11 @@
 import sbt.Keys._
 import sbt._
 
+import com.typesafe.tools.mima.plugin.MimaKeys.mimaFailOnNoPrevious
+
 object Common {
   val settings = Compiler.settings ++ Seq(
+    mimaFailOnNoPrevious := false,
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
         "specs2-core", "specs2-junit").map(
