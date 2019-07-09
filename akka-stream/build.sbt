@@ -1,9 +1,4 @@
 import com.typesafe.tools.mima.core._, ProblemFilters._
-import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.{
-  mimaBinaryIssueFilters,
-  mimaPreviousArtifacts
-}
 
 name := "reactivemongo-akkastream"
 
@@ -38,6 +33,8 @@ mimaBinaryIssueFilters ++= {
   val pkg = "reactivemongo.akkastream"
 
   Seq(
+    ProblemFilters.exclude[IncompatibleSignatureProblem](
+      s"${pkg}.AkkaStreamFlattenedCursor.cursor"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.documentIterator"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses$$default$$1"),
