@@ -23,16 +23,22 @@ libraryDependencies in ThisBuild ++= {
 
 Scapegoat.settings
 
+ThisBuild / mimaPreviousArtifacts := {
+  if (scalaVersion.value startsWith "2.13") Set.empty[ModuleID]
+  else Set(organization.value %% name.value % "0.12.0")
+}
+
 lazy val iteratees = project.in(file("iteratees")).
-  settings(Common.settings: _*)
+  settings(Common.settings)
 
 lazy val `akka-stream` = project.in(file("akka-stream")).
-  settings(Common.settings: _*)
+  settings(Common.settings)
 
 val travisEnv = taskKey[Unit]("Print Travis CI env")
 
 lazy val streaming = (project in file(".")).settings(
   Seq(
+    mimaFailOnNoPrevious := false,
     libraryDependencies += reactiveMongo % version.value % "provided",
     scalacOptions in (Compile, doc) ++= List(
       "-skip-packages", "highlightextractor"),
