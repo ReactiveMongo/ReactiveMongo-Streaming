@@ -14,7 +14,7 @@ resolvers in ThisBuild ++= Seq(
     "https://raw.github.com/cchantep/tatami/master/snapshots"))
 
 libraryDependencies in ThisBuild ++= {
-  val silencerVer = "1.4.1"
+  val silencerVer = "1.4.2"
 
   Seq(
     compilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVer),
