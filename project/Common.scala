@@ -9,7 +9,7 @@ object Common {
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
         "specs2-core", "specs2-junit").map(
-          "org.specs2" %% _ % "4.6.0" % Test) ++ Seq(
+          "org.specs2" %% _ % "4.7.0" % Test) ++ Seq(
             Dependencies.slf4jSimple % Test)
   ) ++ Format.settings ++ Publish.settings ++ (
     Publish.mimaSettings ++ Release.settings)
@@ -116,5 +116,5 @@ object Publish {
 object Dependencies {
   val reactiveMongo = "org.reactivemongo" %% "reactivemongo"
 
-  val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.26"
+  val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.27"
 }
