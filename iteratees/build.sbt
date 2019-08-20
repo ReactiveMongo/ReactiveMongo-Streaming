@@ -18,7 +18,7 @@ libraryDependencies ++= {
   if (!scalaVersion.value.startsWith("2.13.")) {
     Seq(
       "com.typesafe.play" %% "play-iteratees" % playVer.value % Provided,
-      "com.typesafe.akka" %% "akka-slf4j" % "2.5.23" % Test
+      "com.typesafe.akka" %% "akka-slf4j" % "2.5.25" % Test
     )
   } else {
     Seq.empty
