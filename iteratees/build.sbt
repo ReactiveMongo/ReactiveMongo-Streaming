@@ -16,10 +16,13 @@ lazy val playVer = Def.setting[String] {
 
 libraryDependencies ++= {
   if (!scalaVersion.value.startsWith("2.13.")) {
-    Seq(
-      "com.typesafe.play" %% "play-iteratees" % playVer.value % Provided,
-      "com.typesafe.akka" %% "akka-slf4j" % "2.5.23" % Test
-    )
+    val akkaTestDeps = Seq("actor", "slf4j")
+
+    ("com.typesafe.play" %% "play-iteratees" % playVer.value % Provided) +: (
+      akkaTestDeps.map { n =>
+        "com.typesafe.akka" %% s"akka-$n" % "2.5.23" % Test
+      })
+
   } else {
     Seq.empty
   }
