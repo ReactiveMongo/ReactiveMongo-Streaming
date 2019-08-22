@@ -20,7 +20,7 @@ libraryDependencies ++= {
 
     ("com.typesafe.play" %% "play-iteratees" % playVer.value % Provided) +: (
       akkaTestDeps.map { n =>
-        "com.typesafe.akka" %% s"akka-$n" % "2.5.23" % Test
+        "com.typesafe.akka" %% s"akka-$n" % "2.5.25" % Test
       })
 
   } else {
