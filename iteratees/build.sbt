@@ -14,13 +14,20 @@ lazy val playVer = Def.setting[String] {
   }
 }
 
+lazy val akkaVer = Def.setting[String] {
+  sys.env.get("AKKA_VERSION").getOrElse {
+    if (scalaVersion.value startsWith "2.11.") "2.4.10"
+    else "2.5.25"
+  }
+}
+
 libraryDependencies ++= {
   if (!scalaVersion.value.startsWith("2.13.")) {
     val akkaTestDeps = Seq("actor", "slf4j")
 
     ("com.typesafe.play" %% "play-iteratees" % playVer.value % Provided) +: (
       akkaTestDeps.map { n =>
-        "com.typesafe.akka" %% s"akka-$n" % "2.5.23" % Test
+        "com.typesafe.akka" %% s"akka-$n" % akkaVer.value % Test
       })
 
   } else {
