@@ -38,11 +38,15 @@ val travisEnv = taskKey[Unit]("Print Travis CI env")
 
 lazy val streaming = (project in file(".")).settings(
   Seq(
+    mimaPreviousArtifacts := Set.empty,
+    publishArtifact := false,
+    publishTo := None,
+    publish := {},
     mimaFailOnNoPrevious := false,
     libraryDependencies += reactiveMongo % version.value % "provided",
     scalacOptions in (Compile, doc) ++= List(
       "-skip-packages", "highlightextractor"),
-  ) ++ Travis.settings ++ Publish.settings ++ Release.settings
+  ) ++ Travis.settings ++ Release.settings
 ).dependsOn(iteratees, `akka-stream`).
   aggregate(iteratees, `akka-stream`).
   enablePlugins(ScalaUnidocPlugin)

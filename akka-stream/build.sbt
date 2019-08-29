@@ -50,7 +50,7 @@ mimaBinaryIssueFilters ++= {
     dmm(s"${pkg}.AkkaStreamCursorImpl.enumerate"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.enumerate$$default$$2"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.enumerate$$default$$1"),
-    imt(s"${pkg}.AkkaStreamCursorImpl.collect"),
+    dmm(s"${pkg}.AkkaStreamCursorImpl.collect"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.collect$$default$$1"),
     dmm(s"${pkg}.AkkaStreamCursorImpl.collect$$default$$2"))
 }
