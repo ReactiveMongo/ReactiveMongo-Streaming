@@ -58,7 +58,7 @@ mimaBinaryIssueFilters ++= {
     dmm(s"${pkg}.PlayIterateesCursorImpl.enumerate"),
     dmm(s"${pkg}.PlayIterateesCursorImpl.enumerate$$default$$2"),
     dmm(s"${pkg}.PlayIterateesCursorImpl.enumerate$$default$$1"),
-    imt(s"${pkg}.PlayIterateesCursorImpl.collect"),
+    dmm(s"${pkg}.PlayIterateesCursorImpl.collect"),
     dmm(s"${pkg}.PlayIterateesCursorImpl.collect$$default$$1"),
     dmm(s"${pkg}.PlayIterateesCursorImpl.collect$$default$$2"))
 }

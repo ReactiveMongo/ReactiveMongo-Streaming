@@ -70,14 +70,14 @@ object Publish {
 
   val mimaSettings = mimaDefaultSettings ++ Seq(
     mimaPreviousArtifacts := {
-      if (scalaVersion.value.startsWith("2.11")) {
+      if (scalaBinaryVersion.value == "2.11") {
         Set(organization.value %% moduleName.value % previousVersion)
       } else {
         Set.empty
       }
     },
     mimaBinaryIssueFilters ++= {
-      if (!scalaVersion.value.startsWith("2.12")) {
+      if (scalaBinaryVersion.value != "2.12") {
         Seq("Writes", "Reads").map { m =>
           ProblemFilters.exclude[InheritedNewAbstractMethodProblem](s"reactivemongo.play.json.BSONFormats#PartialFormat.reactivemongo$$play$$json$$BSONFormats$$Partial${m}$$$$$$outer")
         }
