@@ -25,7 +25,7 @@ object State {
 }
 
 /**
- * @define errParam The binary operator to be applied when failing to get the next response. Exception or [[reactivemongo.api.Cursor$.Fail Fail]] raised within the `suc` function cannot be recovered by this error handler.
+ * @define errParam The binary operator to be applied when failing to get the next response. Exception or `Fail` raised within the `suc` function cannot be recovered by this error handler.
  * @define maxDocsParam the maximum number of documents to be retrieved
  * @define materializerParam the stream materializer
  * @define fanoutParam see [[http://doc.akka.io/api/akka/2.4.7/index.html#akka.stream.scaladsl.Sink$@asPublisher[T](fanout:Boolean):akka.stream.scaladsl.Sink[T,org.reactivestreams.Publisher[T]] Sink.asPublisher]] (default: false)
