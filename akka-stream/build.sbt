@@ -26,6 +26,12 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream-contrib" % akkaContribVer.value % Test
 )
 
+libraryDependencies ++= Seq(
+  organization.value %% "reactivemongo-bson-compat" % version.value % Test)
+
+scalacOptions in Test ++= Seq(
+  "-P:silencer:globalFilters=.*use\\ reactivemongo-bson-compat.*")
+
 // MiMa
 mimaBinaryIssueFilters ++= {
   val dmm = ProblemFilters.exclude[DirectMissingMethodProblem](_)

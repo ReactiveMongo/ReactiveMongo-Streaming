@@ -2,24 +2,22 @@ import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-scalaVersion in ThisBuild := "2.12.6"
+scalaVersion in ThisBuild := "2.12.9"
 
-crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value, "2.13.0")
+crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value, "2.13.1")
 
 crossVersion in ThisBuild := CrossVersion.binary
+
+resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+
+resolvers in ThisBuild += "Sonatype Staging" at "https://oss.sonatype.org/content/repositories/staging/"
+
+resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 resolvers in ThisBuild ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   "Tatami Snapshots".at(
     "https://raw.github.com/cchantep/tatami/master/snapshots"))
-
-libraryDependencies in ThisBuild ++= {
-  val silencerVer = "1.4.2"
-
-  Seq(
-    compilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVer),
-    "com.github.ghik" %% "silencer-lib" % silencerVer % Provided)
-}
 
 Scapegoat.settings
 

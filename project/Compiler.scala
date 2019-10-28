@@ -3,6 +3,17 @@ import sbt._
 
 object Compiler {
   lazy val settings = Seq(
+    libraryDependencies in ThisBuild ++= {
+      val silencerVer = "1.4.4"
+      val v = scalaVersion.value
+
+      Seq(
+        compilerPlugin(
+          ("com.github.ghik" %% "silencer-plugin" % silencerVer).
+            cross(CrossVersion.full)),
+        ("com.github.ghik" %% "silencer-lib" % silencerVer % Provided).
+          cross(CrossVersion.full))
+    },
     scalacOptions ++= Seq(
       "-encoding", "UTF-8", "-target:jvm-1.8",
       "-unchecked",
