@@ -20,4 +20,22 @@ package object iteratees {
 
     def flatten[T](future: Future[PlayIterateesCursor[T]]): PlayIterateesCursor[T] = new PlayIterateesFlattenedCursor(future)
   }
+
+  /*
+  import scala.language.implicitConversions
+  import reactivemongo.api.bson.compat
+  import scala.concurrent.ExecutionContext
+  import reactivemongo.bson.{ BSONDocument => LegacyDocument }
+  import reactivemongo.api.bson.BSONDocument
+  import play.api.libs.iteratee.{ Iteratee, Enumeratee }
+
+  @deprecated("Use reactivemongo-bson-api", "0.19.0")
+  implicit def toDocumentIteratorIteratee[T](it: Iteratee[Iterator[LegacyDocument], T])(implicit ec: ExecutionContext): Iteratee[Iterator[BSONDocument], T] =
+    Enumeratee.map[Iterator[LegacyDocument]] { _.map(compat.toDocument) }.
+      transform(it)
+
+  @deprecated("Use reactivemongo-bson-api", "0.19.0")
+  implicit def toDocumentIteratee[T](it: Iteratee[LegacyDocument, T])(implicit ec: ExecutionContext): Iteratee[BSONDocument, T] =
+    Enumeratee.map[LegacyDocument](compat.toDocument).transform(it)
+   */
 }

@@ -576,9 +576,11 @@ class CursorSpec(implicit ee: ExecutionEnv)
       // ReactiveMongo extensions
       import reactivemongo.akkastream.cursorProducer
 
-      implicit def reader = IdReader
+      implicit def reader: reactivemongo.bson.BSONDocumentReader[Int] = IdReader
       val nDocs = 16517
       val coll = db(s"akka-large-1-${System identityHashCode db}")
+
+      @com.github.ghik.silencer.silent("Use\\ reactivemongo-bson-api")
       def cursor = coll.find(BSONDocument.empty).
         sort(BSONDocument("id" -> 1)).cursor[Int]()
 

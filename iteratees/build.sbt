@@ -2,27 +2,43 @@ import com.typesafe.tools.mima.core._, ProblemFilters._
 
 name := "reactivemongo-iteratees"
 
-sourceDirectory := { 
-  if (scalaVersion.value startsWith "2.13.") new java.io.File("/no/sources")
+scalacOptions in Test ++= Seq(
+  "-P:silencer:globalFilters=Use\\ reactivemongo-bson-api")
+
+sourceDirectory := {
+  if (scalaBinaryVersion.value == "2.13") new java.io.File("/no/sources")
   else sourceDirectory.value
 }
 
+publishArtifact := (scalaBinaryVersion.value != "2.13")
+
+publish := (Def.taskDyn {
+  val ver = scalaBinaryVersion.value
+  val go = publish.value
+
+  Def.task {
+    if (ver != "2.13") {
+      go
+    }
+  }
+}).value
+
 lazy val playVer = Def.setting[String] {
   sys.env.get("ITERATEES_VERSION").getOrElse {
-    if (scalaVersion.value startsWith "2.11.") "2.3.10"
+    if (scalaBinaryVersion.value == "2.11") "2.3.10"
     else "2.6.1"
   }
 }
 
 lazy val akkaVer = Def.setting[String] {
   sys.env.get("AKKA_VERSION").getOrElse {
-    if (scalaVersion.value startsWith "2.11.") "2.4.10"
+    if (scalaBinaryVersion.value == "2.11") "2.4.10"
     else "2.5.25"
   }
 }
 
 libraryDependencies ++= {
-  if (!scalaVersion.value.startsWith("2.13.")) {
+  if (scalaBinaryVersion.value != "2.13") {
     val akkaTestDeps = Seq("actor", "slf4j")
 
     ("com.typesafe.play" %% "play-iteratees" % playVer.value % Provided) +: (
