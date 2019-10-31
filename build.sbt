@@ -8,12 +8,6 @@ crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value, "2.13.1")
 
 crossVersion in ThisBuild := CrossVersion.binary
 
-resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-
-resolvers in ThisBuild += "Sonatype Staging" at "https://oss.sonatype.org/content/repositories/staging/"
-
-resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-
 resolvers in ThisBuild ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   "Tatami Snapshots".at(
@@ -36,6 +30,8 @@ val travisEnv = taskKey[Unit]("Print Travis CI env")
 
 lazy val streaming = (project in file(".")).settings(
   Seq(
+    publish := ({}),
+    publishTo := None,
     mimaPreviousArtifacts := Set.empty,
     mimaFailOnNoPrevious := false,
     libraryDependencies += reactiveMongo % version.value % "provided",
