@@ -9,7 +9,7 @@ resolvers ++= Seq(
 
 lazy val akkaVer = Def.setting[String] {
   sys.env.get("AKKA_VERSION").getOrElse {
-    if (scalaVersion.value startsWith "2.11.") "2.4.10"
+    if (scalaBinaryVersion.value == "2.11") "2.4.10"
     else "2.5.25"
   }
 }
