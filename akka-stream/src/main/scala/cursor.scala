@@ -135,6 +135,9 @@ class AkkaStreamFlattenedCursor[T](
     cursor: Future[AkkaStreamCursor[T]]
 ) extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
 
+  import com.github.ghik.silencer.silent
+
+  @silent(".*fromFuture.*")
   def responseSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Response]] = FailOnError())(implicit m: Materializer): Source[Response, Future[State]] = {
     implicit def ec: ExecutionContext = m.executionContext
 
@@ -143,6 +146,7 @@ class AkkaStreamFlattenedCursor[T](
     ).flatMapMerge(1, identity).mapMaterializedValue(_ => State.materialized)
   }
 
+  @silent(".*fromFuture.*")
   def bulkSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Iterator[T]]] = FailOnError())(implicit m: Materializer): Source[Iterator[T], Future[State]] = {
     implicit def ec: ExecutionContext = m.executionContext
 
@@ -150,6 +154,7 @@ class AkkaStreamFlattenedCursor[T](
       flatMapMerge(1, identity).mapMaterializedValue(_ => State.materialized)
   }
 
+  @silent(".*fromFuture.*")
   def documentSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[T]] = FailOnError())(implicit m: Materializer): Source[T, Future[State]] = {
     implicit def ec: ExecutionContext = m.executionContext
 

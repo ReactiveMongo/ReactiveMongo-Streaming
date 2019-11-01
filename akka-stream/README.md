@@ -23,8 +23,8 @@ Then in your code:
 ```scala
 import scala.concurrent.Future
 
-import reactivemongo.bson.{ BSONDocument, BSONDocumentReader }
-import reactivemongo.api.collections.bson.BSONCollection
+import reactivemongo.api.bson.{ BSONDocument, BSONDocumentReader }
+import reactivemongo.api.bson.collection.BSONCollection
 
 // Reactive streams imports
 import org.reactivestreams.Publisher
@@ -33,8 +33,7 @@ import akka.stream.scaladsl.Source
 // ReactiveMongo extensions
 import reactivemongo.akkastream.{ AkkaStreamCursor, cursorProducer, State }
 
-implicit val system = akka.actor.ActorSystem("reactivemongo-akkastream")
-implicit val materializer = akka.stream.ActorMaterializer.create(system)
+implicit def materializer: akka.stream.Materializer = ???
 
 implicit val reader = BSONDocumentReader[Int] { doc =>
   doc.getAsTry[Int]("age").getOrElse(sys.error("Missing age"))
