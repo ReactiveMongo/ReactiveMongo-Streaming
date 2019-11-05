@@ -28,6 +28,9 @@ class CursorSpec(implicit ee: ExecutionEnv)
   import Common._
   import reactivemongo.play.iteratees.cursorProducer
 
+  // TODO
+  import reactivemongo.api.bson.compat._
+
   "BSON collection" should {
     "be provided the fixtures" in {
       val fixtures = List(

@@ -9,7 +9,7 @@ resolvers ++= Seq(
 
 lazy val akkaVer = Def.setting[String] {
   sys.env.get("AKKA_VERSION").getOrElse {
-    if (scalaVersion.value startsWith "2.11.") "2.4.10"
+    if (scalaBinaryVersion.value == "2.11") "2.4.10"
     else "2.5.25"
   }
 }
@@ -25,6 +25,12 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer.value % Test,
   "com.typesafe.akka" %% "akka-stream-contrib" % akkaContribVer.value % Test
 )
+
+libraryDependencies ++= Seq(
+  organization.value %% "reactivemongo-bson-compat" % version.value % Test)
+
+scalacOptions in Test ++= Seq(
+  "-P:silencer:globalFilters=.*use\\ reactivemongo-bson-compat.*")
 
 // MiMa
 mimaBinaryIssueFilters ++= {

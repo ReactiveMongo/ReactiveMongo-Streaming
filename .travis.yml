@@ -14,6 +14,7 @@ cache:
   - $HOME/.sbt
   - $HOME/ssl
   - $HOME/mongodb-linux-x86_64-amazon-3.6.6
+  - $HOME/.coursier/cache
 env:
   - _DISABLED=true
 matrix:
@@ -23,10 +24,10 @@ matrix:
     scala: 2.11.12
   - env: AKKA_VERSION=2.5.23 ITERATEES_VERSION=2.6.1 PUBLISHABLE=yes
     jdk: oraclejdk8
-    scala: 2.12.8
+    scala: 2.12.9
   - env: AKKA_VERSION=2.5.23 ITERATEES_VERSION=no PUBLISHABLE=yes
     jdk: oraclejdk9
-    scala: 2.13.0
+    scala: 2.13.1
 before_install: ./.ci_scripts/beforeInstall.sh $TRAVIS_SCALA_VERSION
 script: ./.ci_scripts/validate.sh
 after_success: CI_BRANCH=$TRAVIS_BRANCH ./.ci_scripts/afterSuccess.sh
