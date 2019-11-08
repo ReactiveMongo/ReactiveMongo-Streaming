@@ -29,7 +29,9 @@ import reactivemongo.api.collections.bson.BSONCollection
 
 import reactivemongo.akkastream.AkkaStreamCursor
 
-class CursorSpec(implicit ee: ExecutionEnv)
+import com.github.ghik.silencer.silent
+
+final class CursorSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification with CursorFixtures {
 
   "Cursor" title
@@ -40,7 +42,8 @@ class CursorSpec(implicit ee: ExecutionEnv)
     name = "reactivemongo-akkastream",
     defaultExecutionContext = Some(ee.ec))
 
-  implicit val materializer = akka.stream.ActorMaterializer.create(system)
+  @silent
+  implicit lazy val materializer = akka.stream.ActorMaterializer.create(system)
 
   import Common.primaryHost
   val db = Common.db
@@ -580,7 +583,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
       val nDocs = 16517
       val coll = db(s"akka-large-1-${System identityHashCode db}")
 
-      @com.github.ghik.silencer.silent("Use\\ reactivemongo-bson-api")
+      @silent("Use\\ reactivemongo-bson-api")
       def cursor = coll.find(BSONDocument.empty).
         sort(BSONDocument("id" -> 1)).cursor[Int]()
 

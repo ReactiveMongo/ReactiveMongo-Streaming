@@ -6,24 +6,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 import play.api.libs.iteratee.{ Concurrent, Enumerator, Iteratee }
 
-import reactivemongo.bson.{
-  BSONBinary,
-  BSONDateTime,
-  BSONDocument,
-  BSONDocumentWriter,
-  BSONInteger,
-  BSONLong,
-  BSONString,
-  Subtype
-}
-
-import reactivemongo.util.{ LazyLogger, option }
-
-import reactivemongo.core.netty.ChannelBufferWritableBuffer
-import reactivemongo.core.errors.ReactiveMongoException
-
 import reactivemongo.api.{
-  BSONSerializationPack,
   Cursor,
   DB,
   DBMetaCommands,
@@ -33,20 +16,21 @@ import reactivemongo.api.collections.{
   GenericCollection,
   GenericCollectionProducer
 }
-import reactivemongo.api.collections.bson.{
-  BSONCollection,
-  BSONCollectionProducer
-}
+import reactivemongo.api.bson.collection.BSONCollectionProducer
 
 import reactivemongo.api.gridfs.{
   FileToSave,
-  GridFS => BaseGridFS,
+  GridFS => CoreFS,
   IdProducer
 }
 
-// TODO: Same for Akka
-final class GridFS[P <: SerializationPack with Singleton] private[iteratees] (db: DB with DBMetaCommands, prefix: String = "fs")(implicit producer: GenericCollectionProducer[P, GenericCollection[P]] = BSONCollectionProducer) extends BaseGridFS[P](db, prefix)(producer) {
+import com.github.ghik.silencer.silent
+
+class GridFS[P <: SerializationPack with Singleton] private[iteratees] (
+    val gridfs: CoreFS[P]) { self =>
+
   import GridFS.logger
+  import gridfs.{ ReadFile, defaultReadPreference, pack }
 
   /**
    * Saves the content provided by the given enumerator with the given metadata.
@@ -57,9 +41,13 @@ final class GridFS[P <: SerializationPack with Singleton] private[iteratees] (db
    *
    * @return A future of a ReadFile[Id].
    */
-  override def save[Id <: pack.Value](enumerator: Enumerator[Array[Byte]], file: FileToSave[pack.type, Id], chunkSize: Int = 262144)(implicit readFileReader: pack.Reader[ReadFile[Id]], ec: ExecutionContext, idProducer: IdProducer[Id], docWriter: BSONDocumentWriter[file.pack.Document]): Future[ReadFile[Id]] = (enumerator |>>> iteratee(file, chunkSize)).flatMap(f => f)
+  @silent(".*idProducer\\ is\\ deprecated.*")
+  @SuppressWarnings(Array("UnusedMethodParameter"))
+  def save[Id <: pack.Value](enumerator: Enumerator[Array[Byte]], file: FileToSave[pack.type, Id], chunkSize: Int = 262144)(implicit readFileReader: pack.Reader[ReadFile[Id]], ec: ExecutionContext, @deprecated("Unused", "0.19.0") idProducer: IdProducer[Id], docWriter: pack.Writer[file.pack.Document]): Future[ReadFile[Id]] = (enumerator |>>> iteratee(file, chunkSize)).flatMap(f => f)
 
-  override def iteratee[Id <: pack.Value](file: FileToSave[pack.type, Id], chunkSize: Int = 262144)(implicit readFileReader: pack.Reader[ReadFile[Id]], ec: ExecutionContext, idProducer: IdProducer[Id], docWriter: BSONDocumentWriter[file.pack.Document]): Iteratee[Array[Byte], Future[ReadFile[Id]]] = {
+  @silent(".*readFileReader.*\\ is\\ never\\ used.*")
+  @SuppressWarnings(Array("UnusedMethodParameter"))
+  def iteratee[Id <: pack.Value](file: FileToSave[pack.type, Id], chunkSize: Int = 262144)(implicit @deprecated("Unused", "0.19.0") readFileReader: pack.Reader[ReadFile[Id]], ec: ExecutionContext, @deprecated("Unused", "0.19.0") idProducer: IdProducer[Id], @deprecated("Unused", "0.19.0") docWriter: pack.Writer[file.pack.Document]): Iteratee[Array[Byte], Future[ReadFile[Id]]] = {
     import java.security.MessageDigest
 
     val digestUpdate = { (md: MessageDigest, chunk: Array[Byte]) =>
@@ -102,41 +90,14 @@ final class GridFS[P <: SerializationPack with Singleton] private[iteratees] (db
 
       import reactivemongo.bson.utils.Converters
 
-      def finish(): Future[ReadFile[Id]] = {
-        logger.debug(s"Writing last chunk #$n")
+      @inline def finish(): Future[ReadFile[Id]] =
+        digestFinalize(md).map(Converters.hex2Str).flatMap { md5Hex =>
+          gridfs.finalizeFile[Id](
+            file, previous, n, chunkSize, length.toLong, Some(md5Hex))
+        }
 
-        val uploadDate = file.uploadDate.getOrElse(System.currentTimeMillis)
-
-        for {
-          _ <- writeChunk(n, previous)
-          md5 <- digestFinalize(md)
-          bson = BSONDocument(idProducer("_id" -> file.id)) ++ (
-            "filename" -> file.filename.map(BSONString(_)),
-            "chunkSize" -> BSONInteger(chunkSize),
-            "length" -> BSONLong(length.toLong),
-            "uploadDate" -> BSONDateTime(uploadDate),
-            "contentType" -> file.contentType.map(BSONString(_)),
-            "md5" -> Converters.hex2Str(md5),
-            "metadata" -> option(!pack.isEmpty(file.metadata), file.metadata))
-
-          res <- asBSON(files.name).insert.one(bson).map { _ =>
-            val buf = ChannelBufferWritableBuffer()
-            BSONSerializationPack.writeToBuffer(buf, bson)
-            pack.readAndDeserialize(buf.toReadableBuffer, readFileReader)
-          }
-        } yield res
-      }
-
-      def writeChunk(n: Int, array: Array[Byte]) = {
-        logger.debug(s"Writing chunk #$n")
-
-        val bson = BSONDocument(
-          "files_id" -> file.id,
-          "n" -> BSONInteger(n),
-          "data" -> BSONBinary(array, Subtype.GenericBinarySubtype))
-
-        asBSON(chunks.name).insert.one(bson)
-      }
+      @inline def writeChunk(n: Int, bytes: Array[Byte]) =
+        gridfs.writeChunk(file.id, n, bytes)
     }
 
     def digestInit = MessageDigest.getInstance("MD5")
@@ -154,30 +115,13 @@ final class GridFS[P <: SerializationPack with Singleton] private[iteratees] (db
    *
    * @param file the file to be read
    */
-  override def enumerate[Id <: pack.Value](file: ReadFile[Id])(implicit ec: ExecutionContext, idProducer: IdProducer[Id]): Enumerator[Array[Byte]] = {
-    def selector = BSONDocument(idProducer("files_id" -> file.id)) ++ (
-      "n" -> BSONDocument(
-        f"$$gte" -> 0,
-        f"$$lte" -> BSONLong(file.length / file.chunkSize + (
-          if (file.length % file.chunkSize > 0) 1 else 0))))
+  @SuppressWarnings(Array("UnusedMethodParameter"))
+  def enumerate[Id <: pack.Value](file: ReadFile[Id])(implicit ec: ExecutionContext, @deprecated("Unused", "0.19.0") idProducer: IdProducer[Id]): Enumerator[Array[Byte]] = {
+    val cursor = gridfs.chunks(file, defaultReadPreference)
 
-    @inline def cursor = asBSON(chunks.name).find(selector).
-      sort(BSONDocument("n" -> 1)).cursor[BSONDocument](defaultReadPreference)
-
-    @inline def pushChunk(chan: Concurrent.Channel[Array[Byte]], doc: BSONDocument): Cursor.State[Unit] = doc.get("data") match {
-      case Some(BSONBinary(data, _)) => {
-        val array = new Array[Byte](data.readable)
-        data.slice(data.readable).readBytes(array)
-        Cursor.Cont(chan push array)
-      }
-
-      case _ => {
-        val errmsg = s"not a chunk! failed assertion: data field is missing: ${BSONDocument pretty doc}"
-
-        logger.error(errmsg)
-        Cursor.Fail(ReactiveMongoException(errmsg))
-      }
-    }
+    @inline def pushChunk(
+      chan: Concurrent.Channel[Array[Byte]],
+      bytes: Array[Byte]): Cursor.State[Unit] = Cursor.Cont(chan push bytes)
 
     Concurrent.unicast[Array[Byte]] { chan =>
       cursor.foldWhile({})(
@@ -187,14 +131,6 @@ final class GridFS[P <: SerializationPack with Singleton] private[iteratees] (db
   }
 
   // ---
-
-  /**
-   * @param name the collection name
-   */
-  @inline private def asBSON(name: String): BSONCollection = {
-    implicit def producer = BSONCollectionProducer
-    producer.apply(db, name, db.failoverStrategy)
-  }
 
   /** Concats two array - fast way */
   private def concat[T](a1: Array[T], a2: Array[T])(implicit m: Manifest[T]): Array[T] = {
@@ -214,7 +150,13 @@ final class GridFS[P <: SerializationPack with Singleton] private[iteratees] (db
 
 object GridFS {
   private[iteratees] val logger =
-    LazyLogger("reactivemongo.play.iteratees.GridFS")
+    reactivemongo.util.LazyLogger("reactivemongo.play.iteratees.GridFS")
 
-  def apply[P <: SerializationPack with Singleton](db: DB with DBMetaCommands, prefix: String = "fs")(implicit producer: GenericCollectionProducer[P, GenericCollection[P]] = BSONCollectionProducer) = new GridFS(db, prefix)(producer)
+  @deprecated("Use wrapper factory", "0.19.0")
+  def apply[P <: SerializationPack with Singleton](db: DB with DBMetaCommands, prefix: String = "fs")(implicit producer: GenericCollectionProducer[P, GenericCollection[P]] = BSONCollectionProducer): GridFS[P] = apply(gridfs = CoreFS[P](db, prefix))
+
+  /** Returns an Iteratee support for given GridFS. */
+  def apply[P <: SerializationPack with Singleton](
+    gridfs: CoreFS[P]): GridFS[P] = new GridFS[P](gridfs)
+
 }

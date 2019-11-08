@@ -2,7 +2,20 @@ import sbt.Keys._
 import sbt._
 
 object Compiler {
+  private def unmanaged(ver: String, base: File): Seq[File] =
+    CrossVersion.partialVersion(ver) match {
+      case Some((2, 13)) =>
+        Seq(base / "scala-2.13+")
+
+      case _ =>
+        Seq(base / "scala-2.13-")
+
+    }
+
   lazy val settings = Seq(
+    unmanagedSourceDirectories in Compile ++= {
+      unmanaged(scalaVersion.value, (sourceDirectory in Compile).value)
+    },
     libraryDependencies in ThisBuild ++= {
       val silencerVer = "1.4.4"
       val v = scalaVersion.value
@@ -23,7 +36,7 @@ object Compiler {
       "-Xlint",
       "-g:vars"),
     scalacOptions ++= {
-      if (!scalaVersion.value.startsWith("2.13.")) {
+      if (scalaBinaryVersion.value != "2.13") {
         Seq(
           "-Ywarn-numeric-widen",
           "-Ywarn-dead-code",
@@ -37,7 +50,7 @@ object Compiler {
       "-P:silencer:globalFilters=Response\\ in\\ package\\ protocol\\ is\\ deprecated;killCursor;Use\\ \\`find\\`\\ with\\ optional\\ \\`projection\\`"
     },
     scalacOptions in Compile ++= {
-      if (!scalaVersion.value.startsWith("2.11.")) Nil
+      if (scalaBinaryVersion.value != "2.11") Nil
       else Seq(
         "-Yconst-opt",
         "-Yclosure-elim",

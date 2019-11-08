@@ -2,7 +2,7 @@ import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-scalaVersion in ThisBuild := "2.12.9"
+scalaVersion in ThisBuild := "2.12.10"
 
 crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value, "2.13.1")
 
@@ -16,7 +16,7 @@ resolvers in ThisBuild ++= Seq(
 Scapegoat.settings
 
 ThisBuild / mimaPreviousArtifacts := {
-  if (scalaVersion.value startsWith "2.13") Set.empty[ModuleID]
+  if (scalaBinaryVersion.value == "2.13") Set.empty[ModuleID]
   else Set(organization.value %% name.value % "0.12.0")
 }
 

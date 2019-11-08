@@ -7,6 +7,8 @@ import reactivemongo.bson._
 import reactivemongo.bson.utils.Converters
 
 import reactivemongo.api.BSONSerializationPack
+import reactivemongo.api.collections.bson.BSONCollectionProducer
+
 import reactivemongo.api.gridfs.{ ReadFile, DefaultFileToSave }
 import reactivemongo.api.gridfs.Implicits._
 
@@ -14,7 +16,9 @@ import reactivemongo.play.iteratees.GridFS
 
 import org.specs2.concurrent.ExecutionEnv
 
-class GridFSSpec(implicit ee: ExecutionEnv)
+import com.github.ghik.silencer.silent
+
+final class GridFSSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification
   with org.specs2.specification.AfterAll {
 
@@ -39,19 +43,26 @@ class GridFSSpec(implicit ee: ExecutionEnv)
 
   "Default connection" should {
     val prefix = s"fs${System identityHashCode db}"
-    gridFsSpec(GridFS[BSONSerializationPack.type](db, prefix), Common.timeout)
+
+    @silent def gfs: GridFS[BSONSerializationPack.type] =
+      GridFS(reactivemongo.api.gridfs.GridFS(BSONSerializationPack, db, prefix))
+
+    gridFsSpec(gfs, Common.timeout)
   }
 
   // ---
 
   type GFile = ReadFile[BSONSerializationPack.type, BSONValue]
 
+  @silent("DefaultReadFileReader\\ in\\ object\\ Implicits\\ is\\ deprecated")
   def gridFsSpec(
     gfs: GridFS[BSONSerializationPack.type],
     timeout: FiniteDuration) = {
 
+    val fs = gfs.gridfs
+
     "ensure the indexes are ok" in {
-      gfs.ensureIndex() must beTrue.await(1, timeout)
+      fs.ensureIndex() must beTrue.await(1, timeout)
     }
 
     val filename2 = s"file2-${System identityHashCode gfs}"
@@ -65,8 +76,9 @@ class GridFSSpec(implicit ee: ExecutionEnv)
 
     "find the files" in {
       def find(n: String): Future[Option[GFile]] =
-        gfs.find(BSONDocument("filename" -> n)).headOption
+        fs.find(BSONDocument("filename" -> n)).headOption
 
+      @silent("DefaultFileToSave\\ in\\ package\\ gridfs\\ is\\ deprecated")
       def matchFile(
         actual: GFile,
         expected: DefaultFileToSave,
@@ -80,7 +92,7 @@ class GridFSSpec(implicit ee: ExecutionEnv)
         val buf = new java.io.ByteArrayOutputStream()
 
         res.map(_.result()) must beTypedEqualTo(content).awaitFor(timeout) and {
-          gfs.readToOutputStream(actual, buf).
+          fs.readToOutputStream(actual, buf).
             map(_ => buf.toByteArray) must beTypedEqualTo(content).
             awaitFor(timeout)
         }
