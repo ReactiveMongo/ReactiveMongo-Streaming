@@ -4,16 +4,16 @@ import akka.util.ByteString
 
 import akka.stream.scaladsl.{ Sink, Source }
 
-import reactivemongo.bson._
+import reactivemongo.api.bson._
 import reactivemongo.bson.utils.Converters
 
-import reactivemongo.api.BSONSerializationPack
-import reactivemongo.api.gridfs.{ ReadFile, DefaultFileToSave, GridFS }
-import reactivemongo.api.gridfs.Implicits._
+import reactivemongo.api.gridfs.{ FileToSave, GridFS }
 
 import reactivemongo.akkastream.GridFSStreams
 
 import org.specs2.concurrent.ExecutionEnv
+
+import com.github.ghik.silencer.silent
 
 final class GridFSSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification {
@@ -30,21 +30,30 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
     name = "reactivemongo-akkastream",
     defaultExecutionContext = Some(ee.ec))
 
-  implicit val materializer = akka.stream.ActorMaterializer.create(system)
+  @silent
+  implicit lazy val materializer = akka.stream.ActorMaterializer.create(system)
 
   // ---
 
-  "Default connection" should {
+  lazy val gfs = {
     val prefix = s"fs${System identityHashCode db}"
-    lazy val gfs = GridFS[BSONSerializationPack.type](db, prefix)
-    lazy val streams = GridFSStreams(gfs)
 
+    def resolve = GridFS(db, prefix)
+
+    resolve
+  }
+
+  type GFile = gfs.ReadFile[BSONValue]
+
+  lazy val streams = GridFSStreams(gfs)
+
+  "GridFS" should {
     "ensure the indexes are ok" in {
       gfs.ensureIndex() must beTrue.await(2, timeout)
     }
 
     val filename1 = s"file1-${System identityHashCode gfs}"
-    lazy val file1 = DefaultFileToSave(Some(filename1), Some("text/plain"))
+    lazy val file1 = gfs.fileToSave(Some(filename1), Some("text/plain"))
     lazy val content1 = (100 to 200).view.map(_.toByte)
 
     "store a file with computed MD5" in {
@@ -64,21 +73,15 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
 
       def matchFile(
         actual: GFile,
-        expected: DefaultFileToSave,
+        expected: FileToSave[_, _],
         content: Array[Byte]) = actual.filename must_=== expected.filename and {
         actual.uploadDate must beSome
       } and (actual.contentType must_=== expected.contentType) and {
         def consume() = streams.source(actual).
           runWith(Sink.fold(Seq.newBuilder[Byte]) { _ ++= _ })
 
-        val buf = new java.io.ByteArrayOutputStream()
-
-        consume.map(_.result().toArray) must beTypedEqualTo(content).
-          await(1, timeout) and {
-            gfs.readToOutputStream(actual, buf).
-              map(_ => buf.toByteArray) must beTypedEqualTo(content).
-              await(1, timeout)
-          }
+        consume.map(_.result().toArray).
+          aka("consumed") must beTypedEqualTo(content).await(1, timeout)
       }
 
       find(filename1) aka "file #1" must beSome[GFile].which { actual =>
@@ -97,8 +100,4 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
       gfs.remove(file1.id).map(_.n) must beTypedEqualTo(1).await(1, timeout)
     }
   }
-
-  // ---
-
-  type GFile = ReadFile[BSONSerializationPack.type, BSONValue]
 }

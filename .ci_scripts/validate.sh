@@ -40,7 +40,7 @@ export JVM_OPTS
 
 TEST_ARGS=";findbugs ;mimaReportBinaryIssues ;update ;testOnly"
 
-if [ "v$TRAVIS_SCALA_VERSION" = "v2.12.9" ]; then
+if [ "v$TRAVIS_SCALA_VERSION" = "v2.12.10" ]; then
     TEST_ARGS=";scapegoat $TEST_ARGS"
 fi
 
