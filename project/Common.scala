@@ -9,7 +9,7 @@ object Common {
     libraryDependencies ++= Seq(
       Dependencies.reactiveMongo % version.value % "provided") ++ Seq(
         "specs2-core", "specs2-junit").map(
-          "org.specs2" %% _ % "4.8.0" % Test) ++ Seq(
+          "org.specs2" %% _ % "4.8.1" % Test) ++ Seq(
             Dependencies.slf4jSimple % Test)
   ) ++ Format.settings ++ Publish.settings ++ (
     Publish.mimaSettings ++ Release.settings)
