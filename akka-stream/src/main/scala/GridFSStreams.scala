@@ -78,6 +78,7 @@ sealed trait GridFSStreams {
    * @param file the file to be read
    */
   def source[Id <: pack.Value](file: ReadFile[Id], readPreference: ReadPreference = defaultReadPreference)(implicit m: Materializer): Source[ByteString, Future[State]] = {
+    @com.github.ghik.silencer.silent
     implicit def ec = m.executionContext
 
     def cursor = gridfs.chunks(file, readPreference)
