@@ -10,6 +10,7 @@ crossVersion in ThisBuild := CrossVersion.binary
 
 resolvers in ThisBuild ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
+  Resolver.sonatypeRepo("staging"),
   "Tatami Snapshots".at(
     "https://raw.github.com/cchantep/tatami/master/snapshots"))
 
