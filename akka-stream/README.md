@@ -51,7 +51,7 @@ def foo(collection: BSONCollection): (Source[Int, Future[State]], Publisher[Int]
 }
 ```
 
-> More [examples](.src/test/scala/CursorSpec.scala)
+> More [examples](./src/test/scala/CursorSpec.scala)
 
 ## Documentation
 
