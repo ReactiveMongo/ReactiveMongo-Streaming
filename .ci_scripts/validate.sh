@@ -26,7 +26,7 @@ EOF
 
 export JVM_OPTS
 
-TEST_ARGS=";findbugs ;mimaReportBinaryIssues ;update ;testOnly"
+TEST_ARGS=";findbugs ;mimaReportBinaryIssues ;update ;testOnly ;doc"
 
 if [ "v$TRAVIS_SCALA_VERSION" = "v2.12.10" ]; then
     TEST_ARGS=";scapegoat $TEST_ARGS"
