@@ -3,7 +3,7 @@ object Common {
   import scala.concurrent.duration._
   import reactivemongo.api.{
     FailoverStrategy,
-    MongoDriver,
+    AsyncDriver,
     MongoConnectionOptions
   }
 
@@ -23,9 +23,9 @@ object Common {
   val failoverRetries = Option(System getProperty "test.failoverRetries").
     flatMap(r => scala.util.Try(r.toInt).toOption).getOrElse(7)
 
-  private val driverReg = Seq.newBuilder[MongoDriver]
-  def newDriver(): MongoDriver = driverReg.synchronized {
-    val drv = MongoDriver()
+  private val driverReg = Seq.newBuilder[AsyncDriver]
+  def newDriver(): AsyncDriver = driverReg.synchronized {
+    val drv = AsyncDriver()
 
     driverReg += drv
 
@@ -33,7 +33,8 @@ object Common {
   }
 
   lazy val driver = newDriver()
-  lazy val connection = driver.connection(List(primaryHost), DefaultOptions)
+  lazy val connection = Await.result(
+    driver.connect(List(primaryHost), DefaultOptions), timeout)
 
   val failoverStrategy = FailoverStrategy(retries = failoverRetries)
 
@@ -61,6 +62,8 @@ object Common {
   }
 
   def close(): Unit = {
+    import ExecutionContext.Implicits.global
+
     driverReg.result().foreach { driver =>
       try {
         driver.close(timeout)

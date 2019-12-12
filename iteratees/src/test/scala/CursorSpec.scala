@@ -18,7 +18,8 @@ import reactivemongo.play.iteratees.PlayIterateesCursor
 
 import org.specs2.concurrent.ExecutionEnv
 
-class CursorSpec(implicit ee: ExecutionEnv)
+@com.github.ghik.silencer.silent(".*responseEnumerator.*")
+final class CursorSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification {
 
   "Cursor" title
@@ -175,9 +176,11 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
     "stop on error" >> {
       val drv = Common.newDriver
-      def con = drv.connection(List(primaryHost), DefaultOptions)
-      def scol(n: String = coll2.name) =
-        Await.result(con.database(db.name).map(_.collection(n)), timeout)
+
+      def scol(n: String = coll2.name) = Await.result((for {
+        con <- drv.connect(List(primaryHost), DefaultOptions)
+        d <- con.database(db.name)
+      } yield d.collection(n)), timeout)
 
       "when enumerating responses" >> {
         "if fails while processing with existing documents (#1)" in {
@@ -252,7 +255,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.askClose().map(_ => {}).
+          c.db.connection.close().map(_ => {}).
             aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
               // Close connection to make the related cursor erroneous
 
@@ -337,7 +340,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.askClose().map(_ => {}).
+          c.db.connection.close().map(_ => {}).
             aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
               // Close connection to make the related cursor erroneous
 
@@ -368,7 +371,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.askClose().map(_ => {}).
+          c.db.connection.close().map(_ => {}).
             aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
               // Close connection to make the related cursor erroneous
 
@@ -385,9 +388,11 @@ class CursorSpec(implicit ee: ExecutionEnv)
 
     "continue on error" >> {
       val drv = Common.newDriver
-      def con = drv.connection(List(primaryHost), DefaultOptions)
-      def scol(n: String = coll2.name) =
-        Await.result(con.database(db.name).map(_(n)), timeout)
+
+      def scol(n: String = coll2.name) = Await.result((for {
+        con <- drv.connect(List(primaryHost), DefaultOptions)
+        d <- con.database(db.name)
+      } yield d.collection(n)), timeout)
 
       "when enumerating responses" >> {
         "if fails to send request" in {
@@ -396,7 +401,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.askClose().map(_ => {}).
+          c.db.connection.close().map(_ => {}).
             aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
               // Close connection to make the related cursor erroneous
 
@@ -415,7 +420,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.askClose().map(_ => {}).
+          c.db.connection.close().map(_ => {}).
             aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
               // Close connection to make the related cursor erroneous
 
@@ -465,7 +470,7 @@ class CursorSpec(implicit ee: ExecutionEnv)
           val c = scol()
           val cursor = c.find(BSONDocument.empty).cursor()
 
-          c.db.connection.askClose().map(_ => {}).
+          c.db.connection.close().map(_ => {}).
             aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
               // Close connection to make the related cursor erroneous
 

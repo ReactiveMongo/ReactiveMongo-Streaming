@@ -24,9 +24,9 @@ object Common {
     else maxTimeout
   }
 
-  private val driverReg = Seq.newBuilder[MongoDriver]
-  def newDriver(): MongoDriver = driverReg.synchronized {
-    val drv = MongoDriver()
+  private val driverReg = Seq.newBuilder[AsyncDriver]
+  def newDriver(): AsyncDriver = driverReg.synchronized {
+    val drv = AsyncDriver()
 
     driverReg += drv
 
@@ -45,7 +45,8 @@ object Common {
     } else opts
   }
 
-  lazy val connection = driver.connection(List(primaryHost), DefaultOptions)
+  lazy val connection = Await.result(
+    driver.connect(List(primaryHost), DefaultOptions), timeout)
 
   lazy val db = {
     import ExecutionContext.Implicits.global
@@ -61,6 +62,8 @@ object Common {
   }
 
   def close(): Unit = {
+    import ExecutionContext.Implicits.global
+
     driverReg.result().foreach { driver =>
       try {
         driver.close(timeout)
