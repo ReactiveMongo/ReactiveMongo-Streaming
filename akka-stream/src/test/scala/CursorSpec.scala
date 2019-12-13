@@ -169,10 +169,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
     "handle errors" >> {
       "by failing with the default handler" in assertAllStagesStopped {
         val drv = Common.newDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
-        }
+
+        def col(n: String) = for {
+          c <- drv.connect(List(primaryHost))
+          d <- c.database(db.name)
+          res <- withFixtures(d.collection(n))
+        } yield res
 
         val sink = Sink.fold(0) { (count, _: Response) =>
           if (count == 0) drv.close(3.second) // trigger error by closing
@@ -188,10 +190,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
       "by stopping with the Done handler" in assertAllStagesStopped {
         val drv = Common.newDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
-        }
+
+        def col(n: String) = for {
+          c <- drv.connect(List(primaryHost))
+          d <- c.database(db.name)
+          res <- withFixtures(d.collection(n))
+        } yield res
 
         val sink = Sink.fold(0) { (count, _: Response) =>
           if (count == 1) drv.close(3.second) // trigger error by closing
@@ -215,10 +219,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
       "by trying to continue" in assertAllStagesStopped {
         val drv = Common.newDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
-        }
+
+        def col(n: String) = for {
+          c <- drv.connect(List(primaryHost))
+          d <- c.database(db.name)
+          res <- withFixtures(d.collection(n))
+        } yield res
 
         val sink = Sink.fold(0) { (count, _: Response) =>
           if (count == 2) drv.close(3.second) // trigger error by closing
@@ -281,10 +287,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       "by failing with the default handler" in {
         assertAllStagesStopped {
           val drv = Common.newDriver()
-          val con = drv.connection(List(primaryHost))
-          def col(n: String) = con.database(db.name).flatMap { d =>
-            withFixtures(d.collection(n))
-          }
+
+          def col(n: String) = for {
+            c <- drv.connect(List(primaryHost))
+            d <- c.database(db.name)
+            res <- withFixtures(d.collection(n))
+          } yield res
 
           val sink = Sink.fold(0) { (count, _: Iterator[Int]) =>
             if (count == 0) drv.close(3.second) // trigger error by closing
@@ -302,10 +310,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       "by stopping with the Done handler" in {
         assertAllStagesStopped {
           val drv = Common.newDriver()
-          val con = drv.connection(List(primaryHost))
-          def col(n: String) = con.database(db.name).flatMap { d =>
-            withFixtures(d.collection(n))
-          }
+
+          def col(n: String) = for {
+            c <- drv.connect(List(primaryHost))
+            d <- c.database(db.name)
+            res <- withFixtures(d.collection(n))
+          } yield res
 
           val sink = Sink.fold(0) { (count, _: Iterator[Int]) =>
             if (count == 1) drv.close(3.second) // trigger error by closing
@@ -328,10 +338,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
       "by trying to continue" in assertAllStagesStopped {
         val drv = Common.newDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
-        }
+
+        def col(n: String) = for {
+          c <- drv.connect(List(primaryHost))
+          d <- c.database(db.name)
+          res <- withFixtures(d.collection(n))
+        } yield res
 
         val sink = Sink.fold(0) { (count, _: Iterator[Int]) =>
           if (count == 2) drv.close(3.second) // trigger error by closing
@@ -503,10 +515,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       "by failing with the default handler" in {
         assertAllStagesStopped {
           val drv = Common.newDriver()
-          val con = drv.connection(List(primaryHost))
-          def col(n: String) = con.database(db.name).flatMap { d =>
-            withFixtures(d.collection(n))
-          }
+
+          def col(n: String) = for {
+            c <- drv.connect(List(primaryHost))
+            d <- c.database(db.name)
+            res <- withFixtures(d.collection(n))
+          } yield res
 
           val sink = Sink.fold(0) { (count, _: Int) =>
             if (count == 0) drv.close(3.second) // trigger error by closing
@@ -524,10 +538,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       "by stopping with the Done handler" in {
         assertAllStagesStopped {
           val drv = Common.newDriver
-          val con = drv.connection(List(primaryHost))
-          def col(n: String) = con.database(db.name).flatMap { d =>
-            withFixtures(d.collection(n))
-          }
+
+          def col(n: String) = for {
+            c <- drv.connect(List(primaryHost))
+            d <- c.database(db.name)
+            res <- withFixtures(d.collection(n))
+          } yield res
 
           val sink = Sink.fold(0) { (count, _: Int) =>
             if (count == 1) drv.close(3.second) // trigger error by closing
@@ -551,10 +567,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
       "by trying to continue" in assertAllStagesStopped {
         val drv = Common.newDriver()
-        val con = drv.connection(List(primaryHost))
-        def col(n: String) = con.database(db.name).flatMap { d =>
-          withFixtures(d.collection(n))
-        }
+
+        def col(n: String) = for {
+          c <- drv.connect(List(primaryHost))
+          d <- c.database(db.name)
+          res <- withFixtures(d.collection(n))
+        } yield res
 
         val sink = Sink.fold(0) { (count, _: Int) =>
           if (count == 2) drv.close(3.second) // trigger error by closing

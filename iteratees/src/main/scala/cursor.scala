@@ -32,14 +32,7 @@ sealed trait PlayIterateesCursor[T] extends Cursor[T] {
    */
   def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]]
 
-  /**
-   * Produces an Enumerator of responses from the database.
-   *
-   * @param maxDocs Enumerate up to `maxDocs` documents.
-   * @param err The binary operator to be applied when failing to get the next response. Exception or `Fail` raised within the `suc` function cannot be recovered by this error handler. Only the errors when reading the inputs from the DB will be handle: if then an `Iteratee` is failing to process, the error is out of this mechanism scope.
-   *
-   * @return an Enumerator of Responses.
-   */
+  @deprecated("Will be removed", "0.19.4")
   def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response]
 
 }
@@ -76,6 +69,7 @@ class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
       onComplete { case _ => chan.eofAndEnd() }
   }
 
+  @deprecated("Will be removed", "0.19.4")
   override def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response] = Concurrent.unicast[Response] { chan =>
     wrappee.foldResponses({}, maxDocs)(
       (_, resp) => Cont(chan push resp), errorHandler(chan, err)
@@ -94,6 +88,7 @@ class PlayIterateesFlattenedCursor[T](
 
   override def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]] = Enumerator.flatten(cursor.map(_.bulkEnumerator(maxDocs, err)))
 
+  @deprecated("Will be removed", "0.19.4")
   override def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response] = Enumerator.flatten(cursor.map(_.responseEnumerator(maxDocs, err)))
 
 }
