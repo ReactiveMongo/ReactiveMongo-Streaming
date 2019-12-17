@@ -116,5 +116,5 @@ object Publish {
 object Dependencies {
   val reactiveMongo = "org.reactivemongo" %% "reactivemongo"
 
-  val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.29"
+  val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.30"
 }
