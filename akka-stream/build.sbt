@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  organization.value %% "reactivemongo-bson-compat" % version.value % Test)
+    organization.value %% "reactivemongo-bson-compat" % Common.driverVersion.value % Test)
 
 scalacOptions in Test ++= Seq(
   "-P:silencer:globalFilters=.*use\\ reactivemongo-bson-compat.*;.*package\\ bson\\ is\\ deprecated.*")

@@ -19,7 +19,7 @@ env:
   - _DISABLED=true
 matrix:
   include:
-  - env: AKKA_VERSION=2.4.10 ITERATEES_VERSION=2.3.10
+  - env: AKKA_VERSION=2.4.10 ITERATEES_VERSION=2.3.10 REACTIVEMONGO_SHADED=false
     jdk: oraclejdk8
     scala: 2.11.12
   - env: AKKA_VERSION=2.5.23 ITERATEES_VERSION=2.6.1 PUBLISHABLE=yes

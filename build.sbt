@@ -21,11 +21,9 @@ ThisBuild / mimaPreviousArtifacts := {
   else Set(organization.value %% name.value % "0.12.0")
 }
 
-lazy val iteratees = project.in(file("iteratees")).
-  settings(Common.settings)
+lazy val iteratees = project.in(file("iteratees"))
 
-lazy val `akka-stream` = project.in(file("akka-stream")).
-  settings(Common.settings)
+lazy val `akka-stream` = project.in(file("akka-stream"))
 
 val travisEnv = taskKey[Unit]("Print Travis CI env")
 
@@ -35,7 +33,7 @@ lazy val streaming = (project in file(".")).settings(
     publishTo := None,
     mimaPreviousArtifacts := Set.empty,
     mimaFailOnNoPrevious := false,
-    libraryDependencies += reactiveMongo % version.value % "provided",
+    libraryDependencies += reactiveMongo % version.value % Provided,
     scalacOptions in (Compile, doc) ++= List(
       "-skip-packages", "highlightextractor"),
   ) ++ Travis.settings ++ Release.settings
