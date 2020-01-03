@@ -153,6 +153,7 @@ object GridFS {
     reactivemongo.util.LazyLogger("reactivemongo.play.iteratees.GridFS")
 
   @deprecated("Use wrapper factory", "0.19.0")
+  @silent(".*DBMetaCommands.*")
   def apply[P <: SerializationPack with Singleton](db: DB with DBMetaCommands, prefix: String = "fs")(implicit producer: GenericCollectionProducer[P, GenericCollection[P]] = BSONCollectionProducer): GridFS[P] = apply(gridfs = CoreFS[P](db, prefix))
 
   /** Returns an Iteratee support for given GridFS. */

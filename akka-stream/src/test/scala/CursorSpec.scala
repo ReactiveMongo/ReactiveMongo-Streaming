@@ -728,6 +728,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       // (BSONCollection, () => Future[Unit])
     }
 
+    @silent(".*QueryOpts.*")
     def tailable(cb: Promise[Unit], n: String, database: DB = db)(implicit ee: ExecutionEnv) = {
       // ReactiveMongo extensions
       import reactivemongo.akkastream.cursorProducer
@@ -864,10 +865,13 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             Sort
           }
 
-          col.aggregatorContext[Int](
+          @silent(".*with\\ comment.*")
+          def cursor = col.aggregatorContext[Int](
             Match(BSONDocument("id" -> BSONDocument("$gte" -> 3))),
             List(Sort(Ascending("id")))
           ).prepared[AkkaStreamCursor.WithOps].cursor
+
+          cursor
         }).documentSource()) must beTypedEqualTo(
           expectedSeq.filter(_ >= 3)
         ).awaitFor(timeout)
@@ -895,6 +899,7 @@ sealed trait CursorFixtures { specs: CursorSpec =>
 
   @inline def cursor(n: String)(implicit ee: ExecutionEnv): AkkaStreamCursor[Int] = cursor1(n)(collection(_))
 
+  @silent(".*QueryOpts.*")
   @inline def cursor1(n: String)(col: String => Future[BSONCollection])(implicit ee: ExecutionEnv): AkkaStreamCursor[Int] = {
     implicit val reader = IdReader
     Cursor.flatten(col(n).map(_.find(BSONDocument()).

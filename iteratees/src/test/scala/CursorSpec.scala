@@ -18,7 +18,7 @@ import reactivemongo.play.iteratees.PlayIterateesCursor
 
 import org.specs2.concurrent.ExecutionEnv
 
-@com.github.ghik.silencer.silent(".*responseEnumerator.*")
+@com.github.ghik.silencer.silent(".*(responseEnumerator|QueryOpts).*")
 final class CursorSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification {
 
