@@ -7,7 +7,7 @@ object Travis {
   lazy val settings = Seq(
     travisEnv in Test := { // test:travisEnv from SBT CLI
       val (akkaLower, akkaUpper) = "2.4.10" -> "2.5.23"
-      val (playLower, playUpper) = "2.3.10" -> "2.6.1"
+      val (playLower, playUpper) = "2.6.1" -> "2.6.1"
       val specs = List[(String, List[String])](
         "AKKA_VERSION" -> List(akkaLower, akkaUpper),
         "ITERATEES_VERSION" -> List(playLower, playUpper)
