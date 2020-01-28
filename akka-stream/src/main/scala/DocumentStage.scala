@@ -28,6 +28,8 @@ private[akkastream] class DocumentStage[T](
   val shape: SourceShape[T] = SourceShape(out)
 
   private val nextResponse = cursor.nextResponse(maxDocs)
+
+  @com.github.ghik.silencer.silent(".*Internal.*")
   private val logger = reactivemongo.util.LazyLogger(
     "reactivemongo.akkastream.DocumentStage"
   )
@@ -93,6 +95,7 @@ private[akkastream] class DocumentStage[T](
         }
       }
 
+      @com.github.ghik.silencer.silent(".*(Internal|ReplyDocumentIteratorExhaustedException).*")
       private def nextD(r: Response, bulk: Iterator[T]): Unit = {
         Try(bulk.next) match {
           case Failure(reason @ ReplyDocumentIteratorExhaustedException(_)) =>

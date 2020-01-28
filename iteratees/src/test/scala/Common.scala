@@ -7,6 +7,7 @@ object Common {
     MongoConnectionOptions
   }
 
+  @com.github.ghik.silencer.silent
   val logger = reactivemongo.util.LazyLogger("tests")
 
   val DefaultOptions = {
