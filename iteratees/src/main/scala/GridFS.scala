@@ -149,6 +149,7 @@ class GridFS[P <: SerializationPack with Singleton] private[iteratees] (
 }
 
 object GridFS {
+  @silent(".*Internal.*")
   private[iteratees] val logger =
     reactivemongo.util.LazyLogger("reactivemongo.play.iteratees.GridFS")
 
