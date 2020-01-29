@@ -21,7 +21,7 @@ import reactivemongo.api.gridfs.{ FileToSave, GridFS => CoreFS }
  * @define IdTypeParam the type of the id of this file (generally `BSONObjectID` or `BSONValue`)
  */
 sealed trait GridFSStreams {
-  private[akkastream] type Pack <: Compat.SerPack
+  private[akkastream] type Pack <: Compat.SerPack with Singleton
 
   val gridfs: CoreFS[Pack]
 
@@ -163,11 +163,16 @@ sealed trait GridFSStreams {
 }
 
 object GridFSStreams {
-  private[akkastream] lazy val logger =
-    reactivemongo.util.LazyLogger("reactivemongo.akkastream.GridFSStreams")
+  private[akkastream] lazy val logger = {
+    @com.github.ghik.silencer.silent(".*Internal.*")
+    def l = reactivemongo.util.LazyLogger(
+      "reactivemongo.akkastream.GridFSStreams")
+
+    l
+  }
 
   /** Returns an Akka-stream support for given GridFS. */
-  def apply[P <: Compat.SerPack](gridfs: CoreFS[P]) = {
+  def apply[P <: Compat.SerPack with Singleton](gridfs: CoreFS[P]) = {
     def gfs = gridfs
 
     new GridFSStreams {

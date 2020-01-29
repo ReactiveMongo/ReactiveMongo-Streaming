@@ -23,6 +23,8 @@ private[akkastream] class ResponseStage[T, Out](
   val shape: SourceShape[Out] = SourceShape(out)
 
   private val nextResponse = cursor.nextResponse(maxDocs)
+
+  @com.github.ghik.silencer.silent(".*Internal.*")
   private val logger = reactivemongo.util.LazyLogger(
     "reactivemongo.akkastream.ResponseStage"
   )
