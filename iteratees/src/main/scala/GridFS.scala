@@ -18,11 +18,7 @@ import reactivemongo.api.collections.{
 }
 import reactivemongo.api.bson.collection.BSONCollectionProducer
 
-import reactivemongo.api.gridfs.{
-  FileToSave,
-  GridFS => CoreFS,
-  IdProducer
-}
+import reactivemongo.api.gridfs.{ GridFS => CoreFS }
 
 import com.github.ghik.silencer.silent
 
@@ -30,7 +26,7 @@ class GridFS[P <: SerializationPack with Singleton] private[iteratees] (
     val gridfs: CoreFS[P]) { self =>
 
   import GridFS.logger
-  import gridfs.{ ReadFile, defaultReadPreference, pack }
+  import gridfs.{ FileToSave, ReadFile, defaultReadPreference, pack }
 
   /**
    * Saves the content provided by the given enumerator with the given metadata.
@@ -41,13 +37,19 @@ class GridFS[P <: SerializationPack with Singleton] private[iteratees] (
    *
    * @return A future of a ReadFile[Id].
    */
-  @silent(".*idProducer\\ is\\ deprecated.*")
-  @SuppressWarnings(Array("UnusedMethodParameter"))
-  def save[Id <: pack.Value](enumerator: Enumerator[Array[Byte]], file: FileToSave[pack.type, Id], chunkSize: Int = 262144)(implicit readFileReader: pack.Reader[ReadFile[Id]], ec: ExecutionContext, @deprecated("Unused", "0.19.0") idProducer: IdProducer[Id], docWriter: pack.Writer[file.pack.Document]): Future[ReadFile[Id]] = (enumerator |>>> iteratee(file, chunkSize)).flatMap(f => f)
+  def save[Id <: pack.Value](
+    enumerator: Enumerator[Array[Byte]],
+    file: FileToSave[Id],
+    chunkSize: Int = 262144)(
+    implicit
+    ec: ExecutionContext): Future[ReadFile[Id]] =
+    (enumerator |>>> iteratee(file, chunkSize)).flatMap(f => f)
 
-  @silent(".*readFileReader.*\\ is\\ never\\ used.*")
-  @SuppressWarnings(Array("UnusedMethodParameter"))
-  def iteratee[Id <: pack.Value](file: FileToSave[pack.type, Id], chunkSize: Int = 262144)(implicit @deprecated("Unused", "0.19.0") readFileReader: pack.Reader[ReadFile[Id]], ec: ExecutionContext, @deprecated("Unused", "0.19.0") idProducer: IdProducer[Id], @deprecated("Unused", "0.19.0") docWriter: pack.Writer[file.pack.Document]): Iteratee[Array[Byte], Future[ReadFile[Id]]] = {
+  def iteratee[Id <: pack.Value](
+    file: FileToSave[Id],
+    chunkSize: Int = 262144)(
+    implicit
+    ec: ExecutionContext): Iteratee[Array[Byte], Future[ReadFile[Id]]] = {
     import java.security.MessageDigest
 
     val digestUpdate = { (md: MessageDigest, chunk: Array[Byte]) =>
@@ -115,8 +117,7 @@ class GridFS[P <: SerializationPack with Singleton] private[iteratees] (
    *
    * @param file the file to be read
    */
-  @SuppressWarnings(Array("UnusedMethodParameter"))
-  def enumerate[Id <: pack.Value](file: ReadFile[Id])(implicit ec: ExecutionContext, @deprecated("Unused", "0.19.0") idProducer: IdProducer[Id]): Enumerator[Array[Byte]] = {
+  def enumerate[Id <: pack.Value](file: ReadFile[Id])(implicit ec: ExecutionContext): Enumerator[Array[Byte]] = {
     val cursor = gridfs.chunks(file, defaultReadPreference)
 
     @inline def pushChunk(
@@ -155,7 +156,7 @@ object GridFS {
 
   @deprecated("Use wrapper factory", "0.19.0")
   @silent(".*DBMetaCommands.*")
-  def apply[P <: SerializationPack with Singleton](db: DB with DBMetaCommands, prefix: String = "fs")(implicit producer: GenericCollectionProducer[P, GenericCollection[P]] = BSONCollectionProducer): GridFS[P] = apply(gridfs = CoreFS[P](db, prefix))
+  def apply[P <: SerializationPack with Singleton](db: DB with DBMetaCommands, prefix: String = "fs")(implicit producer: GenericCollectionProducer[P, GenericCollection[P]] = BSONCollectionProducer): GridFS[P] = apply(gridfs = db.gridfs[P](producer.pack, prefix))
 
   /** Returns an Iteratee support for given GridFS. */
   def apply[P <: SerializationPack with Singleton](
