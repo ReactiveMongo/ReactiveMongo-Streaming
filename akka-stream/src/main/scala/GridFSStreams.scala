@@ -11,7 +11,7 @@ import akka.stream.scaladsl.{ Sink, Source }
 
 import reactivemongo.api.ReadPreference
 
-import reactivemongo.api.gridfs.{ FileToSave, GridFS => CoreFS }
+import reactivemongo.api.gridfs.{ GridFS => CoreFS }
 
 /**
  * Akka-stream support for GridFS.
@@ -26,7 +26,7 @@ sealed trait GridFSStreams {
   val gridfs: CoreFS[Pack]
 
   import GridFSStreams.logger
-  import gridfs.{ defaultReadPreference, pack, ReadFile }
+  import gridfs.{ defaultReadPreference, pack, FileToSave, ReadFile }
 
   /**
    * Returns an `Sink` that will consume data to put into a GridFS store.
@@ -35,7 +35,7 @@ sealed trait GridFSStreams {
    * @param chunkSize $chunkSizeParam (default: [[https://docs.mongodb.com/manual/core/gridfs/ 255kB]])
    */
   def sinkWithMD5[Id <: pack.Value](
-    file: FileToSave[pack.type, Id],
+    file: FileToSave[Id],
     chunkSize: Int = 261120)(
     implicit
     ec: ExecutionContext): Sink[ByteString, Future[ReadFile[Id]]] = {
@@ -59,7 +59,7 @@ sealed trait GridFSStreams {
    * @tparam Id $IdTypeParam
    * @tparam M the type of the message digest
    */
-  def sink[Id <: pack.Value, M](file: FileToSave[pack.type, Id], digestInit: => M, digestUpdate: (M, Array[Byte]) => M, digestFinalize: M => Future[Option[Array[Byte]]], chunkSize: Int)(implicit ec: ExecutionContext): Sink[ByteString, Future[ReadFile[Id]]] = {
+  def sink[Id <: pack.Value, M](file: FileToSave[Id], digestInit: => M, digestUpdate: (M, Array[Byte]) => M, digestFinalize: M => Future[Option[Array[Byte]]], chunkSize: Int)(implicit ec: ExecutionContext): Sink[ByteString, Future[ReadFile[Id]]] = {
     def initial = new StoreState[Id, M](
       file, Array.empty, 0, digestInit, digestUpdate, 0, chunkSize)
 
@@ -94,7 +94,7 @@ sealed trait GridFSStreams {
    * @tparam Id $IdTypeParam
    */
   private final class StoreState[Id <: pack.Value, M](
-      file: FileToSave[pack.type, Id],
+      file: FileToSave[Id],
       previous: Array[Byte],
       val n: Int,
       md: M,

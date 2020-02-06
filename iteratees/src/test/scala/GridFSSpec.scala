@@ -3,14 +3,12 @@ import scala.concurrent.duration.FiniteDuration
 
 import play.api.libs.iteratee._
 
-import reactivemongo.bson._
+import reactivemongo.api.bson.{ BSONDocument, BSONValue }
 import reactivemongo.bson.utils.Converters
 
-import reactivemongo.api.BSONSerializationPack
-import reactivemongo.api.collections.bson.BSONCollectionProducer
+import reactivemongo.api.bson.collection.BSONSerializationPack
 
-import reactivemongo.api.gridfs.{ ReadFile, DefaultFileToSave }
-import reactivemongo.api.gridfs.Implicits._
+import reactivemongo.api.gridfs.ReadFile
 
 import reactivemongo.play.iteratees.GridFS
 
@@ -44,15 +42,15 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
   "Default connection" should {
     val prefix = s"fs${System identityHashCode db}"
 
-    @silent def gfs: GridFS[BSONSerializationPack.type] =
-      GridFS(reactivemongo.api.gridfs.GridFS(BSONSerializationPack, db, prefix))
+    @inline def gfs: GridFS[BSONSerializationPack.type] =
+      GridFS(db.gridfs(BSONSerializationPack, prefix))
 
     gridFsSpec(gfs, Common.timeout)
   }
 
   // ---
 
-  type GFile = ReadFile[BSONSerializationPack.type, BSONValue]
+  type GFile = ReadFile[BSONValue, BSONDocument]
 
   @silent("DefaultReadFileReader\\ in\\ object\\ Implicits\\ is\\ deprecated")
   def gridFsSpec(
@@ -66,7 +64,7 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
     }
 
     val filename2 = s"file2-${System identityHashCode gfs}"
-    lazy val file2 = DefaultFileToSave(Some(filename2), Some("text/plain"))
+    lazy val file2 = fs.fileToSave(Some(filename2), Some("text/plain"))
     lazy val content2 = (100 to 200).view.map(_.toByte).toArray
 
     "store a file with computed MD5" in {
@@ -81,7 +79,7 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
       @silent("DefaultFileToSave\\ in\\ package\\ gridfs\\ is\\ deprecated")
       def matchFile(
         actual: GFile,
-        expected: DefaultFileToSave,
+        expected: fs.FileToSave[BSONValue],
         content: Array[Byte]) = actual.filename must_=== expected.filename and {
         actual.uploadDate must beSome
       } and (actual.contentType must_=== expected.contentType) and {
