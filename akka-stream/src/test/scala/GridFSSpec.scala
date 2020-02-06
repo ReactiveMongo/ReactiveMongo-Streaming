@@ -7,7 +7,7 @@ import akka.stream.scaladsl.{ Sink, Source }
 import reactivemongo.api.bson._
 import reactivemongo.bson.utils.Converters
 
-import reactivemongo.api.gridfs.{ FileToSave, GridFS }
+import reactivemongo.api.gridfs.FileToSave
 
 import reactivemongo.akkastream.GridFSStreams
 
@@ -38,7 +38,7 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
   lazy val gfs = {
     val prefix = s"fs${System identityHashCode db}"
 
-    def resolve = GridFS(db, prefix)
+    def resolve = db.gridfs(prefix)
 
     resolve
   }
