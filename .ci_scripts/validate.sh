@@ -26,19 +26,10 @@ EOF
 
 export JVM_OPTS
 
-# Silly workaround
-# scala.reflect.internal.Types$TypeError: illegal cyclic inheritance involving <refinement>
-> akka-stream/src/test/scala/GridFSSpec.scala
-
-TEST_ARGS=";findbugs ;mimaReportBinaryIssues ;update ;test:compile ;doc"
+TEST_ARGS=";findbugs ;mimaReportBinaryIssues ;update ;testOnly ;doc"
 
 if [ "v$TRAVIS_SCALA_VERSION" = "v2.12.10" ]; then
     TEST_ARGS=";scapegoat $TEST_ARGS"
 fi
 
 sbt ++$TRAVIS_SCALA_VERSION "$TEST_ARGS"
-
-# Silly workaround
-# scala.reflect.internal.Types$TypeError: illegal cyclic inheritance involving <refinement>
-git checkout akka-stream/src/test/scala/GridFSSpec.scala
-sbt ++$TRAVIS_SCALA_VERSION testOnly

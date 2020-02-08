@@ -2,6 +2,9 @@ import com.typesafe.tools.mima.core._, ProblemFilters._
 
 name := "reactivemongo-akkastream"
 
+// See https://github.com/scala/bug/issues/11880#issuecomment-583682673
+Test / scalacOptions += "-no-specialization"
+
 resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   // For Akka Stream Contrib TestKit
