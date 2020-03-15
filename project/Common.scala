@@ -101,28 +101,15 @@ object Publish {
 
   @inline def env(n: String): String = sys.env.get(n).getOrElse(n)
 
-  val previousVersion = "0.12.0"
-  val majorVersion = "0.12"
+  val previousVersion = "1.0.0-rc.1-SNAPSHOT"
+  val majorVersion = "1.0"
   lazy val repoName = env("PUBLISH_REPO_NAME")
   lazy val repoUrl = env("PUBLISH_REPO_URL")
 
   val mimaSettings = mimaDefaultSettings ++ Seq(
-    mimaPreviousArtifacts := {
-      if (scalaBinaryVersion.value == "2.11") {
-        Set(organization.value %% moduleName.value % previousVersion)
-      } else {
-        Set.empty
-      }
-    },
-    mimaBinaryIssueFilters ++= {
-      if (scalaBinaryVersion.value != "2.12") {
-        Seq("Writes", "Reads").map { m =>
-          ProblemFilters.exclude[InheritedNewAbstractMethodProblem](s"reactivemongo.play.json.BSONFormats#PartialFormat.reactivemongo$$play$$json$$BSONFormats$$Partial${m}$$$$$$outer")
-        }
-      } else {
-        Seq.empty
-      }
-    }
+    mimaPreviousArtifacts := Set(
+      organization.value %% moduleName.value % previousVersion),
+    mimaBinaryIssueFilters ++= Seq.empty
   )
 
   val settings = Seq(

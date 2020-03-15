@@ -52,31 +52,28 @@ libraryDependencies ++= {
 }
 
 // MiMa
+mimaPreviousArtifacts := {
+  if (scalaBinaryVersion.value == "2.13") Set.empty
+  else mimaPreviousArtifacts.value
+}
+
 mimaBinaryIssueFilters ++= {
   val dmm = ProblemFilters.exclude[DirectMissingMethodProblem](_)
   val imt = ProblemFilters.exclude[IncompatibleMethTypeProblem](_)
   val pkg = "reactivemongo.play.iteratees"
 
   Seq(
-    ProblemFilters.exclude[IncompatibleSignatureProblem](
-      s"${pkg}.PlayIterateesFlattenedCursor.cursor"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.enumerateResponses"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.enumerateResponses$$default$$1"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.enumerateResponses$$default$$2"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.rawEnumerateResponses"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.rawEnumerateResponses$$default$$1"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.enumerateBulks"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.enumerateBulks$$default$$1"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.enumerateBulks$$default$$2"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.toList"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.toList$$default$$1"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.toList$$default$$2"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.enumerate"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.enumerate$$default$$2"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.enumerate$$default$$1"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.collect"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.collect$$default$$1"),
-    dmm(s"${pkg}.PlayIterateesCursorImpl.collect$$default$$2"))
+    dmm(s"${pkg}.PlayIterateesCursorImpl.peek"),
+    dmm(s"${pkg}.PlayIterateesCursorImpl.responseEnumerator"),
+    dmm(s"${pkg}.PlayIterateesCursorImpl.responseEnumerator$$default$$1"),
+    dmm(s"${pkg}.PlayIterateesCursorImpl.responseEnumerator$$default$$2"),
+    dmm(s"${pkg}.PlayIterateesCursor.responseEnumerator"),
+    dmm(s"${pkg}.PlayIterateesCursor.responseEnumerator$$default$$1"),
+    dmm(s"${pkg}.PlayIterateesCursor.responseEnumerator$$default$$2"),
+    dmm(s"${pkg}.PlayIterateesFlattenedCursor.responseEnumerator"),
+    dmm(s"${pkg}.PlayIterateesFlattenedCursor.responseEnumerator$$default$$1"),
+    dmm(s"${pkg}.PlayIterateesFlattenedCursor.responseEnumerator$$default$$2")
+  )
 }
 
 // Publish

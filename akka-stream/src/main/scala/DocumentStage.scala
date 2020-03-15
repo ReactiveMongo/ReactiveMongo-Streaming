@@ -95,10 +95,10 @@ private[akkastream] class DocumentStage[T](
         }
       }
 
-      @com.github.ghik.silencer.silent(".*(Internal|ReplyDocumentIteratorExhaustedException).*")
+      @com.github.ghik.silencer.silent(".*Internal.*")
       private def nextD(r: Response, bulk: Iterator[T]): Unit = {
         Try(bulk.next) match {
-          case Failure(reason @ ReplyDocumentIteratorExhaustedException(_)) =>
+          case Failure(reason: ReplyDocumentIteratorExhaustedException) =>
             fail(out, reason)
 
           case Failure(reason @ CursorOps.Unrecoverable(_)) =>
