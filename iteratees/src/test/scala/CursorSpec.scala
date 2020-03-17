@@ -13,7 +13,6 @@ import reactivemongo.api.{
   DB,
   QueryOpts
 }, Cursor.{ ContOnError, FailOnError }
-import reactivemongo.core.protocol.Response
 import reactivemongo.play.iteratees.PlayIterateesCursor
 
 import org.specs2.concurrent.ExecutionEnv
@@ -154,26 +153,6 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       }
     }
 
-    "enumerate responses" >> {
-      s"for all the $nDocs documents" in {
-        var i = 0
-        coll2.find(BSONDocument.empty).cursor[BSONDocument]().
-          responseEnumerator() |>>> (Iteratee.foreach { r: Response =>
-            //println(s"doc $i => $e")
-            i += r.reply.numberReturned
-          }).map(_ => i) must beEqualTo(16517).awaitFor(21.seconds)
-      }
-
-      "for only 1024 documents" in {
-        var i = 0
-        coll2.find(BSONDocument.empty).cursor[BSONDocument]().
-          responseEnumerator(1024) |>>> (Iteratee.foreach { r: Response =>
-            //println(s"doc $i => $e")
-            i += r.reply.numberReturned
-          }).map(_ => i) must beEqualTo(1024).awaitFor(timeout)
-      }
-    }
-
     "stop on error" >> {
       val drv = Common.newDriver
 
@@ -181,90 +160,6 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         con <- drv.connect(List(primaryHost), DefaultOptions)
         d <- con.database(db.name)
       } yield d.collection(n)), timeout)
-
-      "when enumerating responses" >> {
-        "if fails while processing with existing documents (#1)" in {
-          var count = 0
-          val inc = Iteratee.foreach[Response] { _ =>
-            if (count == 1) sys.error("Foo")
-
-            count = count + 1
-          }
-          val c = scol()
-          val cursor = c.find(BSONDocument.empty).options(
-            QueryOpts(batchSizeN = 2)
-          ).cursor()
-
-          (cursor.responseEnumerator(10, FailOnError[Unit]()) |>>> inc).
-            map(_ => count).recover({ case _ => count }).
-            aka("enumerating") must beEqualTo(1).awaitFor(timeout)
-
-        }
-
-        "if fails while processing with existing documents (#2)" in {
-          // As the error is on the consuming side (Iteratee)
-          var count = 0
-          var i = 0
-          val inc = Iteratee.foreach[Response] { _ =>
-            i = i + 1
-            if (i % 2 == 0) sys.error("Foo")
-            count = count + 1
-          }
-          val c = scol()
-          val cursor = c.find(BSONDocument.empty).options(QueryOpts(
-            batchSizeN = 4
-          )).cursor()
-
-          (cursor.responseEnumerator(128, ContOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
-        }
-
-        "if fails while processing w/o documents (#1)" in {
-          var count = 0
-          val inc = Iteratee.foreach[Response] { _ =>
-            count = count + 1
-            sys.error("Foo")
-          }
-          val c = scol(System.identityHashCode(inc).toString)
-          val cursor = c.find(BSONDocument.empty).options(
-            QueryOpts(batchSizeN = 2)
-          ).cursor()
-
-          (cursor.responseEnumerator(10, FailOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
-        }
-
-        "if fails while processing w/o documents (#2)" in {
-          // As the error is on the consuming side (Iteratee)
-          var count = 0
-          val inc = Iteratee.foreach[Response] { _ =>
-            count = count + 1
-            sys.error("Foo")
-          }
-          val c = scol(System.identityHashCode(inc).toString)
-          val cursor = c.find(BSONDocument.empty).
-            options(QueryOpts(batchSizeN = 2)).cursor()
-
-          (cursor.responseEnumerator(64, ContOnError[Unit]()) |>>> inc).
-            recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
-        }
-
-        "if fails to send request" in {
-          var count = 0
-          val inc = Iteratee.foreach[Response] { _ => count = count + 1 }
-          val c = scol()
-          val cursor = c.find(BSONDocument.empty).cursor()
-
-          c.db.connection.close().map(_ => {}).
-            aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
-              // Close connection to make the related cursor erroneous
-
-              (cursor.responseEnumerator(10, FailOnError[Unit]()) |>>> inc).
-                map(_ => count).recover({ case _ => count }).
-                aka("count") must beEqualTo(0).awaitFor(timeout)
-            }
-        } tag "wip"
-      }
 
       "when enumerating bulks" >> {
         "if fails while processing with existing documents (#1)" in {
@@ -394,40 +289,21 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         d <- con.database(db.name)
       } yield d.collection(n)), timeout)
 
-      "when enumerating responses" >> {
-        "if fails to send request" in {
-          var count = 0
-          val inc = Iteratee.foreach[Response] { _ => count = count + 1 }
-          val c = scol()
-          val cursor = c.find(BSONDocument.empty).cursor()
-
-          c.db.connection.close().map(_ => {}).
-            aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
-              // Close connection to make the related cursor erroneous
-
-              (cursor.responseEnumerator(128, ContOnError[Unit]()) |>>> inc).
-                map(_ => count) must beEqualTo(0).awaitFor(timeout)
-            }
+      "when enumerating bulks if fails to send request" in {
+        var count = 0
+        val inc = Iteratee.foreach[Iterator[BSONDocument]] {
+          _ => count = count + 1
         }
-      }
+        val c = scol()
+        val cursor = c.find(BSONDocument.empty).cursor()
 
-      "when enumerating bulks" >> {
-        "if fails to send request" in {
-          var count = 0
-          val inc = Iteratee.foreach[Iterator[BSONDocument]] {
-            _ => count = count + 1
+        c.db.connection.close().map(_ => {}).
+          aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
+            // Close connection to make the related cursor erroneous
+
+            (cursor.bulkEnumerator(128, ContOnError[Unit]()) |>>> inc).
+              map(_ => count) must beEqualTo(0).awaitFor(timeout)
           }
-          val c = scol()
-          val cursor = c.find(BSONDocument.empty).cursor()
-
-          c.db.connection.close().map(_ => {}).
-            aka("closed") must beTypedEqualTo({}).awaitFor(timeout) and {
-              // Close connection to make the related cursor erroneous
-
-              (cursor.bulkEnumerator(128, ContOnError[Unit]()) |>>> inc).
-                map(_ => count) must beEqualTo(0).awaitFor(timeout)
-            }
-        }
       }
 
       "when enumerating documents" >> {

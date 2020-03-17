@@ -4,7 +4,6 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 import play.api.libs.iteratee.{ Concurrent, Enumerator }
 
-import reactivemongo.core.protocol.Response
 import reactivemongo.api.{
   Cursor,
   FlattenedCursor,
@@ -31,10 +30,6 @@ sealed trait PlayIterateesCursor[T] extends Cursor[T] {
    * @return an Enumerator of Iterators of documents.
    */
   def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]]
-
-  @deprecated("Will be removed", "0.19.4")
-  def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response]
-
 }
 
 class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
@@ -68,15 +63,6 @@ class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
     ).
       onComplete { case _ => chan.eofAndEnd() }
   }
-
-  @deprecated("Will be removed", "0.19.4")
-  override def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response] = Concurrent.unicast[Response] { chan =>
-    wrappee.foldResponses({}, maxDocs)(
-      (_, resp) => Cont(chan push resp), errorHandler(chan, err)
-    ).
-      onComplete { case _ => chan.eofAndEnd() }
-  }
-
 }
 
 class PlayIterateesFlattenedCursor[T](
@@ -87,8 +73,4 @@ class PlayIterateesFlattenedCursor[T](
   override def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T] = Enumerator.flatten(cursor.map(_.enumerator(maxDocs, err)))
 
   override def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]] = Enumerator.flatten(cursor.map(_.bulkEnumerator(maxDocs, err)))
-
-  @deprecated("Will be removed", "0.19.4")
-  override def responseEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Response] = Enumerator.flatten(cursor.map(_.responseEnumerator(maxDocs, err)))
-
 }

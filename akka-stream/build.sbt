@@ -42,26 +42,7 @@ mimaBinaryIssueFilters ++= {
   val pkg = "reactivemongo.akkastream"
 
   Seq(
-    ProblemFilters.exclude[IncompatibleSignatureProblem](
-      s"${pkg}.AkkaStreamFlattenedCursor.cursor"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.documentIterator"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses$$default$$1"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateResponses$$default$$2"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.rawEnumerateResponses"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.rawEnumerateResponses$$default$$1"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateBulks"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateBulks$$default$$1"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerateBulks$$default$$2"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.toList"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.toList$$default$$1"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.toList$$default$$2"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerate"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerate$$default$$2"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.enumerate$$default$$1"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.collect"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.collect$$default$$1"),
-    dmm(s"${pkg}.AkkaStreamCursorImpl.collect$$default$$2"))
+    dmm("reactivemongo.akkastream.AkkaStreamCursorImpl.peek"))
 }
 
 // Publish
