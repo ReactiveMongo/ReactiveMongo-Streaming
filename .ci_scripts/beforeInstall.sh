@@ -17,8 +17,8 @@ if [ ! -L "$HOME/ssl/lib/libssl.so.1.0.0" ] && [ ! -f "$HOME/ssl/lib/libssl.so.1
   echo "[INFO] Building OpenSSL"
 
   cd /tmp
-  curl -s -o - https://www.openssl.org/source/openssl-1.0.1s.tar.gz | tar -xzf -
-  cd openssl-1.0.1s
+  curl -s -o - https://www.openssl.org/source/old/1.0.1/openssl-1.0.1u.tar.gz | tar -xzf -
+  cd openssl-1.0.1u
   rm -rf "$HOME/ssl" && mkdir "$HOME/ssl"
   ./config -shared enable-ssl2 --prefix="$HOME/ssl" > /dev/null
   make depend > /dev/null
@@ -71,33 +71,6 @@ echo "  maxIncomingConnections: $MAX_CON" >> /tmp/mongod.conf
 
 echo "# MongoDB Configuration:"
 cat /tmp/mongod.conf
-
-MONGOD_CMD="mongod -f /tmp/mongod.conf --fork"
-
-if [ `which numactl | wc -l` -gt 0 ]; then
-    numactl --interleave=all $MONGOD_CMD
-else
-    $MONGOD_CMD
-fi
-
-MONGOD_PID=`ps -o pid,comm -u $USER | grep 'mongod$' | awk '{ printf("%s\n", $1); }'`
-
-if [ "x$MONGOD_PID" = "x" ]; then
-    echo -e "\n[ERROR] Fails to start the custom 'mongod' instance" > /dev/stderr
-
-    mongod --version
-    PID=`ps -o pid,comm -u $USER | grep 'mongod$' | awk '{ printf("%s\n", $1); }'`
-
-    if [ ! "x$PID" = "x" ]; then
-        pid -p $PID
-    else
-        echo "[ERROR] MongoDB process not found" > /dev/stderr
-    fi
-
-    tail -n 100 /tmp/mongod.log
-
-    exit 1
-fi
 
 # Export environment for integration tests
 

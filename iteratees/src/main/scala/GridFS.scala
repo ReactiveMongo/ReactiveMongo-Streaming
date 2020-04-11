@@ -22,7 +22,7 @@ import reactivemongo.api.gridfs.{ GridFS => CoreFS }
 
 import com.github.ghik.silencer.silent
 
-class GridFS[P <: SerializationPack with Singleton] private[iteratees] (
+class GridFS[P <: SerializationPack] private[iteratees] (
     val gridfs: CoreFS[P]) { self =>
 
   import GridFS.logger
