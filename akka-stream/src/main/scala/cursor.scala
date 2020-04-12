@@ -51,7 +51,7 @@ sealed trait AkkaStreamCursor[T] extends Cursor[T] {
    * @param err $errParam
    * @param m $materializerParam
    */
-  def bulkPublisher(fanout: Boolean = false, maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Iterator[T]]] = FailOnError())(implicit m: Materializer): Publisher[Iterator[T]] = bulkSource(maxDocs, err).runWith(Sink.asPublisher[Iterator[T]](fanout))
+  final def bulkPublisher(fanout: Boolean = false, maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Iterator[T]]] = FailOnError())(implicit m: Materializer): Publisher[Iterator[T]] = bulkSource(maxDocs, err).runWith(Sink.asPublisher[Iterator[T]](fanout))
 
   /**
    * Returns a source of documents.
@@ -71,7 +71,7 @@ sealed trait AkkaStreamCursor[T] extends Cursor[T] {
    * @param err $errParam
    * @param m $materializerParam
    */
-  def documentPublisher(fanout: Boolean = false, maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[T]] = FailOnError())(implicit m: Materializer): Publisher[T] = documentSource(maxDocs, err).runWith(Sink.asPublisher[T](fanout))
+  final def documentPublisher(fanout: Boolean = false, maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[T]] = FailOnError())(implicit m: Materializer): Publisher[T] = documentSource(maxDocs, err).runWith(Sink.asPublisher[T](fanout))
 
 }
 
@@ -79,7 +79,7 @@ object AkkaStreamCursor {
   type WithOps[T] = AkkaStreamCursor[T] with CursorOps[T]
 }
 
-private[akkastream] class AkkaStreamCursorImpl[T](
+private[akkastream] final class AkkaStreamCursorImpl[T](
     val wrappee: Cursor.WithOps[T]
 ) extends WrappedCursor[T] with WrappedCursorOps[T] with AkkaStreamCursor[T] {
   @inline def opsWrappee = wrappee
@@ -102,7 +102,7 @@ private[akkastream] class AkkaStreamCursorImpl[T](
   }
 }
 
-class AkkaStreamFlattenedCursor[T](
+final class AkkaStreamFlattenedCursor[T](
     cursor: Future[AkkaStreamCursor[T]]
 ) extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
 
