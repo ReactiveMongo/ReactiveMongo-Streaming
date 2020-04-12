@@ -31,7 +31,6 @@ commands:
     steps:
       - restore_cache:
           keys:
-          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
           - mongodb-{{ checksum ".ci_scripts/beforeInstall.sh" }}
 
       - run:
