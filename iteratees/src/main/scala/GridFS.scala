@@ -6,12 +6,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 import play.api.libs.iteratee.{ Concurrent, Enumerator, Iteratee }
 
-import reactivemongo.api.{
-  Cursor,
-  DB,
-  DBMetaCommands,
-  SerializationPack
-}
+import reactivemongo.api.{ Cursor, DB, SerializationPack }
 import reactivemongo.api.collections.{
   GenericCollection,
   GenericCollectionProducer
@@ -20,9 +15,7 @@ import reactivemongo.api.bson.collection.BSONCollectionProducer
 
 import reactivemongo.api.gridfs.{ GridFS => CoreFS }
 
-import com.github.ghik.silencer.silent
-
-class GridFS[P <: SerializationPack] private[iteratees] (
+final class GridFS[P <: SerializationPack] private[iteratees] (
     val gridfs: CoreFS[P]) { self =>
 
   import GridFS.logger
@@ -58,7 +51,7 @@ class GridFS[P <: SerializationPack] private[iteratees] (
     }
     val digestFinalize = { md: MessageDigest => Future(md.digest()) }
 
-    case class Chunk(
+    final case class Chunk(
         previous: Array[Byte],
         n: Int,
         md: MessageDigest,
@@ -90,10 +83,10 @@ class GridFS[P <: SerializationPack] private[iteratees] (
         }
       }
 
-      import reactivemongo.bson.utils.Converters
+      import reactivemongo.api.bson.Digest
 
       @inline def finish(): Future[ReadFile[Id]] =
-        digestFinalize(md).map(Converters.hex2Str).flatMap { md5Hex =>
+        digestFinalize(md).map(Digest.hex2Str).flatMap { md5Hex =>
           gridfs.finalizeFile[Id](
             file, previous, n, chunkSize, length.toLong, Some(md5Hex))
         }
@@ -150,13 +143,10 @@ class GridFS[P <: SerializationPack] private[iteratees] (
 }
 
 object GridFS {
-  @silent(".*Internal.*")
   private[iteratees] val logger =
     reactivemongo.util.LazyLogger("reactivemongo.play.iteratees.GridFS")
 
-  @deprecated("Use wrapper factory", "0.19.0")
-  @silent(".*DBMetaCommands.*")
-  def apply[P <: SerializationPack with Singleton](db: DB with DBMetaCommands, prefix: String = "fs")(implicit producer: GenericCollectionProducer[P, GenericCollection[P]] = BSONCollectionProducer): GridFS[P] = apply(gridfs = db.gridfs[P](producer.pack, prefix))
+  def apply[P <: SerializationPack with Singleton](db: DB, prefix: String = "fs")(implicit producer: GenericCollectionProducer[P, GenericCollection[P]] = BSONCollectionProducer): GridFS[P] = apply(gridfs = db.gridfs[P](producer.pack, prefix))
 
   /** Returns an Iteratee support for given GridFS. */
   def apply[P <: SerializationPack with Singleton](

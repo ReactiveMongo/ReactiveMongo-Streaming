@@ -4,17 +4,14 @@ import scala.concurrent.duration.FiniteDuration
 import play.api.libs.iteratee._
 
 import reactivemongo.api.bson.{ BSONDocument, BSONValue }
-import reactivemongo.bson.utils.Converters
 
 import reactivemongo.api.bson.collection.BSONSerializationPack
 
 import reactivemongo.api.gridfs.ReadFile
 
-import reactivemongo.play.iteratees.GridFS
+import reactivemongo.play.iteratees.{ GridFS, tests }
 
 import org.specs2.concurrent.ExecutionEnv
-
-import com.github.ghik.silencer.silent
 
 final class GridFSSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification
@@ -52,7 +49,6 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
 
   type GFile = ReadFile[BSONValue, BSONDocument]
 
-  @silent("DefaultReadFileReader\\ in\\ object\\ Implicits\\ is\\ deprecated")
   def gridFsSpec(
     gfs: GridFS[BSONSerializationPack.type],
     timeout: FiniteDuration) = {
@@ -76,7 +72,6 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
       def find(n: String): Future[Option[GFile]] =
         fs.find(BSONDocument("filename" -> n)).headOption
 
-      @silent("DefaultFileToSave\\ in\\ package\\ gridfs\\ is\\ deprecated")
       def matchFile(
         actual: GFile,
         expected: fs.FileToSave[BSONValue],
@@ -97,7 +92,7 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
       }
 
       find(filename2) aka "file #2" must beSome[GFile].which { actual =>
-        def expectedMd5 = Converters.hex2Str(Converters.md5(content2))
+        def expectedMd5 = tests.md5Hex(content2)
 
         matchFile(actual, file2, content2) and {
           actual.md5 must beSome[String].which {

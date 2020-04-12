@@ -66,7 +66,7 @@ commands:
             - ~/sbt
             - ~/ssl
             - ~/mongodb-linux-x86_64-amazon-3.6.6
-          key: tooling
+          key: tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
       - save_cache:
           paths:
             - ~/.ivy2
@@ -90,12 +90,12 @@ jobs:
     steps:
       - checkout
 
-      - setup_sbt
-
       - restore_cache:
           keys:
           - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
-          - tooling
+          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+
+      - setup_sbt
 
       - setup_integration
 
@@ -121,12 +121,12 @@ jobs:
     steps:
       - checkout
 
-      - setup_sbt
-
       - restore_cache:
           keys:
           - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
-          - tooling
+          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+
+      - setup_sbt
 
       - setup_integration
 
@@ -152,12 +152,12 @@ jobs:
     steps:
       - checkout
 
-      - setup_sbt
-
       - restore_cache:
           keys:
           - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
-          - tooling
+          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+
+      - setup_sbt
 
       - setup_integration
 
@@ -178,12 +178,12 @@ jobs:
     steps:
       - checkout
 
-      - setup_sbt
-
       - restore_cache:
           keys:
-          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Dependencies.scala" }}
-          - tooling
+          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+
+      - setup_sbt
 
       - deploy:
           name: Publish artifacts to Sonatype Snapshots

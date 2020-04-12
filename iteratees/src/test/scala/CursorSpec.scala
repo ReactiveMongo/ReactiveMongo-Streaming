@@ -1,23 +1,20 @@
+import scala.util.{ Success, Try }
+
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
 import play.api.libs.iteratee.Iteratee
 
-import reactivemongo.bson.{
+import reactivemongo.api.bson.{
   BSONDocument,
   BSONDocumentReader,
   BSONDocumentWriter
 }
-import reactivemongo.api.{
-  Cursor,
-  DB,
-  QueryOpts
-}, Cursor.{ ContOnError, FailOnError }
+import reactivemongo.api.{ Cursor, DB }, Cursor.{ ContOnError, FailOnError }
 import reactivemongo.play.iteratees.PlayIterateesCursor
 
 import org.specs2.concurrent.ExecutionEnv
 
-@com.github.ghik.silencer.silent(".*(responseEnumerator|QueryOpts).*")
 final class CursorSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification {
 
@@ -27,9 +24,6 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
   import Common._
   import reactivemongo.play.iteratees.cursorProducer
-
-  // TODO
-  import reactivemongo.api.bson.compat._
 
   "BSON collection" should {
     "be provided the fixtures" in {
@@ -170,9 +164,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             count = count + 1
           }
           val c = scol()
-          val cursor = c.find(BSONDocument.empty).options(
-            QueryOpts(batchSizeN = 2)
-          ).cursor()
+          val cursor = c.find(BSONDocument.empty).batchSize(2).cursor()
 
           (cursor.bulkEnumerator(10, FailOnError[Unit]()) |>>> inc).
             recover({ case _ => count }).
@@ -187,9 +179,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             if (i % 2 == 0) sys.error("Foo")
             count = count + 1
           }
-          val cursor = scol().find(BSONDocument.empty).options(QueryOpts(
-            batchSizeN = 4
-          )).cursor()
+          val cursor = scol().find(BSONDocument.empty).batchSize(4).cursor()
 
           def consumed: Future[Unit] =
             cursor.bulkEnumerator(32, ContOnError[Unit]()) |>>> inc
@@ -205,9 +195,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             sys.error("Foo")
           }
           val c = scol(System.identityHashCode(inc).toString)
-          val cursor = c.find(BSONDocument.empty).options(
-            QueryOpts(batchSizeN = 2)
-          ).cursor()
+          val cursor = c.find(BSONDocument.empty).batchSize(2).cursor()
 
           (cursor.bulkEnumerator(10, FailOnError[Unit]()) |>>> inc).
             recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
@@ -220,8 +208,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             sys.error("Foo")
           }
           val c = scol(System.identityHashCode(inc).toString)
-          val cursor = c.find(BSONDocument.empty).
-            options(QueryOpts(batchSizeN = 2)).cursor()
+          val cursor = c.find(BSONDocument.empty).batchSize(2).cursor()
 
           (cursor.bulkEnumerator(64, ContOnError[Unit]()) |>>> inc).
             recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
@@ -316,9 +303,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             count = count + 1
           }
           val c = scol()
-          val cursor = c.find(BSONDocument.empty).options(QueryOpts(
-            batchSizeN = 4
-          )).cursor()
+          val cursor = c.find(BSONDocument.empty).batchSize(4).cursor()
 
           (cursor.enumerator(128, ContOnError[Unit]()) |>>> inc).
             recover({ case _ => count }) must beEqualTo(1).awaitFor(timeout)
@@ -331,8 +316,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             sys.error("Foo")
           }
           val c = scol(System.identityHashCode(inc).toString)
-          val cursor = c.find(BSONDocument.empty).
-            options(QueryOpts(batchSizeN = 2)).cursor()
+          val cursor = c.find(BSONDocument.empty).batchSize(2).cursor()
 
           (cursor.enumerator(64, ContOnError[Unit]()) |>>> inc).map(_ => count).
             aka("enumerating") must beEqualTo(0).awaitFor(timeout)
@@ -364,7 +348,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
   "BSON Cursor" should {
     object IdReader extends BSONDocumentReader[Int] {
-      def read(doc: BSONDocument): Int = doc.getAs[Int]("id").get
+      def readDocument(doc: BSONDocument): Try[Int] = Try(doc.int("id").get)
     }
 
     val expectedList = List(9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
@@ -425,9 +409,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
       @inline def tailable(n: String, database: DB = db) = {
         implicit val reader = IdReader
-        collection(n, database).find(BSONDocument()).options(
-          QueryOpts().tailable
-        ).cursor[Int]()
+        collection(n, database).find(BSONDocument()).tailable.cursor[Int]()
       }
 
       "successfully using tailable enumerator with maxDocs" in {
@@ -451,16 +433,19 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
   class SometimesBuggyPersonReader extends BSONDocumentReader[Person] {
     private var i = 0
-    def read(doc: BSONDocument): Person = {
+    def readDocument(doc: BSONDocument): Try[Person] = Try {
       i += 1
       if (i % 4 == 0) throw CustomException("hey hey hey")
-      else Person(doc.getAs[String]("name").get, doc.getAs[Int]("age").get)
+      else (for {
+        n <- doc.string("name")
+        a <- doc.int("age")
+      } yield Person(n, a)).get
     }
   }
 
   object PersonWriter extends BSONDocumentWriter[Person] {
-    def write(p: Person): BSONDocument =
-      BSONDocument("age" -> p.age, "name" -> p.name)
+    def writeTry(p: Person): Try[BSONDocument] =
+      Success(BSONDocument("age" -> p.age, "name" -> p.name))
   }
 
   case class CustomException(msg: String) extends Exception(msg)
