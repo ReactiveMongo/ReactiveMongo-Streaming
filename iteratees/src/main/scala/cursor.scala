@@ -32,7 +32,7 @@ sealed trait PlayIterateesCursor[T] extends Cursor[T] {
   def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]]
 }
 
-class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
+final class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
   extends PlayIterateesCursor[T] with WrappedCursor[T] {
   import Cursor.{ Cont, Fail, State }
 
@@ -65,10 +65,9 @@ class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
   }
 }
 
-class PlayIterateesFlattenedCursor[T](
+final class PlayIterateesFlattenedCursor[T](
     cursor: Future[PlayIterateesCursor[T]]
-)
-  extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
+) extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
 
   override def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T] = Enumerator.flatten(cursor.map(_.enumerator(maxDocs, err)))
 

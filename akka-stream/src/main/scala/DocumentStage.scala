@@ -16,7 +16,7 @@ import reactivemongo.api.{
   CursorOps
 }, Cursor.{ Cont, Done, ErrorHandler, Fail }
 
-private[akkastream] class DocumentStage[T](
+private[akkastream] final class DocumentStage[T](
     cursor: AkkaStreamCursorImpl[T],
     maxDocs: Int,
     err: ErrorHandler[Option[T]]
@@ -29,7 +29,6 @@ private[akkastream] class DocumentStage[T](
 
   private val nextResponse = cursor.nextResponse(maxDocs)
 
-  @com.github.ghik.silencer.silent(".*Internal.*")
   private val logger = reactivemongo.util.LazyLogger(
     "reactivemongo.akkastream.DocumentStage"
   )
@@ -73,7 +72,7 @@ private[akkastream] class DocumentStage[T](
       @SuppressWarnings(Array("CatchException"))
       private def kill(r: Response): Unit = {
         try {
-          cursor.wrappee kill r.reply.cursorID
+          cursor.wrappee killCursor r.reply.cursorID
         } catch {
           case reason: Exception => logger.warn(
             s"fails to kill the cursor (${r.reply.cursorID})", reason
@@ -95,7 +94,6 @@ private[akkastream] class DocumentStage[T](
         }
       }
 
-      @com.github.ghik.silencer.silent(".*Internal.*")
       private def nextD(r: Response, bulk: Iterator[T]): Unit = {
         Try(bulk.next) match {
           case Failure(reason: ReplyDocumentIteratorExhaustedException) =>

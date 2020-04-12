@@ -38,6 +38,7 @@ object Compiler {
     scalacOptions ++= {
       if (scalaBinaryVersion.value != "2.13") {
         Seq(
+          "-Xmax-classfile-name", "128",
           "-Ywarn-numeric-widen",
           "-Ywarn-dead-code",
           "-Ywarn-value-discard",

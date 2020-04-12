@@ -17,6 +17,25 @@ commands:
                       tar -xzvf sbt.tgz && rm -f sbt.tgz
                     fi
 
+  setup_integration:
+    description: Setup integration environment
+    steps:
+      - run:
+          name: Prepare integration environment
+          command: |
+                    if [ `which make | wc -l` -eq 0 ]; then
+                      sudo apt update
+                      sudo apt install build-essential
+                    fi
+                    ./.ci_scripts/beforeInstall.sh
+
+      - run:
+          name: Start integration services
+          command: |
+                    export MONGO_CONF="/tmp/mongod.conf"
+                    ./.ci_scripts/fork-mongod.sh /tmp/integration-env.sh
+          background: true
+
   build_n_tests:
     description: Build & Run tests
     steps:
@@ -45,21 +64,127 @@ commands:
       - save_cache:
           paths:
             - ~/sbt
-          key: tooling
+            - ~/ssl
+            - ~/mongodb-linux-x86_64-amazon-3.6.6
+          key: tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
       - save_cache:
           paths:
             - ~/.ivy2
             - ~/.coursier/cache
             - ~/.sbt
-          key: d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Dependencies.scala" }}
+          key: d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
 
-  publish_snapshot:
-    description: Publish artifact to Snapshots repository
-    parameters:
-      scala_version:
-        type: string
-        default: ""
+jobs:
+  scala211_akka24:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      AKKA_VERSION: 2.4.10
+      ITERATEES_VERSION: 2.3.10
+      REACTIVEMONGO_SHADED: false
+      SCALA_VERSION: 2.11.12
+    
     steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+
+      - setup_sbt
+
+      - setup_integration
+
+      - build_n_tests
+
+      - update_cache
+
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  scala212_akka25:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      AKKA_VERSION: 2.5.23
+      ITERATEES_VERSION: 2.6.1
+      SCALA_VERSION: 2.12.10
+    
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+
+      - setup_sbt
+
+      - setup_integration
+
+      - build_n_tests
+
+      - update_cache
+
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  scala213_akka26:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      AKKA_VERSION: 2.6.0
+      ITERATEES_VERSION: no
+      SCALA_VERSION: 2.13.1
+    
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+
+      - setup_sbt
+
+      - setup_integration
+
+      - build_n_tests
+
+      - update_cache
+
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  publish_snapshots:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+    
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+
+      - setup_sbt
+
       - deploy:
           name: Publish artifacts to Sonatype Snapshots
           command: |
@@ -77,45 +202,20 @@ commands:
                       exit 1
                     fi
                     
-                    V="<< parameters.scala_version >>"
-                    echo "Publishing artifacts for Scala $V"
-                    
-                    sbt ++$V publish
-
-jobs:
-  scala211_jdk10:
-    docker:
-      - image: circleci/openjdk:10-jdk
-
-    working_directory: ~/repo
-
-    environment:
-      SCALA_VERSION: 2.11.12
-    
-    steps:
-      - checkout
-
-      - setup_sbt
-
-      - restore_cache:
-          keys:
-          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Dependencies.scala" }}
-          - tooling
-
-      #- build_n_tests
+                    sbt +publish
 
       - update_cache
-
-      - collect_test_reports
-      - store_test_results:
-          path: test-reports
-
-      #- publish_snapshot:
-      #    scala_version: 2.11.12
 
 workflows:
   version: 2
 
   main_suite:
     jobs:
-      - scala211_jdk10
+      - scala211_akka24
+      - scala212_akka25
+      - scala213_akka26
+      - publish_snapshots:
+          requires:
+            - scala211_akka24
+            - scala212_akka25
+            - scala213_akka26

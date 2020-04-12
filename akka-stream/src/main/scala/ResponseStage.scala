@@ -10,7 +10,7 @@ import akka.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
 import reactivemongo.core.protocol.Response
 import reactivemongo.api.Cursor, Cursor.ErrorHandler
 
-private[akkastream] class ResponseStage[T, Out](
+private[akkastream] final class ResponseStage[T, Out](
     cursor: AkkaStreamCursorImpl[T],
     maxDocs: Int,
     suc: Response => Out,
@@ -24,7 +24,6 @@ private[akkastream] class ResponseStage[T, Out](
 
   private val nextResponse = cursor.nextResponse(maxDocs)
 
-  @com.github.ghik.silencer.silent(".*Internal.*")
   private val logger = reactivemongo.util.LazyLogger(
     "reactivemongo.akkastream.ResponseStage"
   )
@@ -63,7 +62,7 @@ private[akkastream] class ResponseStage[T, Out](
       @SuppressWarnings(Array("CatchException"))
       private def kill(r: Response): Unit = {
         try {
-          cursor.wrappee kill r.reply.cursorID
+          cursor.wrappee killCursor r.reply.cursorID
         } catch {
           case reason: Exception => logger.warn(
             s"fails to kill the cursor (${r.reply.cursorID})", reason
