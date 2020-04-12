@@ -106,9 +106,14 @@ object Publish {
   lazy val repoName = env("PUBLISH_REPO_NAME")
   lazy val repoUrl = env("PUBLISH_REPO_URL")
 
-  val mimaSettings = mimaDefaultSettings ++ Seq(
-    mimaPreviousArtifacts := Set(
-      organization.value %% moduleName.value % previousVersion),
+  val mimaSettings = Seq(
+    mimaPreviousArtifacts := {
+      if (version.value != previousVersion) {
+        Set(organization.value %% moduleName.value % previousVersion)
+      } else {
+        Set.empty
+      }
+    },
     mimaBinaryIssueFilters ++= Seq.empty
   )
 

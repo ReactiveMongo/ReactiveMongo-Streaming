@@ -2,6 +2,7 @@ import java.util.concurrent.TimeoutException
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
 import scala.util.{ Failure, Try }
+
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
@@ -15,16 +16,12 @@ import akka.stream.testkit.TestSubscriber
 
 import org.specs2.concurrent.ExecutionEnv
 
-import reactivemongo.bson.{
-  BSONDocument,
-  BSONDocumentReader,
-  BSONNumberLike
-}
+import reactivemongo.api.bson.{ BSONDocument, BSONDocumentReader }
 
 import reactivemongo.core.actors.Exceptions.ClosedException
 
-import reactivemongo.api.{ Cursor, DB, QueryOpts }
-import reactivemongo.api.collections.bson.BSONCollection
+import reactivemongo.api.{ Cursor, DB }
+import reactivemongo.api.bson.collection.BSONCollection
 
 import reactivemongo.akkastream.AkkaStreamCursor
 
@@ -254,7 +251,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             def src = cursor.documentSource()
             val consume = Sink.fold[(Long, Long), BSONDocument](0L -> 0L) {
               case ((count, n), doc) =>
-                val i = doc.getAs[BSONNumberLike]("i").map(_.toLong).get
+                val i = doc.int("i").get
                 (count + 1L) -> (n + i)
             }
 
@@ -403,11 +400,11 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       // ReactiveMongo extensions
       import reactivemongo.akkastream.cursorProducer
 
-      implicit def reader: reactivemongo.bson.BSONDocumentReader[Int] = IdReader
+      implicit def reader: reactivemongo.api.bson.BSONDocumentReader[Int] = IdReader
+
       val nDocs = 16517
       val coll = db(s"akka-large-1-${System identityHashCode db}")
 
-      @silent("Use\\ reactivemongo-bson-api")
       def cursor = coll.find(BSONDocument.empty).
         sort(BSONDocument("id" -> 1)).cursor[Int]()
 
@@ -534,7 +531,6 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       // (BSONCollection, () => Future[Unit])
     }
 
-    @silent(".*QueryOpts.*")
     def tailable(cb: Promise[Unit], n: String, database: DB = db)(implicit ee: ExecutionEnv) = {
       // ReactiveMongo extensions
       import reactivemongo.akkastream.cursorProducer
@@ -542,8 +538,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
       val (cursor, populate) = capped(n, database, cb)
 
-      cursor.find(BSONDocument.empty).
-        options(QueryOpts().tailable).cursor[Int]() -> populate
+      cursor.find(BSONDocument.empty).tailable.cursor[Int]() -> populate
       // (Cursor[Int], () => Future[Unit]
     }
 
@@ -624,13 +619,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         val flatten = Cursor.flatten[Int, AkkaStreamCursor] _
 
         toSeq(flatten(collection("source23").map { col =>
-          import col.BatchCommands.AggregationFramework.{
+          import col.AggregationFramework.{
             Ascending,
             Match,
             Sort
           }
 
-          @silent(".*with\\ comment.*")
           def cursor = col.aggregatorContext[Int](
             Match(BSONDocument("id" -> BSONDocument("$gte" -> 3))),
             List(Sort(Ascending("id")))
@@ -646,7 +640,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
   // ---
 
-  @com.github.ghik.silencer.silent @inline def expectNoMsg[T](c: akka.stream.testkit.TestSubscriber.ManualProbe[T], timeout: FiniteDuration) = c.expectNoMsg(timeout)
+  @silent @inline def expectNoMsg[T](c: akka.stream.testkit.TestSubscriber.ManualProbe[T], timeout: FiniteDuration) = c.expectNoMsg(timeout)
 }
 
 sealed trait CursorFixtures { specs: CursorSpec =>
@@ -654,7 +648,7 @@ sealed trait CursorFixtures { specs: CursorSpec =>
   import reactivemongo.akkastream.cursorProducer
 
   object IdReader extends BSONDocumentReader[Int] {
-    def read(doc: BSONDocument): Int = doc.getAs[Int]("id").get
+    def readDocument(doc: BSONDocument): Try[Int] = Try(doc.int("id").get)
   }
 
   val expectedSeq = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
@@ -664,12 +658,10 @@ sealed trait CursorFixtures { specs: CursorSpec =>
 
   @inline def cursor(n: String)(implicit ee: ExecutionEnv): AkkaStreamCursor[Int] = cursor1(n)(collection(_))
 
-  @silent(".*QueryOpts.*")
   @inline def cursor1(n: String)(col: String => Future[BSONCollection])(implicit ee: ExecutionEnv): AkkaStreamCursor[Int] = {
     implicit val reader = IdReader
     Cursor.flatten(col(n).map(_.find(BSONDocument()).
-      options(QueryOpts(batchSizeN = 3)).
-      sort(BSONDocument("id" -> 1)).cursor[Int]()))
+      batchSize(3).sort(BSONDocument("id" -> 1)).cursor[Int]()))
   }
 
   def collection(n: String)(implicit ee: ExecutionEnv): Future[BSONCollection] =
