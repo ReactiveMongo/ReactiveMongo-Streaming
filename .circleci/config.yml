@@ -8,6 +8,10 @@ commands:
         type: string
         default: "1.3.9"
     steps:
+      - restore_cache:
+          keys:
+          - sbt-{{ checksum "project/build.properties" }}
+
       - run:
           name: Setup SBT
           command: |
@@ -17,9 +21,18 @@ commands:
                       tar -xzvf sbt.tgz && rm -f sbt.tgz
                     fi
 
+      - save_cache:
+          paths:
+            - ~/sbt
+          key: sbt-{{ checksum "project/build.properties" }}
+
   setup_integration:
     description: Setup integration environment
     steps:
+      - restore_cache:
+          keys:
+          - mongodb-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+
       - run:
           name: Prepare integration environment
           command: |
@@ -28,6 +41,12 @@ commands:
                       sudo apt install build-essential
                     fi
                     ./.ci_scripts/beforeInstall.sh
+
+      - save_cache:
+          paths:
+            - ~/ssl
+            - ~/mongodb-linux-x86_64-amazon-3.6.6
+          key: mongodb-{{ checksum ".ci_scripts/beforeInstall.sh" }}
 
       - run:
           name: Start integration services
@@ -39,6 +58,10 @@ commands:
   build_n_tests:
     description: Build & Run tests
     steps:
+      - restore_cache:
+          keys:
+          - scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+
       - run:
           name: Build & Run tests
           command: |
@@ -46,6 +69,13 @@ commands:
                     export USER=`basename $HOME`
                     
                     ./.ci_scripts/validate.sh
+
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
 
   collect_test_reports:
     description: Collect test reports
@@ -57,22 +87,6 @@ commands:
                     find . -path '*/test-reports/*' -name '*.xml' \
                       -print -exec cp {} test-reports \;
           when: always
-
-  update_cache:
-    description: Update cache
-    steps:
-      - save_cache:
-          paths:
-            - ~/sbt
-            - ~/ssl
-            - ~/mongodb-linux-x86_64-amazon-3.6.6
-          key: tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
-      - save_cache:
-          paths:
-            - ~/.ivy2
-            - ~/.coursier/cache
-            - ~/.sbt
-          key: d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
 
 jobs:
   scala211_akka24:
@@ -89,20 +103,9 @@ jobs:
     
     steps:
       - checkout
-
-      - restore_cache:
-          keys:
-          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
-          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
-
       - setup_sbt
-
       - setup_integration
-
       - build_n_tests
-
-      - update_cache
-
       - collect_test_reports
       - store_test_results:
           path: test-reports
@@ -120,20 +123,9 @@ jobs:
     
     steps:
       - checkout
-
-      - restore_cache:
-          keys:
-          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
-          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
-
       - setup_sbt
-
       - setup_integration
-
       - build_n_tests
-
-      - update_cache
-
       - collect_test_reports
       - store_test_results:
           path: test-reports
@@ -151,20 +143,9 @@ jobs:
     
     steps:
       - checkout
-
-      - restore_cache:
-          keys:
-          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
-          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
-
       - setup_sbt
-
       - setup_integration
-
       - build_n_tests
-
-      - update_cache
-
       - collect_test_reports
       - store_test_results:
           path: test-reports
@@ -177,12 +158,6 @@ jobs:
     
     steps:
       - checkout
-
-      - restore_cache:
-          keys:
-          - d-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
-          - tooling-{{ checksum ".ci_scripts/beforeInstall.sh" }}
-
       - setup_sbt
 
       - deploy:
@@ -203,8 +178,6 @@ jobs:
                     fi
                     
                     sbt +publish
-
-      - update_cache
 
 workflows:
   version: 2
