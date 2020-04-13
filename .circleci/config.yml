@@ -10,7 +10,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-          - sbt-{{ checksum "project/build.properties" }}
+          - &sbt_cache_key sbt-{{ checksum "project/build.properties" }}
 
       - run:
           name: Setup SBT
@@ -24,14 +24,14 @@ commands:
       - save_cache:
           paths:
             - ~/sbt
-          key: sbt-{{ checksum "project/build.properties" }}
+          key: *sbt_cache_key
 
   setup_integration:
     description: Setup integration environment
     steps:
       - restore_cache:
           keys:
-          - mongodb-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+          - &mongo_cache_key mongodb-{{ checksum ".ci_scripts/beforeInstall.sh" }}
 
       - run:
           name: Prepare integration environment
@@ -46,7 +46,7 @@ commands:
           paths:
             - ~/ssl
             - ~/mongodb-linux-x86_64-amazon-3.6.6
-          key: mongodb-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+          key: *mongo_cache_key
 
       - run:
           name: Start integration services
@@ -60,7 +60,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-          - scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - &scala_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
 
       - run:
           name: Build & Run tests
@@ -75,7 +75,7 @@ commands:
             - ~/.ivy2
             - ~/.coursier/cache
             - ~/.sbt
-          key: scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          key: *scala_cache_key
 
   collect_test_reports:
     description: Collect test reports
@@ -162,7 +162,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - &snapshot_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
 
       - deploy:
           name: Publish artifacts to Sonatype Snapshots
@@ -188,7 +188,19 @@ jobs:
             - ~/.ivy2
             - ~/.coursier/cache
             - ~/.sbt
-          key: scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          key: *snapshot_cache_key
+
+  trigger_dependent_builds:
+    docker:
+      - image: cimg/base:2020.01
+
+    working_directory: ~/repo
+
+    steps:
+      - run:
+          name: Trigger build @ Play-ReactiveMongo
+          command: |
+                    curl -X POST "https://circleci.com/api/v1.1/project/github/ReactiveMongo/Play-ReactiveMongo/build?circle-token=${PLAY_REACTIVEMONGO_API_TOKEN}"
 
 workflows:
   version: 2
@@ -198,8 +210,21 @@ workflows:
       - scala211_akka24
       - scala212_akka25
       - scala213_akka26
+
       - publish_snapshots:
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - scala211_akka24
             - scala212_akka25
             - scala213_akka26
+
+      - trigger_dependent_builds:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - publish_snapshots
