@@ -99,7 +99,7 @@ private[akkastream] final class DocumentStage[T](
           case Failure(reason: ReplyDocumentIteratorExhaustedException) =>
             fail(out, reason)
 
-          case Failure(reason @ CursorOps.Unrecoverable(_)) =>
+          case Failure(reason @ CursorOps.UnrecoverableException(_)) =>
             fail(out, reason)
 
           case Failure(reason) => err(last.flatMap(_._3), reason) match {

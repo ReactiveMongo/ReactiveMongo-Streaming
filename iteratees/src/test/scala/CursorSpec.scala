@@ -37,8 +37,8 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
       implicit val writer = PersonWriter
 
-      Future.sequence(fixtures.map(personColl.insert.one(_).map(_.ok))).
-        aka("fixtures") must beEqualTo(List(true, true, true, true, true)).
+      Future.sequence(fixtures.map(personColl.insert.one(_).map(_ => {}))).
+        aka("fixtures") must beTypedEqualTo(List((), (), (), (), ())).
         awaitFor(timeout)
     }
 
@@ -51,7 +51,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         val enumerator = cur.enumerator(10)
 
         (enumerator |>>> Iteratee.fold(0) { (r, _) => r + 1 }).
-          aka("read") must beEqualTo(0).awaitFor(timeout)
+          aka("read") must beTypedEqualTo(0).awaitFor(timeout)
       }
     }
 
