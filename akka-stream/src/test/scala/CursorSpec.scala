@@ -23,7 +23,7 @@ import reactivemongo.core.actors.Exceptions.ClosedException
 import reactivemongo.api.{ Cursor, DB }
 import reactivemongo.api.bson.collection.BSONCollection
 
-import reactivemongo.akkastream.AkkaStreamCursor
+import reactivemongo.akkastream.{ AkkaStreamCursor, Flows }
 
 import com.github.ghik.silencer.silent
 
@@ -35,15 +35,14 @@ final class CursorSpec(implicit ee: ExecutionEnv)
   sequential
 
   implicit val system = akka.actor.ActorSystem(
-    name = "reactivemongo-akkastream",
+    name = "reactivemongo-akkastream-cursor",
     defaultExecutionContext = Some(ee.ec))
 
   @silent
   implicit lazy val materializer = akka.stream.ActorMaterializer.create(system)
 
-  import Common.primaryHost
-  val db = Common.db
-  @inline def timeout = Common.timeout
+  import Common.{ primaryHost, timeout }
+  lazy val db = Common.db
 
   // Akka-Contrib issue with Akka-Stream > 2.5.4
   //import akka.stream.contrib.TestKit.assertAllStagesStopped
@@ -224,41 +223,38 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         )
 
         val coll = db[BSONCollection](s"akka10_${System identityHashCode ee}")
+        val flowBuilder = Flows(coll)
+        val flow = flowBuilder.insertMany[BSONDocument](1)
 
-        def insert(rem: Int, bulks: Seq[Future[Unit]]): Future[Unit] = {
-          if (rem == 0) {
-            Future.sequence(bulks).map(_ => {})
-          } else {
-            val len = if (rem < 256) rem else 256
-            val prepared = nDocs - rem
+        def insert() = {
+          val src = Source.unfold(nDocs) {
+            case 0 => None
 
-            def bulk = coll.insert.many(
-              for (i <- 0 until len) yield {
-                val n = i + prepared
-                BSONDocument("i" -> n, "record" -> s"record$n")
-              }).map(_ => {})
-
-            insert(rem - len, bulk +: bulks)
+            case rem => {
+              val n = nDocs - rem
+              Some((rem - 1) -> BSONDocument("i" -> n, "record" -> s"record$n"))
+            }
           }
+
+          src.grouped(256).via(flow).runWith(Sink.fold(0) { (c, r) => c + r.n })
         }
 
-        insert(nDocs, Seq.empty) must beTypedEqualTo({}).
-          await(1, moreTime) and {
-            import reactivemongo.akkastream.cursorProducer
-            val cursor: AkkaStreamCursor[BSONDocument] =
-              coll.find(BSONDocument.empty).cursor[BSONDocument]()
+        insert() must beTypedEqualTo(nDocs).await(1, moreTime) and {
+          import reactivemongo.akkastream.cursorProducer
+          val cursor: AkkaStreamCursor[BSONDocument] =
+            coll.find(BSONDocument.empty).cursor[BSONDocument]()
 
-            def src = cursor.documentSource()
-            val consume = Sink.fold[(Long, Long), BSONDocument](0L -> 0L) {
-              case ((count, n), doc) =>
-                val i = doc.int("i").get
-                (count + 1L) -> (n + i)
-            }
-
-            src.runWith(consume) must beTypedEqualTo(
-              nDocs.toLong -> 136397386L
-            ).await(1, moreTime)
+          def src = cursor.documentSource()
+          val consume = Sink.fold[(Long, Long), BSONDocument](0L -> 0L) {
+            case ((count, n), doc) =>
+              val i = doc.int("i").get
+              (count + 1L) -> (n + i)
           }
+
+          src.runWith(consume) must beTypedEqualTo(
+            nDocs.toLong -> 136397386L
+          ).await(1, moreTime)
+        }
       }
     }
 
@@ -400,7 +396,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       // ReactiveMongo extensions
       import reactivemongo.akkastream.cursorProducer
 
-      implicit def reader: reactivemongo.api.bson.BSONDocumentReader[Int] = IdReader
+      implicit def reader: BSONDocumentReader[Int] = IdReader
 
       val nDocs = 16517
       val coll = db(s"akka-large-1-${System identityHashCode db}")
@@ -409,26 +405,30 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         sort(BSONDocument("id" -> 1)).cursor[Int]()
 
       s"insert $nDocs records" in {
-        def insert(rem: Int, bulks: Seq[Future[Unit]]): Future[Unit] = {
-          if (rem == 0) {
-            Future.sequence(bulks).map(_ => {})
-          } else {
-            val len = if (rem < 256) rem else 256
-            val prepared = nDocs - rem
+        import scala.language.existentials
+        // Required for inference Flows(coll).insertManyUnordered
 
-            def bulk = coll.insert.many(
-              for (i <- 0 until len) yield {
-                val n = i + prepared
-                BSONDocument("id" -> n, "record" -> s"record$n")
-              }).map(_ => {})
+        val flow = Flows(coll).insertManyUnordered[BSONDocument](1)
 
-            insert(rem - len, bulk +: bulks)
+        def insert() = {
+          val src = Source.unfold(nDocs) {
+            case 0 => None
+
+            case rem => {
+              val n = nDocs - rem
+              Some((rem - 1) -> BSONDocument(
+                "id" -> n, "record" -> s"record$n"))
+            }
           }
+
+          src.grouped(256).via(flow).
+            runWith(Sink.fold(0) { (c, r) => c + r.n })
         }
 
-        insert(nDocs, Seq.empty).map { _ =>
+        insert().map { n =>
           //println(s"inserted $nDocs records")
-        } aka "fixtures" must beTypedEqualTo({}).awaitFor(timeout)
+          n
+        } aka "fixtures" must beTypedEqualTo(nDocs).awaitFor(timeout)
       }
 
       "using a fold sink" in assertAllStagesStopped {
