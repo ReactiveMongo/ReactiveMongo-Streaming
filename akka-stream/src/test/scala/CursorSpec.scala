@@ -626,8 +626,9 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           }
 
           def cursor = col.aggregatorContext[Int](
-            Match(BSONDocument("id" -> BSONDocument("$gte" -> 3))),
-            List(Sort(Ascending("id")))
+            pipeline = List(
+              Match(BSONDocument("id" -> BSONDocument("$gte" -> 3))),
+              Sort(Ascending("id")))
           ).prepared[AkkaStreamCursor.WithOps].cursor
 
           cursor

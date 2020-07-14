@@ -100,7 +100,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       }
 
       insert(nDocs, Seq.empty) must beEqualTo({}).awaitFor(20.seconds)
-    } tag "wip"
+    }
 
     "enumerate" >> {
       s"all the $nDocs documents" in {
