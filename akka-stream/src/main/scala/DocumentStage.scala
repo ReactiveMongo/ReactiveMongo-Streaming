@@ -95,7 +95,7 @@ private[akkastream] final class DocumentStage[T](
       }
 
       private def nextD(r: Response, bulk: Iterator[T]): Unit = {
-        Try(bulk.next) match {
+        Try(bulk.next()) match {
           case Failure(reason: ReplyDocumentIteratorExhaustedException) =>
             fail(out, reason)
 
