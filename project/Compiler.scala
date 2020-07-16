@@ -12,19 +12,23 @@ object Compiler {
 
     }
 
+  private val silencerVer = Def.setting[String] {
+    if (scalaBinaryVersion.value == "2.11") "1.4.4"
+    else "1.7.0"
+  }
+
   lazy val settings = Seq(
     unmanagedSourceDirectories in Compile ++= {
       unmanaged(scalaVersion.value, (sourceDirectory in Compile).value)
     },
     libraryDependencies in ThisBuild ++= {
-      val silencerVer = "1.4.4"
-      val v = scalaVersion.value
+      val v = silencerVer.value
 
       Seq(
         compilerPlugin(
-          ("com.github.ghik" %% "silencer-plugin" % silencerVer).
+          ("com.github.ghik" %% "silencer-plugin" % v).
             cross(CrossVersion.full)),
-        ("com.github.ghik" %% "silencer-lib" % silencerVer % Provided).
+        ("com.github.ghik" %% "silencer-lib" % v % Provided).
           cross(CrossVersion.full))
     },
     scalacOptions ++= Seq(

@@ -2,9 +2,9 @@ import Dependencies._
 
 organization in ThisBuild := "org.reactivemongo"
 
-scalaVersion in ThisBuild := "2.12.10"
+scalaVersion in ThisBuild := "2.12.11"
 
-crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value, "2.13.1")
+crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value, "2.13.3")
 
 crossVersion in ThisBuild := CrossVersion.binary
 
@@ -13,8 +13,6 @@ resolvers in ThisBuild ++= Seq(
   Resolver.sonatypeRepo("staging"),
   "Tatami Snapshots".at(
     "https://raw.github.com/cchantep/tatami/master/snapshots"))
-
-Scapegoat.settings
 
 ThisBuild / mimaPreviousArtifacts := {
   if (scalaBinaryVersion.value == "2.13") Set.empty[ModuleID]

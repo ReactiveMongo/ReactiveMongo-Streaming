@@ -69,16 +69,16 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         val sub = c.expectSubscription()
         sub.request(3)
 
-        c.expectNext.toList aka "bulk #1" must_=== List(0, 1, 2) and {
-          c.expectNext.toList aka "bulk #2" must_=== List(3, 4, 5)
+        c.expectNext().toList aka "bulk #1" must_=== List(0, 1, 2) and {
+          c.expectNext().toList aka "bulk #2" must_=== List(3, 4, 5)
         } and {
-          c.expectNext.toList aka "bulk #3" must_=== List(6, 7, 8)
+          c.expectNext().toList aka "bulk #3" must_=== List(6, 7, 8)
         } and {
           expectNoMsg(c, 200.millis) must not(throwA[Throwable])
         } and {
           sub.request(2) must not(throwA[Throwable])
         } and {
-          c.expectNext.toList aka "bulk #4" must_=== List(9)
+          c.expectNext().toList aka "bulk #4" must_=== List(9)
         } and {
           c.expectComplete() aka "completed" must not(throwA[Throwable])
         }
@@ -185,32 +185,32 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         val sub = c.expectSubscription()
         sub.request(4)
 
-        c.expectNext aka "document #1" must_=== 0 and {
-          c.expectNext aka "document #2" must_=== 1
+        c.expectNext() aka "document #1" must_=== 0 and {
+          c.expectNext() aka "document #2" must_=== 1
         } and {
-          c.expectNext aka "document #3" must_=== 2
+          c.expectNext() aka "document #3" must_=== 2
         } and {
-          c.expectNext aka "document #4" must_=== 3
+          c.expectNext() aka "document #4" must_=== 3
         } and {
           expectNoMsg(c, 200.millis) must not(throwA[Throwable])
         } and {
           sub.request(5) must not(throwA[Throwable])
         } and {
-          c.expectNext aka "document #5" must_=== 4
+          c.expectNext() aka "document #5" must_=== 4
         } and {
-          c.expectNext aka "document #6" must_=== 5
+          c.expectNext() aka "document #6" must_=== 5
         } and {
-          c.expectNext aka "document #7" must_=== 6
+          c.expectNext() aka "document #7" must_=== 6
         } and {
-          c.expectNext aka "document #8" must_=== 7
+          c.expectNext() aka "document #8" must_=== 7
         } and {
-          c.expectNext aka "document #9" must_=== 8
+          c.expectNext() aka "document #9" must_=== 8
         } and {
           expectNoMsg(c, 500.millis) must not(throwA[Throwable])
         } and {
           sub.request(2) must not(throwA[Throwable])
         } and {
-          c.expectNext aka "document #10" must_=== 9
+          c.expectNext() aka "document #10" must_=== 9
         } and {
           c.expectComplete() aka "completed" must not(throwA[Throwable])
         }
@@ -288,22 +288,22 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         val sub = c.expectSubscription()
         sub.request(2)
 
-        c.expectNext aka "document #1" must_=== 0 and {
-          c.expectNext aka "document #2" must_=== 1
+        c.expectNext() aka "document #1" must_=== 0 and {
+          c.expectNext() aka "document #2" must_=== 1
         } and {
           expectNoMsg(c, 200.millis) must not(throwA[Throwable])
         } and {
           sub.request(5) must not(throwA[Throwable])
         } and {
-          c.expectNext aka "document #3" must_=== 2
+          c.expectNext() aka "document #3" must_=== 2
         } and {
-          c.expectNext aka "document #4" must_=== 3
+          c.expectNext() aka "document #4" must_=== 3
         } and {
-          c.expectNext aka "document #5" must_=== 4
+          c.expectNext() aka "document #5" must_=== 4
         } and {
-          c.expectNext aka "document #6" must_=== 5
+          c.expectNext() aka "document #6" must_=== 5
         } and {
-          c.expectNext aka "document #7" must_=== 6
+          c.expectNext() aka "document #7" must_=== 6
         } and {
           c.expectComplete() aka "completed" must not(throwA[Throwable])
         }
@@ -336,7 +336,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
       "by stopping with the Done handler" in {
         assertAllStagesStopped {
-          val drv = Common.newDriver
+          val drv = Common.newDriver()
 
           def col(n: String) = for {
             c <- drv.connect(List(primaryHost))
@@ -452,10 +452,10 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
           (0 until nDocs).foldLeft(-1) { (prev, _) =>
             val expected = prev + 1
-            val i = c.expectNext
+            val i = c.expectNext()
             if (expected == i) expected else -1
           } aka "fold result" must beTypedEqualTo(16516) and {
-            c.expectComplete aka "completed" must not(throwA[Throwable])
+            c.expectComplete() aka "completed" must not(throwA[Throwable])
           }
         }
 
@@ -471,18 +471,18 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
           (0 until half).foldLeft(-1) { (prev, _) =>
             val expected = prev + 1
-            val i = c.expectNext
+            val i = c.expectNext()
             if (expected == i) expected else -1
           } aka "fold result #1" must beTypedEqualTo(8257) and {
             expectNoMsg(c, 200.millis) must not(throwA[Throwable])
           } and {
             sub.request(3) must not(throwA[Throwable])
           } and {
-            c.expectNext must_=== 8258
+            c.expectNext() must_=== 8258
           } and {
-            c.expectNext must_=== 8259
+            c.expectNext() must_=== 8259
           } and {
-            c.expectNext must_=== 8260
+            c.expectNext() must_=== 8260
           } and {
             expectNoMsg(c, 500.millis) must not(throwA[Throwable])
           } and {
@@ -490,11 +490,11 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           } and {
             (0 to (half - 3)).foldLeft(8260) { (prev, _) =>
               val expected = prev + 1
-              val i = c.expectNext
+              val i = c.expectNext()
               if (expected == i) expected else -1
             } aka "fold result #2" must beTypedEqualTo(16516)
           } and {
-            c.expectComplete aka "completed" must not(throwA[Throwable])
+            c.expectComplete() aka "completed" must not(throwA[Throwable])
           }
         }
       }

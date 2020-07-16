@@ -80,7 +80,7 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
         def consume() = streams.source(actual).
           runWith(Sink.fold(Seq.newBuilder[Byte]) { _ ++= _ })
 
-        consume.map(_.result().toArray).
+        consume().map(_.result().toArray).
           aka("consumed") must beTypedEqualTo(content).await(1, timeout)
       }
 
