@@ -5,11 +5,6 @@ name := "reactivemongo-akkastream"
 // See https://github.com/scala/bug/issues/11880#issuecomment-583682673
 Test / scalacOptions += "-no-specialization"
 
-resolvers ++= Seq(
-  Resolver.sonatypeRepo("snapshots"),
-  // For Akka Stream Contrib TestKit
-  "Tatami Snapshot" at "https://raw.github.com/cchantep/tatami/master/snapshots")
-
 lazy val akkaVer = Def.setting[String] {
   sys.env.get("AKKA_VERSION").getOrElse {
     if (scalaBinaryVersion.value == "2.11") "2.4.10"
@@ -28,9 +23,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer.value % Test,
   "com.typesafe.akka" %% "akka-stream-contrib" % akkaContribVer.value % Test
 )
-
-libraryDependencies ++= Seq(
-    organization.value %% "reactivemongo-bson-compat" % Common.driverVersion.value % Test)
 
 // MiMa
 mimaBinaryIssueFilters ++= {
