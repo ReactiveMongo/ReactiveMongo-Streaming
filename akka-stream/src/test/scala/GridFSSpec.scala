@@ -5,11 +5,12 @@ import akka.util.ByteString
 import akka.stream.scaladsl.{ Sink, Source }
 
 import reactivemongo.api.bson._
-import reactivemongo.bson.utils.Converters
 
 import reactivemongo.api.gridfs.FileToSave
 
 import reactivemongo.akkastream.GridFSStreams
+
+import org.apache.commons.codec.digest.DigestUtils.md5Hex
 
 import org.specs2.concurrent.ExecutionEnv
 
@@ -86,11 +87,10 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
 
       find(filename1) aka "file #1" must beSome[GFile].which { actual =>
         val bytes1 = content1.toArray
-        def expectedMd5 = Converters.hex2Str(Converters.md5(bytes1))
 
         matchFile(actual, file1, bytes1) and {
           actual.md5 must beSome[String].which {
-            _ aka "MD5" must_== expectedMd5
+            _ aka "MD5" must_=== md5Hex(bytes1)
           }
         }
       }.await(1, timeout)
