@@ -46,7 +46,7 @@ object Common extends AutoPlugin {
 
       rmDeps ++ (Seq(
         "specs2-core", "specs2-junit").map(
-        "org.specs2" %% _ % "4.10.0" % Test) ++ Seq(
+        "org.specs2" %% _ % "4.10.1" % Test) ++ Seq(
         Dependencies.slf4jSimple % Test))
     }
   ) ++ Format.settings ++ Publish.settings ++ (
