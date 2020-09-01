@@ -19,7 +19,7 @@ val akkaContribVer = Def.setting[String] {
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % akkaVer.value,
-  "commons-codec" % "commons-codec" % "1.14" % Test,
+  "commons-codec" % "commons-codec" % "1.15" % Test,
   "com.typesafe.akka" %% "akka-slf4j" % akkaVer.value % Test,
   "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer.value % Test,
   "com.typesafe.akka" %% "akka-stream-contrib" % akkaContribVer.value % Test
