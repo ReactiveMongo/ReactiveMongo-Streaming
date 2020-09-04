@@ -13,7 +13,7 @@ object Compiler {
     }
 
   private val silencerVer = Def.setting[String] {
-    if (scalaBinaryVersion.value == "2.11") "1.4.4"
+    if (scalaBinaryVersion.value == "2.11") "1.7.1"
     else "1.7.0"
   }
 
