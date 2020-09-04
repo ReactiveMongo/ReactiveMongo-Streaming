@@ -12,10 +12,7 @@ object Compiler {
 
     }
 
-  private val silencerVer = Def.setting[String] {
-    if (scalaBinaryVersion.value == "2.11") "1.7.1"
-    else "1.7.0"
-  }
+  private val silencerVer = Def.setting[String]("1.7.1")
 
   lazy val settings = Seq(
     unmanagedSourceDirectories in Compile ++= {
