@@ -101,7 +101,7 @@ object Publish {
 
   @inline def env(n: String): String = sys.env.get(n).getOrElse(n)
 
-  val previousVersion = "1.0.0-rc.1-SNAPSHOT"
+  val previousVersion = "1.0.0"
   val majorVersion = "1.0"
   lazy val repoName = env("PUBLISH_REPO_NAME")
   lazy val repoUrl = env("PUBLISH_REPO_URL")
