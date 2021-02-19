@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.3.13"
+        default: "1.4.7"
     steps:
       - restore_cache:
           keys:
@@ -119,7 +119,7 @@ jobs:
     environment:
       AKKA_VERSION: 2.5.23
       ITERATEES_VERSION: 2.6.1
-      SCALA_VERSION: 2.12.11
+      SCALA_VERSION: 2.12.12
     
     steps:
       - checkout
@@ -139,7 +139,7 @@ jobs:
     environment:
       AKKA_VERSION: 2.6.0
       ITERATEES_VERSION: no
-      SCALA_VERSION: 2.13.3
+      SCALA_VERSION: 2.13.4
     
     steps:
       - checkout
@@ -175,8 +175,9 @@ jobs:
                     V=`sbt 'show version' 2>&1 | tail -n 2 | cut -d ']' -f 2 | grep SNAPSHOT | sed -e 's/[ \t]*//g'`
 
                     if [ `echo "$V" | grep -- '-SNAPSHOT' | wc -l` -eq 0 ]; then
-                      echo "Cannot publish release $V"
-                      exit 0
+                      S=`echo "$V" | perl -pe 's/([0-9]+)$/${\($1 + 1)}-SNAPSHOT/'`
+                      echo "Cannot bump $V to $S"
+                      echo "version in ThisBuild := \"$S\"" > version.sbt
                     fi
                     
                     export PUBLISH_REPO_NAME="Sonatype Nexus Repository Manager"
