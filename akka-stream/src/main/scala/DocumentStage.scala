@@ -7,6 +7,7 @@ import scala.util.{ Failure, Success, Try }
 import akka.stream.{ Attributes, Outlet, SourceShape }
 import akka.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
 
+import reactivemongo.core.errors.GenericDriverException
 import reactivemongo.core.protocol.{
   ReplyDocumentIteratorExhaustedException,
   Response
@@ -75,7 +76,7 @@ private[akkastream] final class DocumentStage[T](
           cursor.wrappee killCursor r.reply.cursorID
         } catch {
           case reason: Exception => logger.warn(
-            s"fails to kill the cursor (${r.reply.cursorID})", reason
+            s"Fails to kill the cursor (${r.reply.cursorID})", reason
           )
         }
 
@@ -88,9 +89,15 @@ private[akkastream] final class DocumentStage[T](
         killLast()
 
         err(previous, reason) match {
-          case Cursor.Cont(_)     => onPull()
-          case Cursor.Fail(error) => fail(out, error)
-          case Cursor.Done(_)     => completeStage()
+          case Cursor.Cont(_) => onPull()
+          case Cursor.Done(_) => completeStage()
+
+          case Cursor.Fail(error) =>
+            fail(out, error)
+
+          case _ =>
+            fail(out, new GenericDriverException("Erroneous cursor"))
+
         }
       }
 
@@ -115,8 +122,14 @@ private[akkastream] final class DocumentStage[T](
               completeStage()
             }
 
-            case Done(_)     => completeStage()
-            case Fail(cause) => fail(out, cause)
+            case Done(_) =>
+              completeStage()
+
+            case Fail(cause) =>
+              fail(out, cause)
+
+            case _ =>
+              fail(out, new GenericDriverException("Erroneous cursor"))
           }
 
           case Success(v) => {
