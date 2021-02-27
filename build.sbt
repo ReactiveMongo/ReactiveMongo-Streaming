@@ -4,7 +4,7 @@ organization in ThisBuild := "org.reactivemongo"
 
 scalaVersion in ThisBuild := "2.12.12"
 
-crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value, "2.13.4")
+crossScalaVersions in ThisBuild := Seq("2.13.5", scalaVersion.value, "2.13.4")
 
 crossVersion in ThisBuild := CrossVersion.binary
 
