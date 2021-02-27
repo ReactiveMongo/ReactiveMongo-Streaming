@@ -29,7 +29,7 @@ export JVM_OPTS
 TEST_ARGS=";error ;test:compile ;findbugs ;mimaReportBinaryIssues "
 TEST_ARGS="$TEST_ARGS ;warn ;testOnly ;doc"
 
-if [ "v$SCALA_VERSION" = "v2.12.11" ]; then
+if [ "v$SCALA_VERSION" = "v2.12.13" ]; then
     TEST_ARGS=";scapegoat $TEST_ARGS"
 fi
 
