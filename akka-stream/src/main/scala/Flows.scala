@@ -2,6 +2,8 @@ package reactivemongo.akkastream
 
 import scala.concurrent.{ ExecutionContext, Future }
 
+import com.github.ghik.silencer.silent
+
 import reactivemongo.util.sameThreadExecutionContext
 
 import reactivemongo.api.{ SerializationPack, WriteConcern }
@@ -346,20 +348,18 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }
    * }}}
    */
+  @silent
   def updateOne[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
     bypassDocumentValidation: Boolean = false
   )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[T, collection.UpdateWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
-    implicit def iw = collection.pack.IdentityWriter
 
     Flow[T].named(s"${collection.name}.updateOne").mapAsync(parallelism) { v =>
       implicit def ec: ExecutionContext = sameThreadExecutionContext
 
-      element(builder, v).flatMap { e =>
-        builder.one(e.q, e.u, e.upsert, e.multi, e.collation, e.arrayFilters)
-      }
+      element(builder, v).flatMap(builder.one(_))
     }
   }
 
@@ -401,21 +401,19 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }
    * }}}
    */
+  @silent
   def updateOneUnordered[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
     bypassDocumentValidation: Boolean = false
   )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[T, collection.UpdateWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
-    implicit def iw = collection.pack.IdentityWriter
 
     Flow[T].named(s"${collection.name}.updateOneUnordered").
       mapAsyncUnordered(parallelism) { v =>
         implicit def ec: ExecutionContext = sameThreadExecutionContext
 
-        element(builder, v).flatMap { e =>
-          builder.one(e.q, e.u, e.upsert, e.multi, e.collation, e.arrayFilters)
-        }
+        element(builder, v).flatMap(builder.one(_))
       }
   }
 
