@@ -1,22 +1,18 @@
 import scala.concurrent.Future
 
-import akka.NotUsed
-
-import akka.stream.{ ActorAttributes, Supervision }
-import akka.stream.scaladsl.{ Flow, Sink, Source }
-
-import org.specs2.concurrent.ExecutionEnv
-
 import reactivemongo.api.bson.{ BSON, BSONDocument, BSONDocumentWriter }
-
 import reactivemongo.api.bson.collection.{
   BSONCollection,
   BSONSerializationPack
 }
 
-import reactivemongo.akkastream.Flows
+import org.specs2.concurrent.ExecutionEnv
 
+import akka.NotUsed
+import akka.stream.{ ActorAttributes, Supervision }
+import akka.stream.scaladsl.{ Flow, Sink, Source }
 import com.github.ghik.silencer.silent
+import reactivemongo.akkastream.Flows
 
 final class FlowSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification {
@@ -192,10 +188,10 @@ final class FlowSpec(implicit ee: ExecutionEnv)
   // ---
 
   case class UpElmt(
-      q: BSONDocument,
-      u: BSONDocument,
-      multi: Boolean,
-      upsert: Boolean)
+    q: BSONDocument,
+    u: BSONDocument,
+    multi: Boolean,
+    upsert: Boolean)
 
   "Bulk update flow" should {
     type TestBuilder = FlowBuilder => ((String, Int) => UpElmt) => Flow[Iterable[(String, Int)], Int, NotUsed]
@@ -204,8 +200,7 @@ final class FlowSpec(implicit ee: ExecutionEnv)
       def spec(
         coll: BSONCollection,
         decider: Supervision.Decider = Supervision.stoppingDecider)(
-        f: (String, Int) => UpElmt
-      ): Future[Int] = {
+        f: (String, Int) => UpElmt): Future[Int] = {
         val builder = Flows(coll)
         val flow = tb(builder)(f).
           withAttributes(ActorAttributes.supervisionStrategy(decider))
@@ -327,8 +322,7 @@ final class FlowSpec(implicit ee: ExecutionEnv)
       def spec(
         coll: BSONCollection,
         decider: Supervision.Decider = Supervision.stoppingDecider)(
-        f: (String, Int) => UpElmt
-      ): Future[Int] = {
+        f: (String, Int) => UpElmt): Future[Int] = {
         val builder = Flows(coll)
         val flow = tb(builder)(f).
           withAttributes(ActorAttributes.supervisionStrategy(decider))

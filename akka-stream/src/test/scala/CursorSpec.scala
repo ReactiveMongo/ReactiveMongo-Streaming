@@ -1,31 +1,25 @@
-import java.util.concurrent.TimeoutException
 import java.util.concurrent.TimeUnit.MILLISECONDS
+import java.util.concurrent.TimeoutException
 
 import scala.util.{ Failure, Try }
 
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
-// Reactive streams imports
-import org.reactivestreams.Publisher
+import reactivemongo.api.bson.{ BSONDocument, BSONDocumentReader }
+import reactivemongo.api.bson.collection.BSONCollection
 
-import akka.stream.KillSwitches
-import akka.stream.scaladsl.{ Keep, Sink, Source }
-
-import akka.stream.testkit.TestSubscriber
+import reactivemongo.api.{ Cursor, DB }
 
 import org.specs2.concurrent.ExecutionEnv
 
-import reactivemongo.api.bson.{ BSONDocument, BSONDocumentReader }
-
-import reactivemongo.core.actors.Exceptions.ClosedException
-
-import reactivemongo.api.{ Cursor, DB }
-import reactivemongo.api.bson.collection.BSONCollection
-
-import reactivemongo.akkastream.{ AkkaStreamCursor, Flows }
-
+import akka.stream.KillSwitches
+import akka.stream.scaladsl.{ Keep, Sink, Source }
+import akka.stream.testkit.TestSubscriber
 import com.github.ghik.silencer.silent
+import org.reactivestreams.Publisher
+import reactivemongo.akkastream.{ AkkaStreamCursor, Flows }
+import reactivemongo.core.actors.Exceptions.ClosedException
 
 final class CursorSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification with CursorFixtures {
@@ -102,10 +96,8 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           }
 
           Await.result(
-            cursor1("source10")(col).bulkSource() runWith sink, timeout
-          ) aka "result" must throwA[ClosedException](
-              "This MongoConnection is closed"
-            )
+            cursor1("source10")(col).bulkSource() runWith sink, timeout) aka "result" must throwA[ClosedException](
+              "This MongoConnection is closed")
         }
       }
 
@@ -126,13 +118,11 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           @volatile var err = Option.empty[Throwable]
 
           cursor1("source11")(col).bulkSource(
-            err = Cursor.DoneOnError { (_, e) => err = Some(e) }
-          ).runWith(sink) must beTypedEqualTo(2).awaitFor(timeout) and {
+            err = Cursor.DoneOnError { (_, e) => err = Some(e) }).runWith(sink) must beTypedEqualTo(2).awaitFor(timeout) and {
               err must beSome[Throwable].like {
                 case reason: ClosedException =>
                   reason.getMessage must beMatching(
-                    ".*This MongoConnection is closed.*"
-                  )
+                    ".*This MongoConnection is closed.*")
               }
             }
         }
@@ -154,13 +144,11 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         @volatile var err = Option.empty[Throwable]
 
         Await.result(cursor1("source12")(col).bulkSource(
-          err = Cursor.ContOnError { (_, e) => err = Some(e) }
-        ).runWith(sink), timeout) must_=== 3 and {
+          err = Cursor.ContOnError { (_, e) => err = Some(e) }).runWith(sink), timeout) must_=== 3 and {
           err must beSome[Throwable].like {
             case reason: ClosedException =>
               reason.getMessage must beMatching(
-                ".*This MongoConnection is closed.*"
-              )
+                ".*This MongoConnection is closed.*")
           }
         }
       }
@@ -219,8 +207,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       val nDocs = 16517
       s"insert $nDocs records" in {
         val moreTime = FiniteDuration(
-          timeout.toMillis * nDocs / 2, MILLISECONDS
-        )
+          timeout.toMillis * nDocs / 2, MILLISECONDS)
 
         val coll = db[BSONCollection](s"akka10_${System identityHashCode ee}")
         val flowBuilder = Flows(coll)
@@ -252,8 +239,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           }
 
           src.runWith(consume) must beTypedEqualTo(
-            nDocs.toLong -> 136397386L
-          ).await(1, moreTime)
+            nDocs.toLong -> 136397386L).await(1, moreTime)
         }
       }
     }
@@ -327,10 +313,8 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           }
 
           Await.result(
-            cursor1("source17")(col).documentSource() runWith sink, timeout
-          ) aka "result" must throwA[ClosedException](
-              "This MongoConnection is closed"
-            )
+            cursor1("source17")(col).documentSource() runWith sink, timeout) aka "result" must throwA[ClosedException](
+              "This MongoConnection is closed")
         }
       }
 
@@ -351,14 +335,12 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           @volatile var err = Option.empty[Throwable]
 
           cursor1("source18")(col).documentSource(
-            err = Cursor.DoneOnError { (_, e) => err = Some(e) }
-          ).runWith(sink) must beTypedEqualTo(3 /* = bulk size */ ).
+            err = Cursor.DoneOnError { (_, e) => err = Some(e) }).runWith(sink) must beTypedEqualTo(3 /* = bulk size */ ).
             awaitFor(timeout) and {
               err must beSome[Throwable].like {
                 case reason: ClosedException =>
                   reason.getMessage must beMatching(
-                    ".*This MongoConnection is closed.*"
-                  )
+                    ".*This MongoConnection is closed.*")
               }
             }
         }
@@ -380,13 +362,11 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         @volatile var err = Option.empty[Throwable]
 
         Await.result(cursor1("source19")(col).documentSource(
-          err = Cursor.ContOnError { (_, e) => err = Some(e) }
-        ).runWith(sink), timeout) must_=== 3 and {
+          err = Cursor.ContOnError { (_, e) => err = Some(e) }).runWith(sink), timeout) must_=== 3 and {
           err must beSome[Throwable].like {
             case reason: ClosedException =>
               reason.getMessage must beMatching(
-                ".*This MongoConnection is closed.*"
-              )
+                ".*This MongoConnection is closed.*")
           }
         }
       }
@@ -575,8 +555,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           swtch.shutdown()
           res
         } must beSuccessfulTry(
-          List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-        )
+          List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
       }
     }
 
@@ -603,8 +582,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           swtch.shutdown()
           res
         } must beSuccessfulTry(
-          List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-        )
+          List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
       }
     }
   }
@@ -628,13 +606,11 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           def cursor = col.aggregatorContext[Int](
             pipeline = List(
               Match(BSONDocument("id" -> BSONDocument("$gte" -> 3))),
-              Sort(Ascending("id")))
-          ).prepared[AkkaStreamCursor.WithOps].cursor
+              Sort(Ascending("id")))).prepared[AkkaStreamCursor.WithOps].cursor
 
           cursor
         }).documentSource()) must beTypedEqualTo(
-          expectedSeq.filter(_ >= 3)
-        ).awaitFor(timeout)
+          expectedSeq.filter(_ >= 3)).awaitFor(timeout)
       }
     }
   }

@@ -2,7 +2,7 @@ import com.typesafe.tools.mima.core._, ProblemFilters._
 
 name := "reactivemongo-iteratees"
 
-scalacOptions in Test ++= Seq(
+Test / scalacOptions ++= Seq(
   "-P:silencer:globalFilters=Use\\ reactivemongo-bson-api")
 
 sourceDirectory := {
@@ -80,4 +80,4 @@ mimaBinaryIssueFilters ++= {
 apiURL := Some(url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/iteratees/api/"))
 
 // Tests
-fork in Test := true
+Test / fork := true

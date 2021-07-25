@@ -1,14 +1,14 @@
 import Dependencies._
 
-organization in ThisBuild := "org.reactivemongo"
+ThisBuild / organization := "org.reactivemongo"
 
-scalaVersion in ThisBuild := "2.12.13"
+ThisBuild / scalaVersion := "2.12.13"
 
-crossScalaVersions in ThisBuild := Seq("2.11.12", scalaVersion.value, "2.13.6")
+ThisBuild / crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.6")
 
-crossVersion in ThisBuild := CrossVersion.binary
+crossVersion := CrossVersion.binary
 
-resolvers in ThisBuild ++= Seq(
+ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   Resolver.sonatypeRepo("staging"),
   "Tatami Snapshots".at(
@@ -32,7 +32,7 @@ lazy val streaming = (project in file(".")).settings(
     mimaPreviousArtifacts := Set.empty,
     mimaFailOnNoPrevious := false,
     libraryDependencies += reactiveMongo % version.value % Provided,
-    scalacOptions in (Compile, doc) ++= List(
+    Compile / doc / scalacOptions ++= List(
       "-skip-packages", "highlightextractor"),
   ) ++ Travis.settings ++ Release.settings
 ).dependsOn(iteratees, `akka-stream`).

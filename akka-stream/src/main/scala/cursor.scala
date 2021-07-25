@@ -8,12 +8,13 @@ import reactivemongo.api.{
   FlattenedCursor,
   WrappedCursor,
   WrappedCursorOps
-}, Cursor.{ ErrorHandler, FailOnError }
-
-import org.reactivestreams.Publisher
+}
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.{ Sink, Source }
+import org.reactivestreams.Publisher
+
+import Cursor.{ ErrorHandler, FailOnError }
 
 /** For future extension */
 sealed trait State {}
@@ -80,8 +81,7 @@ object AkkaStreamCursor {
 }
 
 private[akkastream] final class AkkaStreamCursorImpl[T](
-    val wrappee: Cursor.WithOps[T]
-) extends WrappedCursor[T] with WrappedCursorOps[T] with AkkaStreamCursor[T] {
+  val wrappee: Cursor.WithOps[T]) extends WrappedCursor[T] with WrappedCursorOps[T] with AkkaStreamCursor[T] {
   @inline def opsWrappee = wrappee
 
   def bulkSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[Iterator[T]]] = FailOnError())(implicit m: Materializer): Source[Iterator[T], Future[State]] = {
@@ -89,9 +89,7 @@ private[akkastream] final class AkkaStreamCursorImpl[T](
 
     Source.fromGraph(
       new ResponseStage[T, Iterator[T]](
-        this, maxDocs, wrappee.documentIterator(_), err
-      )
-    ).mapMaterializedValue(_ => State.materialized)
+        this, maxDocs, wrappee.documentIterator(_), err)).mapMaterializedValue(_ => State.materialized)
   }
 
   def documentSource(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Option[T]] = FailOnError())(implicit m: Materializer): Source[T, Future[State]] = {
@@ -103,8 +101,7 @@ private[akkastream] final class AkkaStreamCursorImpl[T](
 }
 
 final class AkkaStreamFlattenedCursor[T](
-    cursor: Future[AkkaStreamCursor[T]]
-) extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
+  cursor: Future[AkkaStreamCursor[T]]) extends FlattenedCursor[T](cursor) with AkkaStreamCursor[T] {
 
   import com.github.ghik.silencer.silent
 

@@ -1,17 +1,15 @@
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.FiniteDuration
 
-import play.api.libs.iteratee._
-
 import reactivemongo.api.bson.{ BSONDocument, BSONValue }
-
 import reactivemongo.api.bson.collection.BSONSerializationPack
 
 import reactivemongo.api.gridfs.ReadFile
 
-import reactivemongo.play.iteratees.{ GridFS, tests }
-
 import org.specs2.concurrent.ExecutionEnv
+
+import play.api.libs.iteratee._
+import reactivemongo.play.iteratees.{ tests, GridFS }
 
 final class GridFSSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification
@@ -26,8 +24,7 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
   lazy val db = {
     val _db = Common.connection.database(
       s"iteratees-gridfs-${System identityHashCode this}",
-      Common.failoverStrategy
-    )
+      Common.failoverStrategy)
 
     Await.result(_db.flatMap { d => d.drop.map(_ => d) }, Common.timeout)
   }

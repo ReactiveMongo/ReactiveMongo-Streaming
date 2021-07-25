@@ -1,23 +1,23 @@
 package reactivemongo.akkastream
 
+import scala.util.{ Failure, Success, Try }
+
 import scala.concurrent.{ ExecutionContext, Future }
 
-import scala.util.{ Failure, Success, Try }
+import reactivemongo.api.Cursor
 
 import akka.stream.{ Attributes, Outlet, SourceShape }
 import akka.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
-
 import reactivemongo.core.errors.GenericDriverException
 import reactivemongo.core.protocol.Response
 
-import reactivemongo.api.Cursor, Cursor.ErrorHandler
+import Cursor.ErrorHandler
 
 private[akkastream] final class ResponseStage[T, Out](
-    cursor: AkkaStreamCursorImpl[T],
-    maxDocs: Int,
-    suc: Response => Out,
-    err: ErrorHandler[Option[Out]]
-)(implicit ec: ExecutionContext)
+  cursor: AkkaStreamCursorImpl[T],
+  maxDocs: Int,
+  suc: Response => Out,
+  err: ErrorHandler[Option[Out]])(implicit ec: ExecutionContext)
   extends GraphStage[SourceShape[Out]] {
 
   override val toString = "ReactiveMongoResponse"
@@ -27,8 +27,7 @@ private[akkastream] final class ResponseStage[T, Out](
   private val nextResponse = cursor.nextResponse(maxDocs)
 
   private val logger = reactivemongo.util.LazyLogger(
-    "reactivemongo.akkastream.ResponseStage"
-  )
+    "reactivemongo.akkastream.ResponseStage")
 
   @inline
   private def next(r: Response): Future[Option[Response]] = nextResponse(ec, r)
@@ -67,8 +66,7 @@ private[akkastream] final class ResponseStage[T, Out](
           cursor.wrappee killCursor r.reply.cursorID
         } catch {
           case reason: Exception => logger.warn(
-            s"fails to kill the cursor (${r.reply.cursorID})", reason
-          )
+            s"fails to kill the cursor (${r.reply.cursorID})", reason)
         }
 
         last = None

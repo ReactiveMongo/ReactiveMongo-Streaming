@@ -1,6 +1,7 @@
 package reactivemongo.play
 
 import scala.concurrent.Future
+
 import reactivemongo.api.{ Cursor, CursorProducer }
 
 package object iteratees {
