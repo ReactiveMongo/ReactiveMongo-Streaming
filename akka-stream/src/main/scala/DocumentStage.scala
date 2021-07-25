@@ -1,27 +1,28 @@
 package reactivemongo.akkastream
 
+import scala.util.{ Failure, Success, Try }
+
 import scala.concurrent.{ ExecutionContext, Future }
 
-import scala.util.{ Failure, Success, Try }
+import reactivemongo.api.{
+  Cursor,
+  CursorOps
+}
 
 import akka.stream.{ Attributes, Outlet, SourceShape }
 import akka.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
-
 import reactivemongo.core.errors.GenericDriverException
 import reactivemongo.core.protocol.{
   ReplyDocumentIteratorExhaustedException,
   Response
 }
-import reactivemongo.api.{
-  Cursor,
-  CursorOps
-}, Cursor.{ Cont, Done, ErrorHandler, Fail }
+
+import Cursor.{ Cont, Done, ErrorHandler, Fail }
 
 private[akkastream] final class DocumentStage[T](
-    cursor: AkkaStreamCursorImpl[T],
-    maxDocs: Int,
-    err: ErrorHandler[Option[T]]
-)(implicit ec: ExecutionContext)
+  cursor: AkkaStreamCursorImpl[T],
+  maxDocs: Int,
+  err: ErrorHandler[Option[T]])(implicit ec: ExecutionContext)
   extends GraphStage[SourceShape[T]] {
 
   override val toString = "ReactiveMongoDocument"
@@ -31,8 +32,7 @@ private[akkastream] final class DocumentStage[T](
   private val nextResponse = cursor.nextResponse(maxDocs)
 
   private val logger = reactivemongo.util.LazyLogger(
-    "reactivemongo.akkastream.DocumentStage"
-  )
+    "reactivemongo.akkastream.DocumentStage")
 
   @inline
   private def nextR(r: Response): Future[Option[Response]] =
@@ -47,8 +47,7 @@ private[akkastream] final class DocumentStage[T](
       private var request: () => Future[Option[Response]] = { () =>
         cursor.makeRequest(maxDocs).andThen {
           case Success(r) if (
-            !tailable || r.reply.numberReturned > 0
-          ) => onFirst()
+            !tailable || r.reply.numberReturned > 0) => onFirst()
         }.map(Some(_))
       }
 
@@ -76,8 +75,7 @@ private[akkastream] final class DocumentStage[T](
           cursor.wrappee killCursor r.reply.cursorID
         } catch {
           case reason: Exception => logger.warn(
-            s"Fails to kill the cursor (${r.reply.cursorID})", reason
-          )
+            s"Fails to kill the cursor (${r.reply.cursorID})", reason)
         }
 
         last = None

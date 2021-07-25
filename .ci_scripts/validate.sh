@@ -26,11 +26,7 @@ EOF
 
 export JVM_OPTS
 
-TEST_ARGS=";error ;test:compile ;findbugs ;mimaReportBinaryIssues "
+TEST_ARGS=";error ;test:compile ;mimaReportBinaryIssues "
 TEST_ARGS="$TEST_ARGS ;warn ;testOnly ;doc"
-
-if [ "v$SCALA_VERSION" = "v2.12.11" ]; then
-    TEST_ARGS=";scapegoat $TEST_ARGS"
-fi
 
 sbt ++$SCALA_VERSION "$TEST_ARGS"

@@ -39,4 +39,4 @@ mimaBinaryIssueFilters ++= {
 apiURL := Some(url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/akka-stream/api/"))
 
 // Tests
-fork in Test := true
+Test / fork := true

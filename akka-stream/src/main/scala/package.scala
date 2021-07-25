@@ -1,6 +1,7 @@
 package reactivemongo
 
 import scala.concurrent.Future
+
 import reactivemongo.api.{ Cursor, CursorFlattener, CursorProducer }
 
 package object akkastream {

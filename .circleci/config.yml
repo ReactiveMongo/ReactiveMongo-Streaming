@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.4.7"
+        default: "1.5.5"
     steps:
       - restore_cache:
           keys:
@@ -68,7 +68,7 @@ commands:
                     export PATH=$PATH:~/sbt/bin
                     export USER=`basename $HOME`
                     
-                    ./.ci_scripts/validate.sh
+                    ./.ci_scripts/retry.sh 2 ./.ci_scripts/validate.sh
 
       - save_cache:
           paths:
@@ -119,7 +119,7 @@ jobs:
     environment:
       AKKA_VERSION: 2.5.23
       ITERATEES_VERSION: 2.6.1
-      SCALA_VERSION: 2.12.13
+      SCALA_VERSION: 2.12.14
     
     steps:
       - checkout

@@ -3,17 +3,20 @@ import scala.util.{ Success, Try }
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
-import play.api.libs.iteratee.Iteratee
-
 import reactivemongo.api.bson.{
   BSONDocument,
   BSONDocumentReader,
   BSONDocumentWriter
 }
-import reactivemongo.api.{ Cursor, DB }, Cursor.{ ContOnError, FailOnError }
-import reactivemongo.play.iteratees.PlayIterateesCursor
+
+import reactivemongo.api.{ Cursor, DB }
 
 import org.specs2.concurrent.ExecutionEnv
+
+import play.api.libs.iteratee.Iteratee
+import reactivemongo.play.iteratees.PlayIterateesCursor
+
+import Cursor.{ ContOnError, FailOnError }
 
 final class CursorSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification {
@@ -32,8 +35,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         Person("James", 16),
         Person("John", 34),
         Person("Jane", 24),
-        Person("Joline", 34)
-      )
+        Person("Joline", 34))
 
       implicit val writer = PersonWriter
 
@@ -109,8 +111,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           Iteratee.foreach { _: BSONDocument =>
             //println(s"doc $i => $e")
             i += 1
-          }
-        ).map(_ => i) must beEqualTo(16517).awaitFor(21.seconds)
+          }).map(_ => i) must beEqualTo(16517).awaitFor(21.seconds)
       }
 
       "only 1024 documents" in {
@@ -131,8 +132,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             Iteratee.foreach { it: Iterator[BSONDocument] =>
               //println(s"doc $i => $e")
               i += it.size
-            }
-          ).map(_ => i) must beEqualTo(16517).awaitFor(21.seconds)
+            }).map(_ => i) must beEqualTo(16517).awaitFor(21.seconds)
       }
 
       "for only 1024 documents" in {
@@ -142,8 +142,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
             Iteratee.foreach { it: Iterator[BSONDocument] =>
               //println(s"doc $i => $e")
               i += it.size
-            }
-          ).map(_ => i) must beEqualTo(1024).awaitFor(timeout)
+            }).map(_ => i) must beEqualTo(1024).awaitFor(timeout)
       }
     }
 
@@ -381,8 +380,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
         "per bulk" in {
           val collect = Iteratee.fold[Iterator[Int], List[Int]](
-            List.empty[Int]
-          ) { _ ++ _ }
+            List.empty[Int]) { _ ++ _ }
 
           (cursor("senum2").bulkEnumerator(10) |>>> collect).map(_.reverse).
             aka("enumerated") must beEqualTo(expectedList).awaitFor(timeout)

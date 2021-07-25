@@ -4,19 +4,19 @@ import java.util.Arrays
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import play.api.libs.iteratee.{ Concurrent, Enumerator, Iteratee }
+import reactivemongo.api.bson.collection.BSONCollectionProducer
 
 import reactivemongo.api.{ Cursor, DB, SerializationPack }
 import reactivemongo.api.collections.{
   GenericCollection,
   GenericCollectionProducer
 }
-import reactivemongo.api.bson.collection.BSONCollectionProducer
-
 import reactivemongo.api.gridfs.{ GridFS => CoreFS }
 
+import play.api.libs.iteratee.{ Concurrent, Enumerator, Iteratee }
+
 final class GridFS[P <: SerializationPack] private[iteratees] (
-    val gridfs: CoreFS[P]) { self =>
+  val gridfs: CoreFS[P]) { self =>
 
   import GridFS.logger
   import gridfs.{ FileToSave, ReadFile, defaultReadPreference, pack }
@@ -52,10 +52,10 @@ final class GridFS[P <: SerializationPack] private[iteratees] (
     val digestFinalize = { md: MessageDigest => Future(md.digest()) }
 
     final case class Chunk(
-        previous: Array[Byte],
-        n: Int,
-        md: MessageDigest,
-        length: Int) {
+      previous: Array[Byte],
+      n: Int,
+      md: MessageDigest,
+      length: Int) {
       def feed(chunk: Array[Byte]): Future[Chunk] = {
         val wholeChunk = concat(previous, chunk)
 

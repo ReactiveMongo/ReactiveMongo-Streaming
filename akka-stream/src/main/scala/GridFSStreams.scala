@@ -4,14 +4,12 @@ import java.util.Arrays
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import akka.util.ByteString
+import reactivemongo.api.{ ReadPreference, SerializationPack }
+import reactivemongo.api.gridfs.{ GridFS => CoreFS }
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.{ Sink, Source }
-
-import reactivemongo.api.{ ReadPreference, SerializationPack }
-
-import reactivemongo.api.gridfs.{ GridFS => CoreFS }
+import akka.util.ByteString
 
 /**
  * Akka-stream support for GridFS.
@@ -91,14 +89,13 @@ sealed trait GridFSStreams {
    * @tparam Id $IdTypeParam
    */
   private final class StoreState[Id <: pack.Value, M](
-      file: FileToSave[Id],
-      previous: Array[Byte],
-      val n: Int,
-      md: M,
-      digestUpdate: (M, Array[Byte]) => M,
-      length: Int,
-      chunkSize: Int
-  ) {
+    file: FileToSave[Id],
+    previous: Array[Byte],
+    val n: Int,
+    md: M,
+    digestUpdate: (M, Array[Byte]) => M,
+    length: Int,
+    chunkSize: Int) {
     def feed(chunk: Array[Byte])(implicit ec: ExecutionContext): Future[StoreState[Id, M]] = {
       val wholeChunk = concat(previous, chunk)
 

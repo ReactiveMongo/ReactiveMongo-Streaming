@@ -1,20 +1,16 @@
 import scala.concurrent.Future
 
-import akka.util.ByteString
-
-import akka.stream.scaladsl.{ Sink, Source }
-
 import reactivemongo.api.bson._
 
 import reactivemongo.api.gridfs.FileToSave
 
-import reactivemongo.akkastream.GridFSStreams
-
-import org.apache.commons.codec.digest.DigestUtils.md5Hex
-
 import org.specs2.concurrent.ExecutionEnv
 
+import akka.stream.scaladsl.{ Sink, Source }
+import akka.util.ByteString
 import com.github.ghik.silencer.silent
+import org.apache.commons.codec.digest.DigestUtils.md5Hex
+import reactivemongo.akkastream.GridFSStreams
 
 final class GridFSSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification {

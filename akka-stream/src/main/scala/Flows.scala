@@ -2,18 +2,14 @@ package reactivemongo.akkastream
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import com.github.ghik.silencer.silent
-
-import reactivemongo.util.sameThreadExecutionContext
-
 import reactivemongo.api.{ SerializationPack, WriteConcern }
-
-import reactivemongo.api.commands.WriteResult
-
 import reactivemongo.api.collections.GenericCollection
+import reactivemongo.api.commands.WriteResult
 
 import akka.NotUsed
 import akka.stream.scaladsl.Flow
+import com.github.ghik.silencer.silent
+import reactivemongo.util.sameThreadExecutionContext
 
 /**
  * Flow builder to stream data to MongoDB.
@@ -60,8 +56,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   def insertOne[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false
-  )(
+    bypassDocumentValidation: Boolean = false)(
     implicit
     w: pack.Writer[T]): Flow[T, WriteResult, NotUsed] = {
 
@@ -105,8 +100,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   def insertOneUnordered[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false
-  )(
+    bypassDocumentValidation: Boolean = false)(
     implicit
     w: pack.Writer[T]): Flow[T, WriteResult, NotUsed] = {
 
@@ -156,8 +150,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   def insertMany[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false
-  )(implicit w: pack.Writer[T]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
+    bypassDocumentValidation: Boolean = false)(implicit w: pack.Writer[T]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
 
     val builder = insertOp(writeConcern, bypassDocumentValidation)
 
@@ -202,8 +195,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   def insertManyUnordered[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false
-  )(implicit w: pack.Writer[T]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
+    bypassDocumentValidation: Boolean = false)(implicit w: pack.Writer[T]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
 
     val builder = insertOp(writeConcern, bypassDocumentValidation)
 
@@ -248,8 +240,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   def updateMany[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false
-  )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
+    bypassDocumentValidation: Boolean = false)(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
 
     Flow[Iterable[T]].named(
@@ -304,8 +295,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   def updateManyUnordered[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false
-  )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
+    bypassDocumentValidation: Boolean = false)(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
 
     Flow[Iterable[T]].named(
@@ -352,8 +342,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   def updateOne[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false
-  )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[T, collection.UpdateWriteResult, NotUsed] = {
+    bypassDocumentValidation: Boolean = false)(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[T, collection.UpdateWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
 
     Flow[T].named(s"${collection.name}.updateOne").mapAsync(parallelism) { v =>
@@ -405,8 +394,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   def updateOneUnordered[T](
     parallelism: Int,
     writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false
-  )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[T, collection.UpdateWriteResult, NotUsed] = {
+    bypassDocumentValidation: Boolean = false)(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[T, collection.UpdateWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
 
     Flow[T].named(s"${collection.name}.updateOneUnordered").
@@ -421,8 +409,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
 
   @inline private def insertOp(
     writeConcern: Option[WriteConcern],
-    bypassDocumentValidation: Boolean
-  ) = writeConcern match {
+    bypassDocumentValidation: Boolean) = writeConcern match {
     case Some(wc) =>
       collection.insert(ordered = true, wc, bypassDocumentValidation)
 
@@ -432,8 +419,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
 
   @inline private def updateOp(
     writeConcern: Option[WriteConcern],
-    bypassDocumentValidation: Boolean
-  ) = writeConcern match {
+    bypassDocumentValidation: Boolean) = writeConcern match {
     case Some(wc) =>
       collection.update(ordered = true, wc, bypassDocumentValidation)
 

@@ -2,13 +2,15 @@ package reactivemongo.play.iteratees
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import play.api.libs.iteratee.{ Concurrent, Enumerator }
-
 import reactivemongo.api.{
   Cursor,
   FlattenedCursor,
   WrappedCursor
-}, Cursor.{ ErrorHandler, FailOnError }
+}
+
+import play.api.libs.iteratee.{ Concurrent, Enumerator }
+
+import Cursor.{ ErrorHandler, FailOnError }
 
 sealed trait PlayIterateesCursor[T] extends Cursor[T] {
   /**
@@ -52,22 +54,19 @@ final class PlayIterateesCursorImpl[T](val wrappee: Cursor[T])
   override def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T] =
     Concurrent.unicast[T] { chan =>
       wrappee.foldWhile({}, maxDocs)(
-        (_, res) => Cont(chan push res), errorHandler(chan, err)
-      ).
+        (_, res) => Cont(chan push res), errorHandler(chan, err)).
         onComplete { case _ => chan.eofAndEnd() }
     }
 
   override def bulkEnumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[Iterator[T]] = Concurrent.unicast[Iterator[T]] { chan =>
     wrappee.foldBulks({}, maxDocs)(
-      (_, bulk) => Cont(chan push bulk), errorHandler(chan, err)
-    ).
+      (_, bulk) => Cont(chan push bulk), errorHandler(chan, err)).
       onComplete { case _ => chan.eofAndEnd() }
   }
 }
 
 final class PlayIterateesFlattenedCursor[T](
-    cursor: Future[PlayIterateesCursor[T]]
-) extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
+  cursor: Future[PlayIterateesCursor[T]]) extends FlattenedCursor[T](cursor) with PlayIterateesCursor[T] {
 
   override def enumerator(maxDocs: Int = Int.MaxValue, err: ErrorHandler[Unit] = FailOnError[Unit]())(implicit ctx: ExecutionContext): Enumerator[T] = Enumerator.flatten(cursor.map(_.enumerator(maxDocs, err)))
 
