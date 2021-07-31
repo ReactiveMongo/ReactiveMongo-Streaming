@@ -15,10 +15,10 @@ object Compiler {
   private val silencerVer = Def.setting[String]("1.7.5")
 
   lazy val settings = Seq(
-    unmanagedSourceDirectories in Compile ++= {
-      unmanaged(scalaVersion.value, (sourceDirectory in Compile).value)
+    Compile / unmanagedSourceDirectories ++= {
+      unmanaged(scalaVersion.value, (Compile / sourceDirectory).value)
     },
-    libraryDependencies in ThisBuild ++= {
+    ThisBuild / libraryDependencies ++= {
       val v = silencerVer.value
 
       Seq(
@@ -51,7 +51,7 @@ object Compiler {
     scalacOptions += { // Silencer
       "-P:silencer:globalFilters=Response\\ in\\ package\\ protocol\\ is\\ deprecated;killCursor;Use\\ \\`find\\`\\ with\\ optional\\ \\`projection\\`"
     },
-    scalacOptions in Compile ++= {
+    Compile / scalacOptions ++= {
       if (scalaBinaryVersion.value != "2.11") Nil
       else Seq(
         "-Yconst-opt",
@@ -60,18 +60,18 @@ object Compiler {
         "-Yopt:_"
       )
     },
-    scalacOptions in (Compile, doc) := (scalacOptions in Test).value,
-    scalacOptions in (Compile, console) ~= {
+    Compile / doc / scalacOptions := (scalacOptions in Test).value,
+    Compile / console / scalacOptions ~= {
       _.filterNot { opt =>
         opt.startsWith("-X") || opt.startsWith("-Y") || opt.startsWith("-P")
       }
     },
-    scalacOptions in (Test, console) ~= {
+    Test / console / scalacOptions ~= {
       _.filterNot { opt =>
         opt.startsWith("-X") || opt.startsWith("-Y") || opt.startsWith("-P")
       }
     },
-    scalacOptions in (Compile, doc) ++= Seq(
+    Compile / doc / scalacOptions ++= Seq(
       "-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Streaming API") ++
