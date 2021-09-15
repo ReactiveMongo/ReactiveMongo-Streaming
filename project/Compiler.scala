@@ -12,7 +12,7 @@ object Compiler {
 
     }
 
-  private val silencerVer = Def.setting[String]("1.7.5")
+  private val silencerVer = Def.setting[String]("1.7.6")
 
   lazy val settings = Seq(
     Compile / unmanagedSourceDirectories ++= {
