@@ -4,13 +4,11 @@ import scala.util.{ Failure, Success, Try }
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import reactivemongo.api.{
-  Cursor,
-  CursorOps
-}
-
 import akka.stream.{ Attributes, Outlet, SourceShape }
 import akka.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
+
+import reactivemongo.api.{ Cursor, CursorOps }
+
 import reactivemongo.core.errors.GenericDriverException
 import reactivemongo.core.protocol.{
   ReplyDocumentIteratorExhaustedException,
@@ -20,10 +18,12 @@ import reactivemongo.core.protocol.{
 import Cursor.{ Cont, Done, ErrorHandler, Fail }
 
 private[akkastream] final class DocumentStage[T](
-  cursor: AkkaStreamCursorImpl[T],
-  maxDocs: Int,
-  err: ErrorHandler[Option[T]])(implicit ec: ExecutionContext)
-  extends GraphStage[SourceShape[T]] {
+    cursor: AkkaStreamCursorImpl[T],
+    maxDocs: Int,
+    err: ErrorHandler[Option[T]]
+  )(implicit
+    ec: ExecutionContext)
+    extends GraphStage[SourceShape[T]] {
 
   override val toString = "ReactiveMongoDocument"
   val out: Outlet[T] = Outlet(s"${toString}.out")
@@ -31,8 +31,8 @@ private[akkastream] final class DocumentStage[T](
 
   private val nextResponse = cursor.nextResponse(maxDocs)
 
-  private val logger = reactivemongo.util.LazyLogger(
-    "reactivemongo.akkastream.DocumentStage")
+  private val logger =
+    reactivemongo.util.LazyLogger("reactivemongo.akkastream.DocumentStage")
 
   @inline
   private def nextR(r: Response): Future[Option[Response]] =
@@ -45,21 +45,26 @@ private[akkastream] final class DocumentStage[T](
       @inline private def tailable = cursor.wrappee.tailable
 
       private var request: () => Future[Option[Response]] = { () =>
-        cursor.makeRequest(maxDocs).andThen {
-          case Success(r) if (
-            !tailable || r.reply.numberReturned > 0) => onFirst()
-        }.map(Some(_))
+        cursor
+          .makeRequest(maxDocs)
+          .andThen {
+            case Success(r) if (!tailable || r.reply.numberReturned > 0) =>
+              onFirst()
+          }
+          .map(Some(_))
       }
 
       private def onFirst(): Unit = {
         request = { () =>
           last.fold(Future.successful(Option.empty[Response])) {
-            case (lastResponse, _, _) => nextR(lastResponse).andThen {
-              case Success(Some(response)) => last.foreach {
-                case (lr, _, _) =>
-                  if (lr.reply.cursorID != response.reply.cursorID) kill(lr)
+            case (lastResponse, _, _) =>
+              nextR(lastResponse).andThen {
+                case Success(Some(response)) =>
+                  last.foreach {
+                    case (lr, _, _) =>
+                      if (lr.reply.cursorID != response.reply.cursorID) kill(lr)
+                  }
               }
-            }
           }
         }
       }
@@ -74,8 +79,11 @@ private[akkastream] final class DocumentStage[T](
         try {
           cursor.wrappee killCursor r.reply.cursorID
         } catch {
-          case reason: Exception => logger.warn(
-            s"Fails to kill the cursor (${r.reply.cursorID})", reason)
+          case reason: Exception =>
+            logger.warn(
+              s"Fails to kill the cursor (${r.reply.cursorID})",
+              reason
+            )
         }
 
         last = None
@@ -107,28 +115,29 @@ private[akkastream] final class DocumentStage[T](
           case Failure(reason @ CursorOps.UnrecoverableException(_)) =>
             fail(out, reason)
 
-          case Failure(reason) => err(last.flatMap(_._3), reason) match {
-            case Cont(current @ Some(v)) => {
-              last = Some((r, bulk, current))
-              push(out, v)
+          case Failure(reason) =>
+            err(last.flatMap(_._3), reason) match {
+              case Cont(current @ Some(v)) => {
+                last = Some((r, bulk, current))
+                push(out, v)
+              }
+
+              case Cont(_) => ()
+
+              case Done(Some(v)) => {
+                push(out, v)
+                completeStage()
+              }
+
+              case Done(_) =>
+                completeStage()
+
+              case Fail(cause) =>
+                fail(out, cause)
+
+              case _ =>
+                fail(out, new GenericDriverException("Erroneous cursor"))
             }
-
-            case Cont(_) => ()
-
-            case Done(Some(v)) => {
-              push(out, v)
-              completeStage()
-            }
-
-            case Done(_) =>
-              completeStage()
-
-            case Fail(cause) =>
-              fail(out, cause)
-
-            case _ =>
-              fail(out, new GenericDriverException("Erroneous cursor"))
-          }
 
           case Success(v) => {
             last = Some((r, bulk, Some(v)))
@@ -149,8 +158,8 @@ private[akkastream] final class DocumentStage[T](
           } else {
             last = None
 
-            val bulkIter = cursor.documentIterator(r).
-              take(maxDocs - r.reply.startingFrom)
+            val bulkIter =
+              cursor.documentIterator(r).take(maxDocs - r.reply.startingFrom)
 
             nextD(r, bulkIter)
           }
@@ -161,7 +170,7 @@ private[akkastream] final class DocumentStage[T](
             completeStage()
           } else {
             last = None
-            //Thread.sleep(1000) // TODO
+            // Thread.sleep(1000) // TODO
             onPull()
           }
         }

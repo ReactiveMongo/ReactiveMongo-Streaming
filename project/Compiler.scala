@@ -18,63 +18,103 @@ object Compiler {
     Compile / unmanagedSourceDirectories ++= {
       unmanaged(scalaVersion.value, (Compile / sourceDirectory).value)
     },
-    ThisBuild / libraryDependencies ++= {
-      val v = silencerVer.value
-
-      Seq(
-        compilerPlugin(
-          ("com.github.ghik" %% "silencer-plugin" % v).
-            cross(CrossVersion.full)),
-        ("com.github.ghik" %% "silencer-lib" % v % Provided).
-          cross(CrossVersion.full))
-    },
     scalacOptions ++= Seq(
-      "-encoding", "UTF-8", "-target:jvm-1.8",
+      "-encoding",
+      "UTF-8",
       "-unchecked",
       "-deprecation",
       "-feature",
       "-Xfatal-warnings",
-      "-Xlint",
-      "-g:vars"),
+      "-language:higherKinds"
+    ),
     scalacOptions ++= {
-      if (scalaBinaryVersion.value != "2.13") {
+      if (scalaBinaryVersion.value startsWith "2.") {
         Seq(
-          "-Xmax-classfile-name", "128",
+          "-target:jvm-1.8",
+          "-Xlint",
+          "-g:vars"
+        )
+      } else Seq()
+    },
+    scalacOptions ++= {
+      val sv = scalaBinaryVersion.value
+
+      if (sv == "2.12") {
+        Seq(
+          "-Xmax-classfile-name",
+          "128",
           "-Ywarn-numeric-widen",
           "-Ywarn-dead-code",
           "-Ywarn-value-discard",
           "-Ywarn-infer-any",
           "-Ywarn-unused",
-          "-Ywarn-unused-import")
-      } else Nil
+          "-Ywarn-unused-import",
+          "-Xlint:missing-interpolator",
+          "-Ywarn-macros:after"
+        )
+      } else if (sv == "2.11") {
+        Seq(
+          "-Xmax-classfile-name",
+          "128",
+          "-Yopt:_",
+          "-Ydead-code",
+          "-Yclosure-elim",
+          "-Yconst-opt"
+        )
+      } else if (sv == "2.13") {
+        Seq(
+          "-explaintypes",
+          "-Werror",
+          "-Wnumeric-widen",
+          "-Wdead-code",
+          "-Wvalue-discard",
+          "-Wextra-implicit",
+          "-Wmacros:after",
+          "-Wunused"
+        )
+      } else {
+        Seq("-Wunused:all", "-language:implicitConversions")
+      }
     },
-    scalacOptions += { // Silencer
-      "-P:silencer:globalFilters=Response\\ in\\ package\\ protocol\\ is\\ deprecated;killCursor;Use\\ \\`find\\`\\ with\\ optional\\ \\`projection\\`"
-    },
-    Compile / scalacOptions ++= {
-      if (scalaBinaryVersion.value != "2.11") Nil
-      else Seq(
-        "-Yconst-opt",
-        "-Yclosure-elim",
-        "-Ydead-code",
-        "-Yopt:_"
+    Compile / console / scalacOptions ~= {
+      _.filterNot(o =>
+        o.startsWith("-X") || o.startsWith("-Y") || o.startsWith("-P:silencer")
       )
     },
-    Compile / doc / scalacOptions := (Test / scalacOptions).value,
+    Test / scalacOptions ~= {
+      _.filterNot(_ == "-Xfatal-warnings")
+    },
+    libraryDependencies ++= {
+      // Silencer
+      if (!scalaBinaryVersion.value.startsWith("3")) {
+        val silencerVersion = "1.7.7"
+
+        Seq(
+          compilerPlugin(
+            ("com.github.ghik" %% "silencer-plugin" % silencerVersion)
+              .cross(CrossVersion.full)
+          ),
+          ("com.github.ghik" %% "silencer-lib" % silencerVersion % Provided)
+            .cross(CrossVersion.full)
+        )
+      } else Seq.empty
+    },
+    Compile / doc / scalacOptions ~= {
+      _.filterNot(excludeOpt)
+    },
     Compile / console / scalacOptions ~= {
-      _.filterNot { opt =>
-        opt.startsWith("-X") || opt.startsWith("-Y") || opt.startsWith("-P")
-      }
+      _.filterNot(excludeOpt)
     },
     Test / console / scalacOptions ~= {
-      _.filterNot { opt =>
-        opt.startsWith("-X") || opt.startsWith("-Y") || opt.startsWith("-P")
-      }
+      _.filterNot(excludeOpt)
     },
-    Compile / doc / scalacOptions ++= Seq(
-      "-unchecked", "-deprecation",
-      /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
-      Opts.doc.title("ReactiveMongo Streaming API") ++
-      Opts.doc.version(Release.major.value)
+    Test / console / scalacOptions += "-Yrepl-class-based"
   )
+
+  private lazy val excludeOpt: String => Boolean = { opt =>
+    (opt.startsWith("-X") && opt != "-Xmax-classfile-name") ||
+    opt.startsWith("-Y") || opt.startsWith("-W") ||
+    opt.startsWith("-P:silencer") ||
+    opt.startsWith("-P:semanticdb")
+  }
 }

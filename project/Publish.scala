@@ -18,16 +18,31 @@ object Publish {
 
   val mimaSettings = Seq(
     mimaPreviousArtifacts := {
+      val v = scalaBinaryVersion.value
+
       if (version.value != previousVersion) {
-        Set(organization.value %% moduleName.value % previousVersion)
+        if (v == "2.13" || v == "3") Set.empty[ModuleID]
+        else {
+          Set(organization.value %% moduleName.value % previousVersion)
+        }
       } else {
-        Set.empty
+        Set.empty[ModuleID]
       }
     },
     mimaBinaryIssueFilters ++= Seq.empty
   )
 
   val settings = Seq(
+    Compile / doc / scalacOptions ++= {
+      if (scalaBinaryVersion.value startsWith "2.") {
+        Seq(/*"-diagrams", */"-implicits", "-skip-packages", "samples")
+      } else {
+        Seq("-skip-by-id:samples")
+      }
+    },
+    Compile / doc / scalacOptions ++= Opts.doc.title(
+      "ReactiveMongo Streaming API") ++
+      Opts.doc.version(Release.major.value),
     publishMavenStyle := true,
     Test / publishArtifact := false,
     pomIncludeRepository := { _ => false },

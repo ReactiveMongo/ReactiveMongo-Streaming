@@ -6,40 +6,47 @@ import scala.util.{ Failure, Try }
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
+import akka.actor.ActorSystem
+
+import akka.stream.{ KillSwitches, Materializer }
+import akka.stream.scaladsl.{ Keep, Sink, Source }
+import akka.stream.testkit.TestSubscriber
+
 import reactivemongo.api.bson.{ BSONDocument, BSONDocumentReader }
 import reactivemongo.api.bson.collection.BSONCollection
 
 import reactivemongo.api.{ Cursor, DB }
 
-import org.specs2.concurrent.ExecutionEnv
-
-import akka.stream.KillSwitches
-import akka.stream.scaladsl.{ Keep, Sink, Source }
-import akka.stream.testkit.TestSubscriber
-import com.github.ghik.silencer.silent
-import org.reactivestreams.Publisher
-import reactivemongo.akkastream.{ AkkaStreamCursor, Flows }
+import reactivemongo.akkastream.{ cursorFlattener, AkkaStreamCursor, Flows }
 import reactivemongo.core.actors.Exceptions.ClosedException
 
-final class CursorSpec(implicit ee: ExecutionEnv)
-  extends org.specs2.mutable.Specification with CursorFixtures {
+import org.specs2.concurrent.ExecutionEnv
 
-  "Cursor" title
+import com.github.ghik.silencer.silent
+import org.reactivestreams.Publisher
+
+final class CursorSpec(implicit ee: ExecutionEnv)
+    extends org.specs2.mutable.Specification
+    with CursorFixtures {
+
+  "Cursor".title
 
   sequential
 
-  implicit val system = akka.actor.ActorSystem(
+  implicit val system: ActorSystem = ActorSystem(
     name = "reactivemongo-akkastream-cursor",
-    defaultExecutionContext = Some(ee.ec))
+    defaultExecutionContext = Some(ee.ec)
+  )
 
   @silent
-  implicit lazy val materializer = akka.stream.ActorMaterializer.create(system)
+  implicit lazy val materializer: Materializer =
+    akka.stream.ActorMaterializer.create(system)
 
   import Common.{ primaryHost, timeout }
   lazy val db = Common.db
 
   // Akka-Contrib issue with Akka-Stream > 2.5.4
-  //import akka.stream.contrib.TestKit.assertAllStagesStopped
+  // import akka.stream.contrib.TestKit.assertAllStagesStopped
   def assertAllStagesStopped[T](f: => T) = f
 
   "Bulk source" should {
@@ -47,8 +54,9 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       "using a sequence sink" in assertAllStagesStopped {
         val expected = expectedSeq.sliding(3, 3).toSeq
 
-        toSeq(cursor("source8").bulkSource()).map(_.map(_.toList)).
-          aka("sequence") must beTypedEqualTo(expected).awaitFor(timeout)
+        toSeq(cursor("source8").bulkSource())
+          .map(_.map(_.toList))
+          .aka("sequence") must beTypedEqualTo(expected).awaitFor(timeout)
 
       }
 
@@ -96,8 +104,11 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           }
 
           Await.result(
-            cursor1("source10")(col).bulkSource() runWith sink, timeout) aka "result" must throwA[ClosedException](
-              "This MongoConnection is closed")
+            cursor1("source10")(col).bulkSource() runWith sink,
+            timeout
+          ) aka "result" must throwA[ClosedException](
+            "This MongoConnection is closed"
+          )
         }
       }
 
@@ -117,14 +128,16 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           }
           @volatile var err = Option.empty[Throwable]
 
-          cursor1("source11")(col).bulkSource(
-            err = Cursor.DoneOnError { (_, e) => err = Some(e) }).runWith(sink) must beTypedEqualTo(2).awaitFor(timeout) and {
-              err must beSome[Throwable].like {
-                case reason: ClosedException =>
-                  reason.getMessage must beMatching(
-                    ".*This MongoConnection is closed.*")
-              }
+          cursor1("source11")(col)
+            .bulkSource(err = Cursor.DoneOnError { (_, e) => err = Some(e) })
+            .runWith(sink) must beTypedEqualTo(2).awaitFor(timeout) and {
+            err must beSome[Throwable].like {
+              case reason: ClosedException =>
+                reason.getMessage must beMatching(
+                  ".*This MongoConnection is closed.*"
+                )
             }
+          }
         }
       }
 
@@ -143,12 +156,17 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         }
         @volatile var err = Option.empty[Throwable]
 
-        Await.result(cursor1("source12")(col).bulkSource(
-          err = Cursor.ContOnError { (_, e) => err = Some(e) }).runWith(sink), timeout) must_=== 3 and {
+        Await.result(
+          cursor1("source12")(col)
+            .bulkSource(err = Cursor.ContOnError { (_, e) => err = Some(e) })
+            .runWith(sink),
+          timeout
+        ) must_=== 3 and {
           err must beSome[Throwable].like {
             case reason: ClosedException =>
               reason.getMessage must beMatching(
-                ".*This MongoConnection is closed.*")
+                ".*This MongoConnection is closed.*"
+              )
           }
         }
       }
@@ -158,8 +176,8 @@ final class CursorSpec(implicit ee: ExecutionEnv)
   "Document source" should {
     "be fully consumed" >> {
       "using a sequence sink" in assertAllStagesStopped {
-        toSeq(cursor("source13").documentSource()).
-          aka("sequence") must beTypedEqualTo(expectedSeq).awaitFor(timeout)
+        toSeq(cursor("source13").documentSource())
+          .aka("sequence") must beTypedEqualTo(expectedSeq).awaitFor(timeout)
       }
 
       "using a publisher" in assertAllStagesStopped {
@@ -206,8 +224,8 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
       val nDocs = 16517
       s"insert $nDocs records" in {
-        val moreTime = FiniteDuration(
-          timeout.toMillis * nDocs / 2, MILLISECONDS)
+        val moreTime =
+          FiniteDuration(timeout.toMillis * nDocs / 2, MILLISECONDS)
 
         val coll = db[BSONCollection](s"akka10_${System identityHashCode ee}")
         val flowBuilder = Flows(coll)
@@ -238,8 +256,8 @@ final class CursorSpec(implicit ee: ExecutionEnv)
               (count + 1L) -> (n + i)
           }
 
-          src.runWith(consume) must beTypedEqualTo(
-            nDocs.toLong -> 136397386L).await(1, moreTime)
+          src.runWith(consume) must beTypedEqualTo(nDocs.toLong -> 136397386L)
+            .await(1, moreTime)
         }
       }
     }
@@ -247,17 +265,17 @@ final class CursorSpec(implicit ee: ExecutionEnv)
     "consumed with a max of 6 documents" >> {
       "with limit in the query operation" in {
         assertAllStagesStopped {
-          toSeq(cursor("source15a").documentSource(6)).
-            aka("sequence") must beTypedEqualTo(expectedSeq take 6).
-            awaitFor(timeout)
+          toSeq(cursor("source15a").documentSource(6)).aka(
+            "sequence"
+          ) must beTypedEqualTo(expectedSeq take 6).awaitFor(timeout)
         }
       }
 
       "with limit on the stream" in {
         assertAllStagesStopped {
-          toSeq(cursor("source15b").documentSource(10).take(6)).
-            aka("sequence") must beTypedEqualTo(expectedSeq take 6).
-            awaitFor(timeout)
+          toSeq(cursor("source15b").documentSource(10).take(6)).aka(
+            "sequence"
+          ) must beTypedEqualTo(expectedSeq take 6).awaitFor(timeout)
         }
       }
     }
@@ -313,8 +331,11 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           }
 
           Await.result(
-            cursor1("source17")(col).documentSource() runWith sink, timeout) aka "result" must throwA[ClosedException](
-              "This MongoConnection is closed")
+            cursor1("source17")(col).documentSource() runWith sink,
+            timeout
+          ) aka "result" must throwA[ClosedException](
+            "This MongoConnection is closed"
+          )
         }
       }
 
@@ -334,15 +355,20 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           }
           @volatile var err = Option.empty[Throwable]
 
-          cursor1("source18")(col).documentSource(
-            err = Cursor.DoneOnError { (_, e) => err = Some(e) }).runWith(sink) must beTypedEqualTo(3 /* = bulk size */ ).
-            awaitFor(timeout) and {
-              err must beSome[Throwable].like {
-                case reason: ClosedException =>
-                  reason.getMessage must beMatching(
-                    ".*This MongoConnection is closed.*")
-              }
+          cursor1("source18")(col)
+            .documentSource(err = Cursor.DoneOnError { (_, e) =>
+              err = Some(e)
+            })
+            .runWith(sink) must beTypedEqualTo(3 /* = bulk size */ ).awaitFor(
+            timeout
+          ) and {
+            err must beSome[Throwable].like {
+              case reason: ClosedException =>
+                reason.getMessage must beMatching(
+                  ".*This MongoConnection is closed.*"
+                )
             }
+          }
         }
       }
 
@@ -361,12 +387,19 @@ final class CursorSpec(implicit ee: ExecutionEnv)
         }
         @volatile var err = Option.empty[Throwable]
 
-        Await.result(cursor1("source19")(col).documentSource(
-          err = Cursor.ContOnError { (_, e) => err = Some(e) }).runWith(sink), timeout) must_=== 3 and {
+        Await.result(
+          cursor1("source19")(col)
+            .documentSource(err = Cursor.ContOnError { (_, e) =>
+              err = Some(e)
+            })
+            .runWith(sink),
+          timeout
+        ) must_=== 3 and {
           err must beSome[Throwable].like {
             case reason: ClosedException =>
               reason.getMessage must beMatching(
-                ".*This MongoConnection is closed.*")
+                ".*This MongoConnection is closed.*"
+              )
           }
         }
       }
@@ -381,8 +414,10 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       val nDocs = 16517
       val coll = db(s"akka-large-1-${System identityHashCode db}")
 
-      def cursor = coll.find(BSONDocument.empty).
-        sort(BSONDocument("id" -> 1)).cursor[Int]()
+      def cursor = coll
+        .find(BSONDocument.empty)
+        .sort(BSONDocument("id" -> 1))
+        .cursor[Int]()
 
       s"insert $nDocs records" in {
         import scala.language.existentials
@@ -396,17 +431,17 @@ final class CursorSpec(implicit ee: ExecutionEnv)
 
             case rem => {
               val n = nDocs - rem
-              Some((rem - 1) -> BSONDocument(
-                "id" -> n, "record" -> s"record$n"))
+              Some(
+                (rem - 1) -> BSONDocument("id" -> n, "record" -> s"record$n")
+              )
             }
           }
 
-          src.grouped(256).via(flow).
-            runWith(Sink.fold(0) { (c, r) => c + r.n })
+          src.grouped(256).via(flow).runWith(Sink.fold(0) { (c, r) => c + r.n })
         }
 
         insert().map { n =>
-          //println(s"inserted $nDocs records")
+          // println(s"inserted $nDocs records")
           n
         } aka "fixtures" must beTypedEqualTo(nDocs).awaitFor(timeout)
       }
@@ -484,37 +519,56 @@ final class CursorSpec(implicit ee: ExecutionEnv)
   "Capped collection" should {
     import scala.concurrent.Promise
 
-    def capped(n: String, database: DB, cb: Promise[Unit])(implicit ee: ExecutionEnv) = {
+    def capped(
+        n: String,
+        database: DB,
+        cb: Promise[Unit]
+      )(implicit
+        ee: ExecutionEnv
+      ) = {
       val col = database(s"akka_${n}_${System identityHashCode ee}")
 
       // Concurrently populated the capped collection
       def populate: Future[Unit] =
-        (0 until 10).foldLeft(Future(Thread.sleep(1000))) { (future, id) =>
-          for {
-            _ <- future
-            _ <- col.insert.one(BSONDocument("id" -> id))
-          } yield {
-            try {
-              Thread.sleep(200)
-            } catch {
-              case _: InterruptedException => println("no pause")
+        (0 until 10)
+          .foldLeft(Future(Thread.sleep(1000))) { (future, id) =>
+            for {
+              _ <- future
+              _ <- col.insert.one(BSONDocument("id" -> id))
+            } yield {
+              try {
+                Thread.sleep(200)
+              } catch {
+                case _: InterruptedException => println("no pause")
+              }
             }
           }
-        }.map { _ =>
-          cb.success(println(s"All fixtures inserted in test collection '$n'"))
-          ()
-        }
+          .map { _ =>
+            cb.success(
+              println(s"All fixtures inserted in test collection '$n'")
+            )
+            ()
+          }
 
-      Await.result((for {
-        _ <- col.createCapped(4096, Some(10))
-      } yield col), timeout) -> { () => populate }
+      Await.result(
+        (for {
+          _ <- col.createCapped(4096, Some(10))
+        } yield col),
+        timeout
+      ) -> { () => populate }
       // (BSONCollection, () => Future[Unit])
     }
 
-    def tailable(cb: Promise[Unit], n: String, database: DB = db)(implicit ee: ExecutionEnv) = {
+    def tailable(
+        cb: Promise[Unit],
+        n: String,
+        database: DB = db
+      )(implicit
+        ee: ExecutionEnv
+      ) = {
       // ReactiveMongo extensions
       import reactivemongo.akkastream.cursorProducer
-      implicit val reader = IdReader
+      implicit val reader: IdReader.type = IdReader
 
       val (cursor, populate) = capped(n, database, cb)
 
@@ -522,12 +576,15 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       // (Cursor[Int], () => Future[Unit]
     }
 
-    def recoverTimeout[A, B](f: => Future[A])(on: => B, to: FiniteDuration = timeout): Try[B] = {
+    def recoverTimeout[A, B](
+        f: => Future[A]
+      )(on: => B,
+        to: FiniteDuration = timeout
+      ): Try[B] = {
       lazy val v = on
-      Try(Await.result(f, to)).
-        flatMap(_ => Failure(new Exception("Timeout expected"))).recover {
-          case _: TimeoutException => println("Timeout"); v
-        }
+      Try(Await.result(f, to))
+        .flatMap(_ => Failure(new Exception("Timeout expected")))
+        .recover { case _: TimeoutException => println("Timeout"); v }
     }
 
     // ---
@@ -541,8 +598,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       def consume = {
         def sink = Sink.foreach[Iterator[Int]] { i => consumed ++= i; () }
 
-        src.viaMat(KillSwitches.single)(Keep.right).
-          toMat(sink)(Keep.both).run()
+        src.viaMat(KillSwitches.single)(Keep.right).toMat(sink)(Keep.both).run()
       }
 
       populate()
@@ -554,8 +610,9 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           val res = recoverTimeout(c)(consumed.toList)
           swtch.shutdown()
           res
-        } must beSuccessfulTry(
-          List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
+        } must beSuccessfulTry[List[Int]].like {
+          case ls => ls must_=== List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+        }
       }
     }
 
@@ -568,8 +625,7 @@ final class CursorSpec(implicit ee: ExecutionEnv)
       def consume = {
         val sink = Sink.foreach[Int] { i => consumed += i; () }
 
-        src.viaMat(KillSwitches.single)(Keep.right).
-          toMat(sink)(Keep.both).run()
+        src.viaMat(KillSwitches.single)(Keep.right).toMat(sink)(Keep.both).run()
       }
 
       populate()
@@ -581,43 +637,51 @@ final class CursorSpec(implicit ee: ExecutionEnv)
           val res = recoverTimeout(c)(consumed.toList)
           swtch.shutdown()
           res
-        } must beSuccessfulTry(
-          List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
+        } must beSuccessfulTry[List[Int]].like {
+          case ls => ls must_=== List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+        }
       }
     }
   }
 
   "Aggregation" should {
-    implicit def reader = IdReader
+    implicit def reader: IdReader.type = IdReader
 
     "should match index greater than or equal" in {
       import reactivemongo.akkastream.cursorProducer
 
       assertAllStagesStopped {
-        val flatten = Cursor.flatten[Int, AkkaStreamCursor] _
+        val flatten = Cursor.flatten[Int, AkkaStreamCursor](
+          _: Future[AkkaStreamCursor[Int]]
+        )
 
-        toSeq(flatten(collection("source23").map { col =>
-          import col.AggregationFramework.{
-            Ascending,
-            Match,
-            Sort
-          }
+        toSeq(
+          flatten(collection("source23").map { col =>
+            import col.AggregationFramework.{ Ascending, Match, Sort }
 
-          def cursor = col.aggregatorContext[Int](
-            pipeline = List(
-              Match(BSONDocument("id" -> BSONDocument("$gte" -> 3))),
-              Sort(Ascending("id")))).prepared[AkkaStreamCursor.WithOps].cursor
+            def cursor = col
+              .aggregatorContext[Int](
+                pipeline = List(
+                  Match(BSONDocument("id" -> BSONDocument("$gte" -> 3))),
+                  Sort(Ascending("id"))
+                )
+              )
+              .prepared[AkkaStreamCursor.WithOps]
+              .cursor
 
-          cursor
-        }).documentSource()) must beTypedEqualTo(
-          expectedSeq.filter(_ >= 3)).awaitFor(timeout)
+            cursor
+          }).documentSource()
+        ) must beTypedEqualTo(expectedSeq.filter(_ >= 3)).awaitFor(timeout)
       }
     }
   }
 
   // ---
 
-  @silent @inline def expectNoMsg[T](c: akka.stream.testkit.TestSubscriber.ManualProbe[T], timeout: FiniteDuration) = c.expectNoMsg(timeout)
+  @silent @inline def expectNoMsg[T](
+      c: akka.stream.testkit.TestSubscriber.ManualProbe[T],
+      timeout: FiniteDuration
+    ) = c.expectNoMsg(timeout)
 }
 
 sealed trait CursorFixtures { specs: CursorSpec =>
@@ -633,18 +697,38 @@ sealed trait CursorFixtures { specs: CursorSpec =>
   def toSeq[T](src: Source[T, _]): Future[Seq[T]] =
     src.runWith(Sink.seq[T])
 
-  @inline def cursor(n: String)(implicit ee: ExecutionEnv): AkkaStreamCursor[Int] = cursor1(n)(collection(_))
+  @inline def cursor(
+      n: String
+    )(implicit
+      ee: ExecutionEnv
+    ): AkkaStreamCursor[Int] = cursor1(n)(collection(_))
 
-  @inline def cursor1(n: String)(col: String => Future[BSONCollection])(implicit ee: ExecutionEnv): AkkaStreamCursor[Int] = {
-    implicit val reader = IdReader
-    Cursor.flatten(col(n).map(_.find(BSONDocument()).
-      batchSize(3).sort(BSONDocument("id" -> 1)).cursor[Int]()))
+  @inline def cursor1(
+      n: String
+    )(col: String => Future[BSONCollection]
+    )(implicit
+      ee: ExecutionEnv
+    ): AkkaStreamCursor[Int] = {
+    implicit val reader: IdReader.type = IdReader
+
+    Cursor.flatten(
+      col(n).map(
+        _.find(BSONDocument())
+          .batchSize(3)
+          .sort(BSONDocument("id" -> 1))
+          .cursor[Int]()
+      )
+    )(cursorFlattener)
   }
 
   def collection(n: String)(implicit ee: ExecutionEnv): Future[BSONCollection] =
     withFixtures(db(s"akka${n}_${System identityHashCode ee}"))
 
-  def withFixtures(col: BSONCollection)(implicit ee: ExecutionEnv): Future[BSONCollection] =
+  def withFixtures(
+      col: BSONCollection
+    )(implicit
+      ee: ExecutionEnv
+    ): Future[BSONCollection] =
     Future
       .sequence((0 until 10).map(n => col.insert.one(BSONDocument("id" -> n))))
       .map(_ => col)

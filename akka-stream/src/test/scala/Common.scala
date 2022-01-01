@@ -3,13 +3,15 @@ object Common {
   import scala.concurrent.duration._
   import reactivemongo.api._
 
-  val primaryHost = Option(System getProperty "test.primaryHost").
-    getOrElse("localhost:27017")
+  val primaryHost =
+    Option(System getProperty "test.primaryHost").getOrElse("localhost:27017")
 
-  val failoverRetries = Option(System getProperty "test.failoverRetries").
-    flatMap(r => scala.util.Try(r.toInt).toOption).getOrElse(7)
+  val failoverRetries = Option(System getProperty "test.failoverRetries")
+    .flatMap(r => scala.util.Try(r.toInt).toOption)
+    .getOrElse(7)
 
   private val timeoutFactor = 1.25D
+
   def estTimeout(fos: FailoverStrategy): FiniteDuration =
     (1 to fos.retries).foldLeft(fos.initialDelay) { (d, i) =>
       d + (fos.initialDelay * ((timeoutFactor * fos.delayFactor(i)).toLong))
@@ -25,6 +27,7 @@ object Common {
   }
 
   private val driverReg = Seq.newBuilder[AsyncDriver]
+
   def newDriver(): AsyncDriver = driverReg.synchronized {
     val drv = AsyncDriver()
 
@@ -36,23 +39,24 @@ object Common {
   lazy val driver = newDriver()
 
   val DefaultOptions = {
-    val opts = MongoConnectionOptions.default.copy(
-      failoverStrategy = failoverStrategy)
+    val opts =
+      MongoConnectionOptions.default.copy(failoverStrategy = failoverStrategy)
 
     if (Option(System getProperty "test.enableSSL").exists(_ == "true")) {
       opts.copy(sslEnabled = true, sslAllowsInvalidCert = true)
     } else opts
   }
 
-  lazy val connection = Await.result(
-    driver.connect(List(primaryHost), DefaultOptions), timeout)
+  lazy val connection =
+    Await.result(driver.connect(List(primaryHost), DefaultOptions), timeout)
 
   lazy val db = {
     import ExecutionContext.Implicits.global
 
     val _db = for {
       d <- connection.database(
-        s"rm-akkastream-${System identityHashCode getClass}")
+        s"rm-akkastream-${System identityHashCode getClass}"
+      )
       _ <- d.drop()
     } yield d
 
@@ -71,7 +75,7 @@ object Common {
         /*
           logger.warn(s"Fails to stop driver: $e")
           logger.debug("Fails to stop driver", e)
-           */
+         */
       }
     }
   }

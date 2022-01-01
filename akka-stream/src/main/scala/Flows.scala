@@ -2,14 +2,17 @@ package reactivemongo.akkastream
 
 import scala.concurrent.{ ExecutionContext, Future }
 
+import akka.NotUsed
+
+import akka.stream.scaladsl.Flow
+
 import reactivemongo.api.{ SerializationPack, WriteConcern }
 import reactivemongo.api.collections.GenericCollection
 import reactivemongo.api.commands.WriteResult
 
-import akka.NotUsed
-import akka.stream.scaladsl.Flow
-import com.github.ghik.silencer.silent
 import reactivemongo.util.sameThreadExecutionContext
+
+import com.github.ghik.silencer.silent
 
 /**
  * Flow builder to stream data to MongoDB.
@@ -21,6 +24,7 @@ import reactivemongo.util.sameThreadExecutionContext
  * @define elementParam the function to prepare each update element from a `T` value
  */
 sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
+
   /** The target collection */
   val collection: C
 
@@ -54,20 +58,21 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }}}
    */
   def insertOne[T](
-    parallelism: Int,
-    writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false)(
-    implicit
-    w: pack.Writer[T]): Flow[T, WriteResult, NotUsed] = {
+      parallelism: Int,
+      writeConcern: Option[WriteConcern] = None,
+      bypassDocumentValidation: Boolean = false
+    )(implicit
+      w: pack.Writer[T]
+    ): Flow[T, WriteResult, NotUsed] = {
 
     val builder = insertOp(writeConcern, bypassDocumentValidation)
 
-    Flow[T].named(
-      s"${collection.name}.insertOne").mapAsync(parallelism) { doc =>
+    Flow[T].named(s"${collection.name}.insertOne").mapAsync(parallelism) {
+      doc =>
         implicit def ec: ExecutionContext = sameThreadExecutionContext
 
         builder.one(doc)
-      }
+    }
   }
 
   /**
@@ -98,16 +103,18 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }}}
    */
   def insertOneUnordered[T](
-    parallelism: Int,
-    writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false)(
-    implicit
-    w: pack.Writer[T]): Flow[T, WriteResult, NotUsed] = {
+      parallelism: Int,
+      writeConcern: Option[WriteConcern] = None,
+      bypassDocumentValidation: Boolean = false
+    )(implicit
+      w: pack.Writer[T]
+    ): Flow[T, WriteResult, NotUsed] = {
 
     val builder = insertOp(writeConcern, bypassDocumentValidation)
 
-    Flow[T].named(s"${collection.name}.insertOneUnordered").
-      mapAsyncUnordered(parallelism) { doc =>
+    Flow[T]
+      .named(s"${collection.name}.insertOneUnordered")
+      .mapAsyncUnordered(parallelism) { doc =>
         implicit def ec: ExecutionContext = sameThreadExecutionContext
 
         builder.one(doc)
@@ -148,14 +155,18 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }}}
    */
   def insertMany[T](
-    parallelism: Int,
-    writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false)(implicit w: pack.Writer[T]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
+      parallelism: Int,
+      writeConcern: Option[WriteConcern] = None,
+      bypassDocumentValidation: Boolean = false
+    )(implicit
+      w: pack.Writer[T]
+    ): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
 
     val builder = insertOp(writeConcern, bypassDocumentValidation)
 
-    Flow[Iterable[T]].named(
-      s"${collection.name}.insertMany").mapAsync(parallelism) { bulk =>
+    Flow[Iterable[T]]
+      .named(s"${collection.name}.insertMany")
+      .mapAsync(parallelism) { bulk =>
         implicit def ec: ExecutionContext = sameThreadExecutionContext
 
         builder.many(bulk)
@@ -193,15 +204,18 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }}}
    */
   def insertManyUnordered[T](
-    parallelism: Int,
-    writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false)(implicit w: pack.Writer[T]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
+      parallelism: Int,
+      writeConcern: Option[WriteConcern] = None,
+      bypassDocumentValidation: Boolean = false
+    )(implicit
+      w: pack.Writer[T]
+    ): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
 
     val builder = insertOp(writeConcern, bypassDocumentValidation)
 
-    Flow[Iterable[T]].named(
-      s"${collection.name}.insertManyUnordered").
-      mapAsyncUnordered(parallelism) { bulk =>
+    Flow[Iterable[T]]
+      .named(s"${collection.name}.insertManyUnordered")
+      .mapAsyncUnordered(parallelism) { bulk =>
         implicit def ec: ExecutionContext = sameThreadExecutionContext
 
         builder.many(bulk)
@@ -238,13 +252,16 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }}}
    */
   def updateMany[T](
-    parallelism: Int,
-    writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false)(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
+      parallelism: Int,
+      writeConcern: Option[WriteConcern] = None,
+      bypassDocumentValidation: Boolean = false
+    )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]
+    ): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
 
-    Flow[Iterable[T]].named(
-      s"${collection.name}.updateMany").mapAsync(parallelism) { bulk =>
+    Flow[Iterable[T]]
+      .named(s"${collection.name}.updateMany")
+      .mapAsync(parallelism) { bulk =>
         implicit def ec: ExecutionContext = sameThreadExecutionContext
 
         Future.sequence(bulk.map { element(builder, _) }).flatMap {
@@ -293,14 +310,16 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }}}
    */
   def updateManyUnordered[T](
-    parallelism: Int,
-    writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false)(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
+      parallelism: Int,
+      writeConcern: Option[WriteConcern] = None,
+      bypassDocumentValidation: Boolean = false
+    )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]
+    ): Flow[Iterable[T], MultiBulkWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
 
-    Flow[Iterable[T]].named(
-      s"${collection.name}.updateManyUnordered").
-      mapAsyncUnordered(parallelism) { bulk =>
+    Flow[Iterable[T]]
+      .named(s"${collection.name}.updateManyUnordered")
+      .mapAsyncUnordered(parallelism) { bulk =>
         implicit def ec: ExecutionContext = sameThreadExecutionContext
 
         Future.sequence(bulk.map { element(builder, _) }).flatMap {
@@ -340,9 +359,11 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    */
   @silent
   def updateOne[T](
-    parallelism: Int,
-    writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false)(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[T, collection.UpdateWriteResult, NotUsed] = {
+      parallelism: Int,
+      writeConcern: Option[WriteConcern] = None,
+      bypassDocumentValidation: Boolean = false
+    )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]
+    ): Flow[T, collection.UpdateWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
 
     Flow[T].named(s"${collection.name}.updateOne").mapAsync(parallelism) { v =>
@@ -392,13 +413,16 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    */
   @silent
   def updateOneUnordered[T](
-    parallelism: Int,
-    writeConcern: Option[WriteConcern] = None,
-    bypassDocumentValidation: Boolean = false)(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]): Flow[T, collection.UpdateWriteResult, NotUsed] = {
+      parallelism: Int,
+      writeConcern: Option[WriteConcern] = None,
+      bypassDocumentValidation: Boolean = false
+    )(element: (collection.UpdateBuilder, T) => Future[collection.UpdateElement]
+    ): Flow[T, collection.UpdateWriteResult, NotUsed] = {
     val builder = updateOp(writeConcern, bypassDocumentValidation)
 
-    Flow[T].named(s"${collection.name}.updateOneUnordered").
-      mapAsyncUnordered(parallelism) { v =>
+    Flow[T]
+      .named(s"${collection.name}.updateOneUnordered")
+      .mapAsyncUnordered(parallelism) { v =>
         implicit def ec: ExecutionContext = sameThreadExecutionContext
 
         element(builder, v).flatMap(builder.one(_))
@@ -408,8 +432,9 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   // ---
 
   @inline private def insertOp(
-    writeConcern: Option[WriteConcern],
-    bypassDocumentValidation: Boolean) = writeConcern match {
+      writeConcern: Option[WriteConcern],
+      bypassDocumentValidation: Boolean
+    ) = writeConcern match {
     case Some(wc) =>
       collection.insert(ordered = true, wc, bypassDocumentValidation)
 
@@ -418,8 +443,9 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
   }
 
   @inline private def updateOp(
-    writeConcern: Option[WriteConcern],
-    bypassDocumentValidation: Boolean) = writeConcern match {
+      writeConcern: Option[WriteConcern],
+      bypassDocumentValidation: Boolean
+    ) = writeConcern match {
     case Some(wc) =>
       collection.update(ordered = true, wc, bypassDocumentValidation)
 
@@ -430,6 +456,7 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
 
 /** Flow builder utility */
 object Flows {
+
   /**
    * Resolves a flow builder for the specified collection.
    *
@@ -441,7 +468,8 @@ object Flows {
    * }}}
    */
   def apply[P <: SerializationPack](
-    collection: GenericCollection[P]): Flows[P, collection.type] = {
+      collection: GenericCollection[P]
+    ): Flows[P, collection.type] = {
     val coll: collection.type = collection
     new Flows[P, collection.type] {
       val collection: coll.type = coll

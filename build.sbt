@@ -4,7 +4,12 @@ ThisBuild / organization := "org.reactivemongo"
 
 ThisBuild / scalaVersion := "2.12.15"
 
-ThisBuild / crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.7")
+ThisBuild / crossScalaVersions := Seq(
+  "2.11.12",
+  scalaVersion.value,
+  "2.13.7",
+  "3.1.2-RC1-bin-20211222-c94b333-NIGHTLY"
+)
 
 crossVersion := CrossVersion.binary
 
@@ -13,11 +18,6 @@ ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("staging"),
   "Tatami Snapshots".at(
     "https://raw.github.com/cchantep/tatami/master/snapshots"))
-
-ThisBuild / mimaPreviousArtifacts := {
-  if (scalaBinaryVersion.value == "2.13") Set.empty[ModuleID]
-  else Set(organization.value %% name.value % "0.12.0")
-}
 
 lazy val iteratees = project.in(file("iteratees"))
 
@@ -29,10 +29,14 @@ lazy val streaming = (project in file(".")).settings(
     publishTo := None,
     mimaPreviousArtifacts := Set.empty,
     mimaFailOnNoPrevious := false,
-    libraryDependencies += reactiveMongo % version.value % Provided,
+    libraryDependencies += (
+      (reactiveMongo % version.value).
+        cross(CrossVersion.for3Use2_13) % Provided).
+      exclude("com.typesafe.akka", "*"),
     Compile / doc / scalacOptions ++= List(
       "-skip-packages", "highlightextractor"),
   ) ++ Release.settings
 ).dependsOn(iteratees, `akka-stream`).
   aggregate(iteratees, `akka-stream`).
-  enablePlugins(ScalaUnidocPlugin)
+  enablePlugins(ScalaUnidocPlugin).
+  disablePlugins(HighlightExtractorPlugin)
