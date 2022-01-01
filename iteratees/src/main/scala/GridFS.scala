@@ -16,7 +16,7 @@ import reactivemongo.api.gridfs.{ GridFS => CoreFS }
 import play.api.libs.iteratee.{ Concurrent, Enumerator, Iteratee }
 
 final class GridFS[P <: SerializationPack] private[iteratees] (
-  val gridfs: CoreFS[P]) { self =>
+    val gridfs: CoreFS[P]) { self =>
 
   import GridFS.logger
   import gridfs.{ FileToSave, ReadFile, defaultReadPreference, pack }
@@ -31,18 +31,20 @@ final class GridFS[P <: SerializationPack] private[iteratees] (
    * @return A future of a ReadFile[Id].
    */
   def save[Id <: pack.Value](
-    enumerator: Enumerator[Array[Byte]],
-    file: FileToSave[Id],
-    chunkSize: Int = 262144)(
-    implicit
-    ec: ExecutionContext): Future[ReadFile[Id]] =
+      enumerator: Enumerator[Array[Byte]],
+      file: FileToSave[Id],
+      chunkSize: Int = 262144
+    )(implicit
+      ec: ExecutionContext
+    ): Future[ReadFile[Id]] =
     (enumerator |>>> iteratee(file, chunkSize)).flatMap(f => f)
 
   def iteratee[Id <: pack.Value](
-    file: FileToSave[Id],
-    chunkSize: Int = 262144)(
-    implicit
-    ec: ExecutionContext): Iteratee[Array[Byte], Future[ReadFile[Id]]] = {
+      file: FileToSave[Id],
+      chunkSize: Int = 262144
+    )(implicit
+      ec: ExecutionContext
+    ): Iteratee[Array[Byte], Future[ReadFile[Id]]] = {
     import java.security.MessageDigest
 
     val digestUpdate = { (md: MessageDigest, chunk: Array[Byte]) =>
@@ -52,34 +54,42 @@ final class GridFS[P <: SerializationPack] private[iteratees] (
     val digestFinalize = { md: MessageDigest => Future(md.digest()) }
 
     final case class Chunk(
-      previous: Array[Byte],
-      n: Int,
-      md: MessageDigest,
-      length: Int) {
+        previous: Array[Byte],
+        n: Int,
+        md: MessageDigest,
+        length: Int) {
       def feed(chunk: Array[Byte]): Future[Chunk] = {
         val wholeChunk = concat(previous, chunk)
 
         val normalizedChunkNumber = wholeChunk.length / chunkSize
 
-        logger.debug(s"wholeChunk size is ${wholeChunk.length} => ${normalizedChunkNumber}")
+        logger.debug(
+          s"wholeChunk size is ${wholeChunk.length} => ${normalizedChunkNumber}"
+        )
 
         val zipped =
           for (i <- 0 until normalizedChunkNumber)
             yield Arrays.copyOfRange(
-            wholeChunk, i * chunkSize, (i + 1) * chunkSize) -> i
+              wholeChunk,
+              i * chunkSize,
+              (i + 1) * chunkSize
+            ) -> i
 
         val left = Arrays.copyOfRange(
-          wholeChunk, normalizedChunkNumber * chunkSize, wholeChunk.length)
+          wholeChunk,
+          normalizedChunkNumber * chunkSize,
+          wholeChunk.length
+        )
 
-        Future.traverse(zipped) { ci =>
-          writeChunk(n + ci._2, ci._1)
-        }.map { _ =>
-          logger.debug("all futures for the last given chunk are redeemed.")
-          Chunk(
-            if (left.isEmpty) Array.empty else left,
-            n + normalizedChunkNumber,
-            digestUpdate(md, chunk),
-            length + chunk.length)
+        Future.traverse(zipped) { ci => writeChunk(n + ci._2, ci._1) }.map {
+          _ =>
+            logger.debug("all futures for the last given chunk are redeemed.")
+            Chunk(
+              if (left.isEmpty) Array.empty else left,
+              n + normalizedChunkNumber,
+              digestUpdate(md, chunk),
+              length + chunk.length
+            )
         }
       }
 
@@ -88,7 +98,13 @@ final class GridFS[P <: SerializationPack] private[iteratees] (
       @inline def finish(): Future[ReadFile[Id]] =
         digestFinalize(md).map(Digest.hex2Str).flatMap { md5Hex =>
           gridfs.finalizeFile[Id](
-            file, previous, n, chunkSize, length.toLong, Some(md5Hex))
+            file,
+            previous,
+            n,
+            chunkSize,
+            length.toLong,
+            Some(md5Hex)
+          )
         }
 
       @inline def writeChunk(n: Int, bytes: Array[Byte]) =
@@ -97,11 +113,15 @@ final class GridFS[P <: SerializationPack] private[iteratees] (
 
     def digestInit = MessageDigest.getInstance("MD5")
 
-    Iteratee.foldM(Chunk(Array.empty, 0, digestInit, 0)) {
-      (previous, chunk: Array[Byte]) =>
-        logger.debug(s"Processing new enumerated chunk from n=${previous.n}...\n")
-        previous.feed(chunk)
-    }.map(_.finish)
+    Iteratee
+      .foldM(Chunk(Array.empty, 0, digestInit, 0)) {
+        (previous, chunk: Array[Byte]) =>
+          logger.debug(
+            s"Processing new enumerated chunk from n=${previous.n}...\n"
+          )
+          previous.feed(chunk)
+      }
+      .map(_.finish)
   }
 
   /**
@@ -110,24 +130,34 @@ final class GridFS[P <: SerializationPack] private[iteratees] (
    *
    * @param file the file to be read
    */
-  def enumerate[Id <: pack.Value](file: ReadFile[Id])(implicit ec: ExecutionContext): Enumerator[Array[Byte]] = {
+  def enumerate[Id <: pack.Value](
+      file: ReadFile[Id]
+    )(implicit
+      ec: ExecutionContext
+    ): Enumerator[Array[Byte]] = {
     val cursor = gridfs.chunks(file, defaultReadPreference)
 
     @inline def pushChunk(
-      chan: Concurrent.Channel[Array[Byte]],
-      bytes: Array[Byte]): Cursor.State[Unit] = Cursor.Cont(chan push bytes)
+        chan: Concurrent.Channel[Array[Byte]],
+        bytes: Array[Byte]
+      ): Cursor.State[Unit] = Cursor.Cont(chan push bytes)
 
     Concurrent.unicast[Array[Byte]] { chan =>
-      cursor.foldWhile({})(
-        (_, doc) => pushChunk(chan, doc),
-        Cursor.FailOnError()).onComplete { case _ => chan.eofAndEnd() }
+      cursor
+        .foldWhile({})((_, doc) => pushChunk(chan, doc), Cursor.FailOnError())
+        .onComplete { case _ => chan.eofAndEnd() }
     }
   }
 
   // ---
 
   /** Concats two array - fast way */
-  private def concat[T](a1: Array[T], a2: Array[T])(implicit m: Manifest[T]): Array[T] = {
+  private def concat[T](
+      a1: Array[T],
+      a2: Array[T]
+    )(implicit
+      m: Manifest[T]
+    ): Array[T] = {
     var i, j = 0
     val result = new Array[T](a1.length + a2.length)
     while (i < a1.length) {
@@ -143,13 +173,21 @@ final class GridFS[P <: SerializationPack] private[iteratees] (
 }
 
 object GridFS {
+
   private[iteratees] val logger =
     reactivemongo.util.LazyLogger("reactivemongo.play.iteratees.GridFS")
 
-  def apply[P <: SerializationPack with Singleton](db: DB, prefix: String = "fs")(implicit producer: GenericCollectionProducer[P, GenericCollection[P]] = BSONCollectionProducer): GridFS[P] = apply(gridfs = db.gridfs[P](producer.pack, prefix))
+  def apply[P <: SerializationPack with Singleton](
+      db: DB,
+      prefix: String = "fs"
+    )(implicit
+      producer: GenericCollectionProducer[P, GenericCollection[P]] =
+        BSONCollectionProducer
+    ): GridFS[P] = apply(gridfs = db.gridfs[P](producer.pack, prefix))
 
   /** Returns an Iteratee support for given GridFS. */
   def apply[P <: SerializationPack with Singleton](
-    gridfs: CoreFS[P]): GridFS[P] = new GridFS[P](gridfs)
+      gridfs: CoreFS[P]
+    ): GridFS[P] = new GridFS[P](gridfs)
 
 }

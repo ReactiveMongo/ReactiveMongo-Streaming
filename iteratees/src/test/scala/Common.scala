@@ -20,10 +20,12 @@ object Common {
   val primaryHost =
     Option(System getProperty "test.primaryHost").getOrElse("localhost:27017")
 
-  val failoverRetries = Option(System getProperty "test.failoverRetries").
-    flatMap(r => scala.util.Try(r.toInt).toOption).getOrElse(7)
+  val failoverRetries = Option(System getProperty "test.failoverRetries")
+    .flatMap(r => scala.util.Try(r.toInt).toOption)
+    .getOrElse(7)
 
   private val driverReg = Seq.newBuilder[AsyncDriver]
+
   def newDriver(): AsyncDriver = driverReg.synchronized {
     val drv = AsyncDriver()
 
@@ -33,12 +35,14 @@ object Common {
   }
 
   lazy val driver = newDriver()
-  lazy val connection = Await.result(
-    driver.connect(List(primaryHost), DefaultOptions), timeout)
+
+  lazy val connection =
+    Await.result(driver.connect(List(primaryHost), DefaultOptions), timeout)
 
   val failoverStrategy = FailoverStrategy(retries = failoverRetries)
 
   private val timeoutFactor = 1.2D
+
   def estTimeout(fos: FailoverStrategy): FiniteDuration =
     (1 to fos.retries).foldLeft(fos.initialDelay) { (d, i) =>
       d + (fos.initialDelay * ((timeoutFactor * fos.delayFactor(i)).toLong))
@@ -49,13 +53,13 @@ object Common {
     if (maxTimeout < 10.seconds) 10.seconds else maxTimeout
   }
 
-  //val timeoutMillis = timeout.toMillis.toInt
+  // val timeoutMillis = timeout.toMillis.toInt
 
   lazy val db = {
     import ExecutionContext.Implicits.global
 
-    val _db = connection.database(
-      "specs2-reactivemongo-iteratees", failoverStrategy)
+    val _db =
+      connection.database("specs2-reactivemongo-iteratees", failoverStrategy)
 
     Await.result(_db.flatMap { d => d.drop.map(_ => d) }, timeout)
   }
@@ -72,7 +76,7 @@ object Common {
         /*
           logger.warn(s"Fails to stop driver: $e")
           logger.debug("Fails to stop driver", e)
-           */
+         */
       }
     }
   }

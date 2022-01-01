@@ -26,28 +26,6 @@ object Common extends AutoPlugin {
       v.span(_ != '-') match {
         case (a, b) => s"${a}${suffix}${b}"
       }
-    },
-    libraryDependencies ++= {
-      val v = (ThisBuild / version).value
-      val ver = driverVersion.value
-      val driver = Dependencies.reactiveMongo % ver % Provided
-
-      val rmDeps = {
-        if (useShaded.value) {
-          Seq(driver)
-        } else {
-          Seq(
-            driver,
-            "org.reactivemongo" %% "reactivemongo-alias" % v % Provided,
-            "org.reactivemongo" %% "reactivemongo-bson-api" % ver % Provided,
-            "io.netty" % "netty-handler" % "4.1.43.Final" % Provided)
-        }
-      }
-
-      rmDeps ++ (Seq(
-        "specs2-core", "specs2-junit").map(
-        "org.specs2" %% _ % "4.10.6" % Test) ++ Seq(
-        Dependencies.slf4jSimple % Test))
     }
   ) ++ Publish.settings ++ (
     Publish.mimaSettings ++ Release.settings)
@@ -57,4 +35,28 @@ object Dependencies {
   val reactiveMongo = "org.reactivemongo" %% "reactivemongo"
 
   val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.32"
+
+  val shared = Def.setting[Seq[ModuleID]] {
+    val v = (ThisBuild / version).value
+    val ver = Common.driverVersion.value
+    val driver = Dependencies.reactiveMongo % ver % Provided
+
+    val rmDeps = {
+      if (Common.useShaded.value) {
+        Seq(driver)
+      } else {
+        Seq(
+          driver,
+          "org.reactivemongo" %% "reactivemongo-alias" % v % Provided,
+          "org.reactivemongo" %% "reactivemongo-bson-api" % ver % Provided,
+          "io.netty" % "netty-handler" % "4.1.43.Final" % Provided)
+      }
+    }
+
+    rmDeps.map(_.exclude("com.typesafe.akka", "*")) ++: (Seq(
+      "specs2-core", "specs2-junit").map(
+      n => ("org.specs2" %% n % "4.10.6").
+        cross(CrossVersion.for3Use2_13) % Test) ++: Seq(
+      Dependencies.slf4jSimple % Test))
+  }
 }

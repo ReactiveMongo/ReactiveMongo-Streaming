@@ -6,14 +6,15 @@ import reactivemongo.api.bson.collection.BSONSerializationPack
 
 import reactivemongo.api.gridfs.ReadFile
 
+import reactivemongo.play.iteratees.{ tests, GridFS }
+
 import org.specs2.concurrent.ExecutionEnv
 
 import play.api.libs.iteratee._
-import reactivemongo.play.iteratees.{ tests, GridFS }
 
 final class GridFSSpec(implicit ee: ExecutionEnv)
-  extends org.specs2.mutable.Specification
-  with org.specs2.specification.AfterAll {
+    extends org.specs2.mutable.Specification
+    with org.specs2.specification.AfterAll {
 
   "GridFS (with Iteratee support)" title
 
@@ -24,7 +25,8 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
   lazy val db = {
     val _db = Common.connection.database(
       s"iteratees-gridfs-${System identityHashCode this}",
-      Common.failoverStrategy)
+      Common.failoverStrategy
+    )
 
     Await.result(_db.flatMap { d => d.drop.map(_ => d) }, Common.timeout)
   }
@@ -47,8 +49,9 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
   type GFile = ReadFile[BSONValue, BSONDocument]
 
   def gridFsSpec(
-    gfs: GridFS[BSONSerializationPack.type],
-    timeout: FiniteDuration) = {
+      gfs: GridFS[BSONSerializationPack.type],
+      timeout: FiniteDuration
+    ) = {
 
     val fs = gfs.gridfs
 
@@ -61,8 +64,10 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
     lazy val content2 = (100 to 200).view.map(_.toByte).toArray
 
     "store a file with computed MD5" in {
-      gfs.save(Enumerator(content2), file2).map(_.filename).
-        aka("filename") must beSome(filename2).await(1, timeout)
+      gfs
+        .save(Enumerator(content2), file2)
+        .map(_.filename)
+        .aka("filename") must beSome(filename2).await(1, timeout)
     }
 
     "find the files" in {
@@ -70,9 +75,10 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
         fs.find(BSONDocument("filename" -> n)).headOption
 
       def matchFile(
-        actual: GFile,
-        expected: fs.FileToSave[BSONValue],
-        content: Array[Byte]) = actual.filename must_=== expected.filename and {
+          actual: GFile,
+          expected: fs.FileToSave[BSONValue],
+          content: Array[Byte]
+        ) = actual.filename must_=== expected.filename and {
         actual.uploadDate must beSome
       } and (actual.contentType must_=== expected.contentType) and {
         import scala.collection.mutable.ArrayBuilder
@@ -82,9 +88,10 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
         val buf = new java.io.ByteArrayOutputStream()
 
         res.map(_.result()) must beTypedEqualTo(content).awaitFor(timeout) and {
-          fs.readToOutputStream(actual, buf).
-            map(_ => buf.toByteArray) must beTypedEqualTo(content).
-            awaitFor(timeout)
+          fs.readToOutputStream(actual, buf)
+            .map(_ => buf.toByteArray) must beTypedEqualTo(content).awaitFor(
+            timeout
+          )
         }
       }
 

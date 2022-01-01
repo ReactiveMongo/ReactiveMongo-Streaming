@@ -35,11 +35,11 @@ import reactivemongo.akkastream.{ AkkaStreamCursor, cursorProducer, State }
 
 implicit def materializer: akka.stream.Materializer = ???
 
-implicit val reader = BSONDocumentReader[Int] { doc =>
-  doc.getAsTry[Int]("age").getOrElse(sys.error("Missing age"))
-}
+val ageReader = BSONDocumentReader.field[Int]("age")
 
 def foo(collection: BSONCollection): (Source[Int, Future[State]], Publisher[Int]) = {
+  implicit def reader: BSONDocumentReader[Int] = ageReader
+
   val cursor: AkkaStreamCursor[Int] =
     collection.find(BSONDocument.empty/* findAll */).
     sort(BSONDocument("id" -> 1)).cursor[Int]()

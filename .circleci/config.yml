@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.5.5"
+        default: "1.6.1"
     steps:
       - restore_cache:
           keys:
@@ -150,6 +150,26 @@ jobs:
       - store_test_results:
           path: test-reports
 
+  scala31_akka26:
+    docker:
+      - image: circleci/openjdk:11-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      AKKA_VERSION: 2.6.18
+      ITERATEES_VERSION: no
+      SCALA_VERSION: 3.1.2-RC1-bin-20211222-c94b333-NIGHTLY
+
+    steps:
+      - checkout
+      - setup_sbt
+      - setup_integration
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
   publish_snapshots:
     docker:
       - image: circleci/openjdk:8-jdk
@@ -218,6 +238,7 @@ workflows:
       - scala211_akka24
       - scala212_akka25
       - scala213_akka26
+      - scala31_akka26
 
       - publish_snapshots:
           filters:
@@ -228,6 +249,7 @@ workflows:
             - scala211_akka24
             - scala212_akka25
             - scala213_akka26
+            - scala31_akka26
 
       - trigger_dependent_builds:
           filters:

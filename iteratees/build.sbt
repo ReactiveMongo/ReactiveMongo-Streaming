@@ -2,11 +2,22 @@ import com.typesafe.tools.mima.core._, ProblemFilters._
 
 name := "reactivemongo-iteratees"
 
-Test / scalacOptions ++= Seq(
-  "-P:silencer:globalFilters=Use\\ reactivemongo-bson-api")
+Test / scalacOptions ++= {
+  if (!scalaBinaryVersion.value.startsWith("3")) {
+    Seq("-P:silencer:globalFilters=Use\\ reactivemongo-bson-api")
+  } else {
+    Seq.empty
+  }
+}
+
+lazy val disabled = Def.setting[Boolean] {
+  val v = scalaBinaryVersion.value
+
+  v == "2.13" || v == "3"
+}
 
 sourceDirectory := {
-  if (scalaBinaryVersion.value == "2.13") new java.io.File("/no/sources")
+  if (disabled.value) new java.io.File("/no/sources")
   else sourceDirectory.value
 }
 
@@ -17,7 +28,7 @@ publish := (Def.taskDyn {
   val go = publish.value
 
   Def.task {
-    if (ver != "2.13") {
+    if (!disabled.value) {
       go
     }
   }
@@ -38,10 +49,11 @@ lazy val akkaVer = Def.setting[String] {
 }
 
 libraryDependencies ++= {
-  if (scalaBinaryVersion.value != "2.13") {
+  if (!disabled.value) {
     val akkaTestDeps = Seq("actor", "slf4j")
 
-    ("com.typesafe.play" %% "play-iteratees" % playVer.value % Provided) +: (
+    Dependencies.shared.value ++: (
+      "com.typesafe.play" %% "play-iteratees" % playVer.value % Provided) +: (
       akkaTestDeps.map { n =>
         "com.typesafe.akka" %% s"akka-$n" % akkaVer.value % Test
       })
@@ -53,7 +65,7 @@ libraryDependencies ++= {
 
 // MiMa
 mimaPreviousArtifacts := {
-  if (scalaBinaryVersion.value == "2.13") Set.empty
+  if (disabled.value) Set.empty
   else mimaPreviousArtifacts.value
 }
 

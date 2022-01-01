@@ -1,21 +1,27 @@
 import scala.concurrent.Future
 
+import akka.util.ByteString
+
+import akka.actor.ActorSystem
+
+import akka.stream.Materializer
+import akka.stream.scaladsl.{ Sink, Source }
+
 import reactivemongo.api.bson._
 
 import reactivemongo.api.gridfs.FileToSave
 
-import org.specs2.concurrent.ExecutionEnv
-
-import akka.stream.scaladsl.{ Sink, Source }
-import akka.util.ByteString
-import com.github.ghik.silencer.silent
-import org.apache.commons.codec.digest.DigestUtils.md5Hex
 import reactivemongo.akkastream.GridFSStreams
 
-final class GridFSSpec(implicit ee: ExecutionEnv)
-  extends org.specs2.mutable.Specification {
+import org.specs2.concurrent.ExecutionEnv
 
-  "GridFS" title
+import com.github.ghik.silencer.silent
+import org.apache.commons.codec.digest.DigestUtils.md5Hex
+
+final class GridFSSpec(implicit ee: ExecutionEnv)
+    extends org.specs2.mutable.Specification {
+
+  "GridFS".title
 
   sequential
 
@@ -23,12 +29,14 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
 
   import Common.{ db, timeout }
 
-  implicit val system = akka.actor.ActorSystem(
+  implicit val system: ActorSystem = ActorSystem(
     name = "reactivemongo-akkastream",
-    defaultExecutionContext = Some(ee.ec))
+    defaultExecutionContext = Some(ee.ec)
+  )
 
   @silent
-  implicit lazy val materializer = akka.stream.ActorMaterializer.create(system)
+  implicit lazy val materializer: Materializer =
+    akka.stream.ActorMaterializer.create(system)
 
   // ---
 
@@ -69,16 +77,19 @@ final class GridFSSpec(implicit ee: ExecutionEnv)
         gfs.find(BSONDocument("filename" -> n)).headOption
 
       def matchFile(
-        actual: GFile,
-        expected: FileToSave[_, _],
-        content: Array[Byte]) = actual.filename must_=== expected.filename and {
+          actual: GFile,
+          expected: FileToSave[_, _],
+          content: Array[Byte]
+        ) = actual.filename must_=== expected.filename and {
         actual.uploadDate must beSome
       } and (actual.contentType must_=== expected.contentType) and {
-        def consume() = streams.source(actual).
-          runWith(Sink.fold(Seq.newBuilder[Byte]) { _ ++= _ })
+        def consume() = streams
+          .source(actual)
+          .runWith(Sink.fold(Seq.newBuilder[Byte]) { _ ++= _ })
 
-        consume().map(_.result().toArray).
-          aka("consumed") must beTypedEqualTo(content).await(1, timeout)
+        consume().map(_.result().toArray).aka("consumed") must beTypedEqualTo(
+          content
+        ).await(1, timeout)
       }
 
       find(filename1) aka "file #1" must beSome[GFile].which { actual =>
