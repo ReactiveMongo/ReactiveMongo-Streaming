@@ -2,6 +2,7 @@ import sbt.Keys._
 import sbt._
 
 object Compiler {
+
   private def unmanaged(ver: String, base: File): Seq[File] =
     CrossVersion.partialVersion(ver) match {
       case Some((2, 13)) =>

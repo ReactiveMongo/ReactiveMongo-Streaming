@@ -1,5 +1,6 @@
 resolvers ++= Seq(
-  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases")
+  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases"
+)
 
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 

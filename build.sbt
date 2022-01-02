@@ -17,26 +17,31 @@ ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   Resolver.sonatypeRepo("staging"),
   "Tatami Snapshots".at(
-    "https://raw.github.com/cchantep/tatami/master/snapshots"))
+    "https://raw.github.com/cchantep/tatami/master/snapshots"
+  )
+)
 
 lazy val iteratees = project.in(file("iteratees"))
 
 lazy val `akka-stream` = project.in(file("akka-stream"))
 
-lazy val streaming = (project in file(".")).settings(
-  Seq(
-    publish := ({}),
-    publishTo := None,
-    mimaPreviousArtifacts := Set.empty,
-    mimaFailOnNoPrevious := false,
-    libraryDependencies += (
-      (reactiveMongo % version.value).
-        cross(CrossVersion.for3Use2_13) % Provided).
-      exclude("com.typesafe.akka", "*"),
-    Compile / doc / scalacOptions ++= List(
-      "-skip-packages", "highlightextractor"),
-  ) ++ Release.settings
-).dependsOn(iteratees, `akka-stream`).
-  aggregate(iteratees, `akka-stream`).
-  enablePlugins(ScalaUnidocPlugin).
-  disablePlugins(HighlightExtractorPlugin)
+lazy val streaming = (project in file("."))
+  .settings(
+    Seq(
+      publish := ({}),
+      publishTo := None,
+      mimaPreviousArtifacts := Set.empty,
+      mimaFailOnNoPrevious := false,
+      libraryDependencies += ((reactiveMongo % version.value).cross(
+        CrossVersion.for3Use2_13
+      ) % Provided).exclude("com.typesafe.akka", "*"),
+      Compile / doc / scalacOptions ++= List(
+        "-skip-packages",
+        "highlightextractor"
+      )
+    ) ++ Release.settings
+  )
+  .dependsOn(iteratees, `akka-stream`)
+  .aggregate(iteratees, `akka-stream`)
+  .enablePlugins(ScalaUnidocPlugin)
+  .disablePlugins(HighlightExtractorPlugin)
