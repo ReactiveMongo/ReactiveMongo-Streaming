@@ -21,9 +21,7 @@ Test / scalacOptions ++= {
 
 Test / sources := {
   if (scalaBinaryVersion.value == "3") {
-    (Test / sources).value.filter { f =>
-      f.getName.indexOf("README-md") != -1
-    }
+    (Test / sources).value.filter { f => f.getName.indexOf("README-md") != -1 }
   } else {
     (Test / sources).value
   }
@@ -60,11 +58,14 @@ mimaBinaryIssueFilters ++= {
 
   Seq(
     inamp("reactivemongo.akkastream.GridFSStreams.concat"),
-    dmm("reactivemongo.akkastream.AkkaStreamCursorImpl.peek"))
+    dmm("reactivemongo.akkastream.AkkaStreamCursorImpl.peek")
+  )
 }
 
 // Publish
-apiURL := Some(url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/akka-stream/api/"))
+apiURL := Some(
+  url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/akka-stream/api/")
+)
 
 // Tests
 Test / fork := true

@@ -9,7 +9,8 @@ object Common extends AutoPlugin {
   override def requires = JvmPlugin
 
   val useShaded = settingKey[Boolean](
-    "Use ReactiveMongo-Shaded (see system property 'reactivemongo.shaded')")
+    "Use ReactiveMongo-Shaded (see system property 'reactivemongo.shaded')"
+  )
 
   val driverVersion = settingKey[String]("Version of the driver dependency")
 
@@ -27,8 +28,7 @@ object Common extends AutoPlugin {
         case (a, b) => s"${a}${suffix}${b}"
       }
     }
-  ) ++ Publish.settings ++ (
-    Publish.mimaSettings ++ Release.settings)
+  ) ++ Publish.settings ++ (Publish.mimaSettings ++ Release.settings)
 }
 
 object Dependencies {
@@ -49,14 +49,16 @@ object Dependencies {
           driver,
           "org.reactivemongo" %% "reactivemongo-alias" % v % Provided,
           "org.reactivemongo" %% "reactivemongo-bson-api" % ver % Provided,
-          "io.netty" % "netty-handler" % "4.1.43.Final" % Provided)
+          "io.netty" % "netty-handler" % "4.1.43.Final" % Provided
+        )
       }
     }
 
     rmDeps.map(_.exclude("com.typesafe.akka", "*")) ++: (Seq(
-      "specs2-core", "specs2-junit").map(
-      n => ("org.specs2" %% n % "4.10.6").
-        cross(CrossVersion.for3Use2_13) % Test) ++: Seq(
-      Dependencies.slf4jSimple % Test))
+      "specs2-core",
+      "specs2-junit"
+    ).map(n =>
+      ("org.specs2" %% n % "4.10.6").cross(CrossVersion.for3Use2_13) % Test
+    ) ++: Seq(Dependencies.slf4jSimple % Test))
   }
 }

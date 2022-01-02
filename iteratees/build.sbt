@@ -52,11 +52,9 @@ libraryDependencies ++= {
   if (!disabled.value) {
     val akkaTestDeps = Seq("actor", "slf4j")
 
-    Dependencies.shared.value ++: (
-      "com.typesafe.play" %% "play-iteratees" % playVer.value % Provided) +: (
-      akkaTestDeps.map { n =>
-        "com.typesafe.akka" %% s"akka-$n" % akkaVer.value % Test
-      })
+    Dependencies.shared.value ++: ("com.typesafe.play" %% "play-iteratees" % playVer.value % Provided) +: (akkaTestDeps.map {
+      n => "com.typesafe.akka" %% s"akka-$n" % akkaVer.value % Test
+    })
 
   } else {
     Seq.empty
@@ -89,7 +87,9 @@ mimaBinaryIssueFilters ++= {
 }
 
 // Publish
-apiURL := Some(url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/iteratees/api/"))
+apiURL := Some(
+  url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/iteratees/api/")
+)
 
 // Tests
 Test / fork := true
