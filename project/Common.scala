@@ -34,7 +34,7 @@ object Common extends AutoPlugin {
 object Dependencies {
   val reactiveMongo = "org.reactivemongo" %% "reactivemongo"
 
-  val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.32"
+  val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.33"
 
   val shared = Def.setting[Seq[ModuleID]] {
     val v = (ThisBuild / version).value
