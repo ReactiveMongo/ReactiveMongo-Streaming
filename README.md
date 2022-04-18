@@ -9,7 +9,7 @@
 
 The Akka Streams extension for ReactiveMongo can be built from this source repository.
 
-    sbt publish-local
+    sbt publishLocal
 
 To run the tests, use:
 
