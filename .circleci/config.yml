@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.6.1"
+        default: "1.6.2"
     steps:
       - restore_cache:
           keys:
@@ -192,7 +192,7 @@ jobs:
                       exit 0
                     fi
 
-                    V=`sbt 'show version' 2>&1 | tail -n 2 | cut -d ']' -f 2 | grep SNAPSHOT | sed -e 's/[ \t]*//g'`
+                    V=`sbt ';project akka-stream ;show version' | tail -n 1 | sed -e 's/^.* //g'`
 
                     if [ `echo "$V" | grep -- '-SNAPSHOT' | wc -l` -eq 0 ]; then
                       S=`echo "$V" | perl -pe 's/([0-9]+)$/${\($1 + 1)}-SNAPSHOT/'`
