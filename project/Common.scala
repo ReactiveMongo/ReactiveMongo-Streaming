@@ -18,7 +18,7 @@ object Common extends AutoPlugin {
     mimaFailOnNoPrevious := false,
     useShaded := sys.env.get("REACTIVEMONGO_SHADED").fold(true)(_.toBoolean),
     driverVersion := {
-      /*val v = (ThisBuild / version).value
+      val v = (ThisBuild / version).value
       val suffix = {
         if (useShaded.value) "" // default ~> no suffix
         else "-noshaded"
@@ -26,8 +26,7 @@ object Common extends AutoPlugin {
 
       v.span(_ != '-') match {
         case (a, b) => s"${a}${suffix}${b}"
-      }*/
-      "1.1.0-RC3"
+      }
     }
   ) ++ Publish.settings ++ (Publish.mimaSettings ++ Release.settings)
 }
