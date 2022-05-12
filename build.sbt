@@ -32,9 +32,8 @@ lazy val streaming = (project in file("."))
       publishTo := None,
       mimaPreviousArtifacts := Set.empty,
       mimaFailOnNoPrevious := false,
-      libraryDependencies += ((reactiveMongo % version.value).cross(
-        CrossVersion.for3Use2_13
-      ) % Provided).exclude("com.typesafe.akka", "*"),
+      libraryDependencies += (reactiveMongo % version.value % Provided).
+        exclude("com.typesafe.akka", "*"),
       Compile / doc / scalacOptions ++= List(
         "-skip-packages",
         "highlightextractor"
