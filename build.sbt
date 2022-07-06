@@ -2,7 +2,7 @@ import Dependencies._
 
 ThisBuild / organization := "org.reactivemongo"
 
-ThisBuild / scalaVersion := "2.12.15"
+ThisBuild / scalaVersion := "2.12.16"
 
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
@@ -32,8 +32,8 @@ lazy val streaming = (project in file("."))
       publishTo := None,
       mimaPreviousArtifacts := Set.empty,
       mimaFailOnNoPrevious := false,
-      libraryDependencies += (reactiveMongo % version.value % Provided).
-        exclude("com.typesafe.akka", "*"),
+      libraryDependencies += (reactiveMongo % version.value % Provided)
+        .exclude("com.typesafe.akka", "*"),
       Compile / doc / scalacOptions ++= List(
         "-skip-packages",
         "highlightextractor"
