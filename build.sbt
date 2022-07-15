@@ -7,19 +7,18 @@ ThisBuild / scalaVersion := "2.12.16"
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
   scalaVersion.value,
-  "2.13.7",
-  "3.1.3-RC2"
+  "2.13.8",
+  "3.1.3"
 )
 
 crossVersion := CrossVersion.binary
 
-ThisBuild / resolvers ++= Seq(
-  Resolver.sonatypeRepo("snapshots"),
-  Resolver.sonatypeRepo("staging"),
+ThisBuild / resolvers ++= {
   "Tatami Snapshots".at(
     "https://raw.github.com/cchantep/tatami/master/snapshots"
-  )
-)
+  ) +: Resolver.sonatypeOssRepos("snapshots") ++:
+    Resolver.sonatypeOssRepos("staging")
+}
 
 lazy val iteratees = project.in(file("iteratees"))
 
