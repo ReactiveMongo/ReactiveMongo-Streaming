@@ -100,6 +100,19 @@ object Compiler {
         )
       } else Seq.empty
     },
+    // Mock silencer for Scala3
+    Test / doc / scalacOptions ++= List("-skip-packages", "com.github.ghik"),
+    Compile / packageBin / mappings ~= {
+      _.filter {
+        case (_, path) => !path.startsWith("com/github/ghik")
+      }
+    },
+    Compile / packageSrc / mappings ~= {
+      _.filter {
+        case (_, path) => path != "silent.scala"
+      }
+    },
+    // --
     Compile / doc / scalacOptions ~= {
       _.filterNot(excludeOpt)
     },
