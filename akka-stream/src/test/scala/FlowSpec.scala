@@ -229,7 +229,7 @@ final class FlowSpec(implicit ee: ExecutionEnv)
   "Bulk update flow" should {
     type TestBuilder = FlowBuilder => (
         (String, Int) => UpElmt
-    ) => Flow[Iterable[(String, Int)], Int, NotUsed]
+      ) => Flow[Iterable[(String, Int)], Int, NotUsed]
 
     def updateSpec(label: String)(tb: TestBuilder) = label >> {
       def spec(
@@ -339,33 +339,31 @@ final class FlowSpec(implicit ee: ExecutionEnv)
 
     // ---
 
-    updateSpec("be ordered") {
-      b =>
-        { (f: ((String, Int) => UpElmt)) =>
-          b.updateMany[(String, Int)](parallelism = 2) {
-            case (upd, (str, v)) =>
-              val e = f(str, v)
-              upd.element(e.q, e.u, e.upsert, e.multi, collation = None)
-          }.map(_.n)
-        }
+    updateSpec("be ordered") { b =>
+      { (f: ((String, Int) => UpElmt)) =>
+        b.updateMany[(String, Int)](parallelism = 2) {
+          case (upd, (str, v)) =>
+            val e = f(str, v)
+            upd.element(e.q, e.u, e.upsert, e.multi, collation = None)
+        }.map(_.n)
+      }
     }
 
-    updateSpec("be ordered") {
-      b =>
-        { (f: ((String, Int) => UpElmt)) =>
-          b.updateManyUnordered[(String, Int)](parallelism = 5) {
-            case (upd, (str, v)) =>
-              val e = f(str, v)
-              upd.element(e.q, e.u, e.upsert, e.multi, collation = None)
-          }.map(_.n)
-        }
+    updateSpec("be ordered") { b =>
+      { (f: ((String, Int) => UpElmt)) =>
+        b.updateManyUnordered[(String, Int)](parallelism = 5) {
+          case (upd, (str, v)) =>
+            val e = f(str, v)
+            upd.element(e.q, e.u, e.upsert, e.multi, collation = None)
+        }.map(_.n)
+      }
     }
   }
 
   "Update flow" should {
     type TestBuilder = FlowBuilder => (
         (String, Int) => UpElmt
-    ) => Flow[(String, Int), Int, NotUsed]
+      ) => Flow[(String, Int), Int, NotUsed]
 
     def updateSpec(label: String)(tb: TestBuilder) = label >> {
       def spec(
@@ -473,26 +471,24 @@ final class FlowSpec(implicit ee: ExecutionEnv)
 
     // ---
 
-    updateSpec("be ordered") {
-      b =>
-        { (f: ((String, Int) => UpElmt)) =>
-          b.updateOne[(String, Int)](parallelism = 2) {
-            case (upd, (str, v)) =>
-              val e = f(str, v)
-              upd.element(e.q, e.u, e.upsert, e.multi, collation = None)
-          }.map(_.n)
-        }
+    updateSpec("be ordered") { b =>
+      { (f: ((String, Int) => UpElmt)) =>
+        b.updateOne[(String, Int)](parallelism = 2) {
+          case (upd, (str, v)) =>
+            val e = f(str, v)
+            upd.element(e.q, e.u, e.upsert, e.multi, collation = None)
+        }.map(_.n)
+      }
     }
 
-    updateSpec("be ordered") {
-      b =>
-        { (f: ((String, Int) => UpElmt)) =>
-          b.updateOneUnordered[(String, Int)](parallelism = 5) {
-            case (upd, (str, v)) =>
-              val e = f(str, v)
-              upd.element(e.q, e.u, e.upsert, e.multi, collation = None)
-          }.map(_.n)
-        }
+    updateSpec("be ordered") { b =>
+      { (f: ((String, Int) => UpElmt)) =>
+        b.updateOneUnordered[(String, Int)](parallelism = 5) {
+          case (upd, (str, v)) =>
+            val e = f(str, v)
+            upd.element(e.q, e.u, e.upsert, e.multi, collation = None)
+        }.map(_.n)
+      }
     }
   }
 
