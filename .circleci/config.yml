@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.7.1"
+        default: "1.8.2"
     steps:
       - restore_cache:
           keys:
@@ -192,7 +192,9 @@ jobs:
                       exit 0
                     fi
 
-                    V=`sbt ';project akka-stream ;show version' | tail -n 1 | sed -e 's/^.* //g'`
+                    V=`sbt -Dsbt.log.noformat=true ';project akka-stream ;show version' | tail -n 1 | sed -e 's/^.* //g'`
+
+                    echo "Static version: $V"
 
                     if [ `echo "$V" | grep -- '-SNAPSHOT' | wc -l` -eq 0 ]; then
                       S=`echo "$V" | perl -pe 's/([0-9]+)$/${\($1 + 1)}-SNAPSHOT/'`
