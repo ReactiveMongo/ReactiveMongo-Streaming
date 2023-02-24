@@ -18,7 +18,9 @@ import org.specs2.concurrent.ExecutionEnv
 import com.github.ghik.silencer.silent
 import org.apache.commons.codec.digest.DigestUtils.md5Hex
 
-final class GridFSSpec(implicit ee: ExecutionEnv)
+final class GridFSSpec(
+    implicit
+    ee: ExecutionEnv)
     extends org.specs2.mutable.Specification {
 
   "GridFS".title

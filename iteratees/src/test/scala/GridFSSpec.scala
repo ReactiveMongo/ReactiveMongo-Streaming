@@ -12,7 +12,9 @@ import org.specs2.concurrent.ExecutionEnv
 
 import play.api.libs.iteratee._
 
-final class GridFSSpec(implicit ee: ExecutionEnv)
+final class GridFSSpec(
+    implicit
+    ee: ExecutionEnv)
     extends org.specs2.mutable.Specification
     with org.specs2.specification.AfterAll {
 

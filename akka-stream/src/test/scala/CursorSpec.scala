@@ -25,7 +25,9 @@ import org.specs2.concurrent.ExecutionEnv
 import com.github.ghik.silencer.silent
 import org.reactivestreams.Publisher
 
-final class CursorSpec(implicit ee: ExecutionEnv)
+final class CursorSpec(
+    implicit
+    ee: ExecutionEnv)
     extends org.specs2.mutable.Specification
     with CursorFixtures {
 
@@ -721,7 +723,11 @@ sealed trait CursorFixtures { specs: CursorSpec =>
     )(cursorFlattener)
   }
 
-  def collection(n: String)(implicit ee: ExecutionEnv): Future[BSONCollection] =
+  def collection(
+      n: String
+    )(implicit
+      ee: ExecutionEnv
+    ): Future[BSONCollection] =
     withFixtures(db(s"akka${n}_${System identityHashCode ee}"))
 
   def withFixtures(

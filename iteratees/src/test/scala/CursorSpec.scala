@@ -19,7 +19,9 @@ import play.api.libs.iteratee.Iteratee
 
 import Cursor.{ ContOnError, FailOnError }
 
-final class CursorSpec(implicit ee: ExecutionEnv)
+final class CursorSpec(
+    implicit
+    ee: ExecutionEnv)
     extends org.specs2.mutable.Specification {
 
   "Cursor" title
