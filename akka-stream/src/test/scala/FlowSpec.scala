@@ -24,7 +24,9 @@ import org.specs2.concurrent.ExecutionEnv
 
 import com.github.ghik.silencer.silent
 
-final class FlowSpec(implicit ee: ExecutionEnv)
+final class FlowSpec(
+    implicit
+    ee: ExecutionEnv)
     extends org.specs2.mutable.Specification {
 
   "Flows".title
