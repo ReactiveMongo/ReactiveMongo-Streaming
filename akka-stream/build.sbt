@@ -49,7 +49,7 @@ libraryDependencies ++= Dependencies.shared.value ++ Seq(
     .cross(CrossVersion.for3Use2_13) % Test
 )
 
-libraryDependencies += "commons-codec" % "commons-codec" % "1.15" % Test
+libraryDependencies += "commons-codec" % "commons-codec" % "1.16.0" % Test
 
 // MiMa
 mimaBinaryIssueFilters ++= {
