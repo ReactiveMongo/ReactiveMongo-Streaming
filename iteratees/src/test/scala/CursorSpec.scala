@@ -70,7 +70,7 @@ final class CursorSpec(
       var i = 0
       (enumerator |>>> Iteratee.foreach { _ =>
         i += 1
-      // println(s"\tgot doc: $doc")
+        // println(s"\tgot doc: $doc")
       } map (_ => -1)).recover({ case _ => i }) must beEqualTo(3).awaitFor(
         timeout
       )
@@ -86,7 +86,7 @@ final class CursorSpec(
       var i = 0
       (enumerator |>>> Iteratee.foreach { _ =>
         i += 1
-      // println(s"\t(skipping [$i]) got doc: $doc")
+        // println(s"\t(skipping [$i]) got doc: $doc")
       }).map(_ => i) must beEqualTo(4).awaitFor(timeout)
     }
 
