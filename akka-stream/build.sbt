@@ -35,18 +35,10 @@ lazy val akkaVer = Def.setting[String] {
   }
 }
 
-val akkaContribVer = Def.setting[String] {
-  if (!akkaVer.value.startsWith("2.4")) "0.10+9-a20362e2"
-  else "0.10"
-}
-
 libraryDependencies ++= Dependencies.shared.value ++ Seq(
   "com.typesafe.akka" %% "akka-stream" % akkaVer.value,
   "com.typesafe.akka" %% "akka-slf4j" % akkaVer.value % Test,
-  "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer.value % Test,
-  ("com.typesafe.akka" %% "akka-stream-contrib" % akkaContribVer.value)
-    .exclude("com.typesafe.akka", "*")
-    .cross(CrossVersion.for3Use2_13) % Test
+  "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer.value % Test
 )
 
 libraryDependencies += "commons-codec" % "commons-codec" % "1.16.0" % Test
