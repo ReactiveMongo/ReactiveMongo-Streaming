@@ -13,7 +13,7 @@ object Compiler {
 
     }
 
-  private val silencerVer = Def.setting[String]("1.7.12")
+  private val silencerVer = Def.setting[String]("1.7.14")
 
   lazy val settings = Seq(
     Compile / unmanagedSourceDirectories ++= {
@@ -88,7 +88,7 @@ object Compiler {
     libraryDependencies ++= {
       // Silencer
       if (!scalaBinaryVersion.value.startsWith("3")) {
-        val silencerVersion = "1.7.12"
+        val silencerVersion = "1.7.14"
 
         Seq(
           compilerPlugin(
