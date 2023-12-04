@@ -4,12 +4,12 @@ import java.util.Arrays
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import reactivemongo.api.{ ReadPreference, SerializationPack }
-import reactivemongo.api.gridfs.{ GridFS => CoreFS }
-
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{ Sink, Source }
 import org.apache.pekko.util.ByteString
+
+import reactivemongo.api.{ ReadPreference, SerializationPack }
+import reactivemongo.api.gridfs.{ GridFS => CoreFS }
 
 /**
  * Pekko-stream support for GridFS.

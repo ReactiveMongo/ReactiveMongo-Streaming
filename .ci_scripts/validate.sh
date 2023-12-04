@@ -10,7 +10,7 @@ SCRIPT_DIR=`dirname $0 | sed -e "s|^\./|$PWD/|"`
 
 cd "$SCRIPT_DIR/.."
 
-if [ ! `echo "$SCALA_VERSION" | sed -e 's/^3\..*/3/'` = "3" ]; then
+if [ ! `echo "$SCALA_VERSION" | sed -e 's/^3\..*/3/'` = "3" -a ! "v$SCALA_VERSION" = "v2.11.12" ]; then
     sbt ++$SCALA_VERSION ';scalafixAll -check ;scalafmtAll'
 
     git diff --exit-code || (

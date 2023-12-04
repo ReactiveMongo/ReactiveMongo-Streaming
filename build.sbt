@@ -41,7 +41,6 @@ lazy val streaming = (project in file("."))
       )
     ) ++ Release.settings
   )
-  .dependsOn(iteratees, `akka-stream`)
-  .aggregate(iteratees, `akka-stream`)
+  .aggregate(iteratees, `akka-stream`, `pekko-stream`)
   .enablePlugins(ScalaUnidocPlugin)
   .disablePlugins(HighlightExtractorPlugin)

@@ -22,8 +22,6 @@ import reactivemongo.akkastream.Flows
 
 import org.specs2.concurrent.ExecutionEnv
 
-import com.github.ghik.silencer.silent
-
 final class FlowSpec(
     implicit
     ee: ExecutionEnv)
@@ -36,7 +34,6 @@ final class FlowSpec(
     defaultExecutionContext = Some(ee.ec)
   )
 
-  @silent
   implicit lazy val materializer: Materializer =
     akka.stream.ActorMaterializer.create(system)
 

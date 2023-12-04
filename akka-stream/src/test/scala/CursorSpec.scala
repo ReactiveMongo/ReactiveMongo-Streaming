@@ -6,6 +6,8 @@ import scala.util.{ Failure, Try }
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
+import org.reactivestreams.Publisher
+
 import akka.actor.ActorSystem
 
 import akka.stream.{ KillSwitches, Materializer }
@@ -22,9 +24,6 @@ import reactivemongo.core.actors.Exceptions.ClosedException
 
 import org.specs2.concurrent.ExecutionEnv
 
-import com.github.ghik.silencer.silent
-import org.reactivestreams.Publisher
-
 final class CursorSpec(
     implicit
     ee: ExecutionEnv)
@@ -40,7 +39,6 @@ final class CursorSpec(
     defaultExecutionContext = Some(ee.ec)
   )
 
-  @silent
   implicit lazy val materializer: Materializer =
     akka.stream.ActorMaterializer.create(system)
 
@@ -680,7 +678,7 @@ final class CursorSpec(
 
   // ---
 
-  @silent @inline def expectNoMsg[T](
+  @inline def expectNoMsg[T](
       c: akka.stream.testkit.TestSubscriber.ManualProbe[T],
       timeout: FiniteDuration
     ) = c.expectNoMsg(timeout)

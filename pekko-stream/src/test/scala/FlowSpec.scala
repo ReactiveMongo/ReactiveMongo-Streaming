@@ -1,5 +1,10 @@
 import scala.concurrent.Future
 
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.{ ActorAttributes, Materializer, Supervision }
+import org.apache.pekko.stream.scaladsl.{ Flow, Sink, Source }
+
 import reactivemongo.api.bson.{
   BSON,
   BSONDocument,
@@ -15,12 +20,6 @@ import reactivemongo.pekkostream.Flows
 
 import org.specs2.concurrent.ExecutionEnv
 
-import com.github.ghik.silencer.silent
-import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.{ ActorAttributes, Materializer, Supervision }
-import org.apache.pekko.stream.scaladsl.{ Flow, Sink, Source }
-
 final class FlowSpec(
     implicit
     ee: ExecutionEnv)
@@ -33,9 +32,8 @@ final class FlowSpec(
     defaultExecutionContext = Some(ee.ec)
   )
 
-  @silent
   implicit lazy val materializer: Materializer =
-    org.apache.pekko.stream.ActorMaterializer.create(system)
+    org.apache.pekko.stream.Materializer.createMaterializer(system)
 
   import Common.{ db, timeout }
 

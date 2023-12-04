@@ -2,15 +2,14 @@ package reactivemongo.pekkostream
 
 import scala.concurrent.{ ExecutionContext, Future }
 
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.Flow
+
 import reactivemongo.api.{ SerializationPack, WriteConcern }
 import reactivemongo.api.collections.GenericCollection
 import reactivemongo.api.commands.WriteResult
 
 import reactivemongo.util.sameThreadExecutionContext
-
-import com.github.ghik.silencer.silent
-import org.apache.pekko.NotUsed
-import org.apache.pekko.stream.scaladsl.Flow
 
 /**
  * Flow builder to stream data to MongoDB.
@@ -355,7 +354,6 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }
    * }}}
    */
-  @silent
   def updateOne[T](
       parallelism: Int,
       writeConcern: Option[WriteConcern] = None,
@@ -409,7 +407,6 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }
    * }}}
    */
-  @silent
   def updateOneUnordered[T](
       parallelism: Int,
       writeConcern: Option[WriteConcern] = None,

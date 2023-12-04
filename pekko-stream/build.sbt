@@ -2,12 +2,22 @@ import com.typesafe.tools.mima.core._, ProblemFilters._
 
 name := "reactivemongo-pekkostream"
 
+Common.usePekko := true
+
+crossScalaVersions ~= {
+  _.filterNot(v => v.startsWith("2.11") || v.startsWith("3"))
+}
+
+mimaPreviousArtifacts := Set.empty
+
 Compile / compile / scalacOptions ++= {
-  if (scalaBinaryVersion.value == "3") {
-    Seq("-Wconf:cat=deprecation&msg=.*(fromFuture|UpdateBuilder).*:s")
-  } else {
-    Seq.empty
-  }
+  val v = scalaBinaryVersion.value
+
+  Seq("-Wconf:cat=deprecation&msg=.*(fromFuture|UpdateBuilder).*:s")
+}
+
+Test / compile / scalacOptions ++= {
+  Seq("-Wconf:cat=deprecation&msg=.*expectNoMessage.*:s")
 }
 
 // See https://github.com/scala/bug/issues/11880#issuecomment-583682673

@@ -12,8 +12,6 @@ import reactivemongo.api.commands.WriteResult
 
 import reactivemongo.util.sameThreadExecutionContext
 
-import com.github.ghik.silencer.silent
-
 /**
  * Flow builder to stream data to MongoDB.
  *
@@ -357,7 +355,6 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }
    * }}}
    */
-  @silent
   def updateOne[T](
       parallelism: Int,
       writeConcern: Option[WriteConcern] = None,
@@ -411,7 +408,6 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * }
    * }}}
    */
-  @silent
   def updateOneUnordered[T](
       parallelism: Int,
       writeConcern: Option[WriteConcern] = None,

@@ -15,7 +15,6 @@ import reactivemongo.akkastream.GridFSStreams
 
 import org.specs2.concurrent.ExecutionEnv
 
-import com.github.ghik.silencer.silent
 import org.apache.commons.codec.digest.DigestUtils.md5Hex
 
 final class GridFSSpec(
@@ -36,7 +35,6 @@ final class GridFSSpec(
     defaultExecutionContext = Some(ee.ec)
   )
 
-  @silent
   implicit lazy val materializer: Materializer =
     akka.stream.ActorMaterializer.create(system)
 

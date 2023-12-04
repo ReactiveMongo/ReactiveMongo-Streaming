@@ -4,13 +4,13 @@ import scala.util.{ Failure, Success, Try }
 
 import scala.concurrent.{ ExecutionContext, Future }
 
+import org.apache.pekko.stream.{ Attributes, Outlet, SourceShape }
+import org.apache.pekko.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
+
 import reactivemongo.api.Cursor
 
 import reactivemongo.core.errors.GenericDriverException
 import reactivemongo.core.protocol.Response
-
-import org.apache.pekko.stream.{ Attributes, Outlet, SourceShape }
-import org.apache.pekko.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
 
 import Cursor.ErrorHandler
 

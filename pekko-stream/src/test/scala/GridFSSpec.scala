@@ -1,5 +1,10 @@
 import scala.concurrent.Future
 
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{ Sink, Source }
+import org.apache.pekko.util.ByteString
+
 import reactivemongo.api.bson._
 
 import reactivemongo.api.gridfs.FileToSave
@@ -8,12 +13,7 @@ import reactivemongo.pekkostream.GridFSStreams
 
 import org.specs2.concurrent.ExecutionEnv
 
-import com.github.ghik.silencer.silent
 import org.apache.commons.codec.digest.DigestUtils.md5Hex
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.Materializer
-import org.apache.pekko.stream.scaladsl.{ Sink, Source }
-import org.apache.pekko.util.ByteString
 
 final class GridFSSpec(
     implicit
@@ -33,9 +33,8 @@ final class GridFSSpec(
     defaultExecutionContext = Some(ee.ec)
   )
 
-  @silent
   implicit lazy val materializer: Materializer =
-    org.apache.pekko.stream.ActorMaterializer.create(system)
+    org.apache.pekko.stream.Materializer.createMaterializer(system)
 
   // ---
 

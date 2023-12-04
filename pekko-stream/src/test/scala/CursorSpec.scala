@@ -6,22 +6,22 @@ import scala.util.{ Failure, Try }
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
+import org.reactivestreams.Publisher
+
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.{ KillSwitches, Materializer }
+import org.apache.pekko.stream.scaladsl.{ Keep, Sink, Source }
+import org.apache.pekko.stream.testkit.TestSubscriber
+
 import reactivemongo.api.bson.{ BSONDocument, BSONDocumentReader }
 import reactivemongo.api.bson.collection.BSONCollection
 
 import reactivemongo.api.{ Cursor, DB }
 
 import reactivemongo.core.actors.Exceptions.ClosedException
-import reactivemongo.pekkostream.{cursorFlattener, Flows, PekkoStreamCursor}
+import reactivemongo.pekkostream.{ cursorFlattener, Flows, PekkoStreamCursor }
 
 import org.specs2.concurrent.ExecutionEnv
-
-import com.github.ghik.silencer.silent
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.{ KillSwitches, Materializer }
-import org.apache.pekko.stream.scaladsl.{ Keep, Sink, Source }
-import org.apache.pekko.stream.testkit.TestSubscriber
-import org.reactivestreams.Publisher
 
 final class CursorSpec(
     implicit
@@ -38,9 +38,8 @@ final class CursorSpec(
     defaultExecutionContext = Some(ee.ec)
   )
 
-  @silent
   implicit lazy val materializer: Materializer =
-    org.apache.pekko.stream.ActorMaterializer.create(system)
+    org.apache.pekko.stream.Materializer.createMaterializer(system)
 
   import Common.{ primaryHost, timeout }
   lazy val db = Common.db
@@ -678,7 +677,7 @@ final class CursorSpec(
 
   // ---
 
-  @silent @inline def expectNoMsg[T](
+  @inline def expectNoMsg[T](
       c: org.apache.pekko.stream.testkit.TestSubscriber.ManualProbe[T],
       timeout: FiniteDuration
     ) = c.expectNoMsg(timeout)

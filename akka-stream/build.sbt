@@ -3,10 +3,18 @@ import com.typesafe.tools.mima.core._, ProblemFilters._
 name := "reactivemongo-akkastream"
 
 Compile / compile / scalacOptions ++= {
-  if (scalaBinaryVersion.value == "3") {
-    Seq("-Wconf:cat=deprecation&msg=.*(fromFuture|UpdateBuilder).*:s")
-  } else {
+  if (scalaBinaryVersion.value == "2.11") {
     Seq.empty
+  } else {
+    Seq("-Wconf:cat=deprecation&msg=.*(fromFuture|UpdateBuilder).*:s")
+  }
+}
+
+Test / compile / scalacOptions ++= {
+  if (scalaBinaryVersion.value == "2.11") {
+    Seq.empty
+  } else {
+    Seq("-Wconf:cat=deprecation&msg=.*(expectNoMessage|ActorMaterializer).*:s")
   }
 }
 

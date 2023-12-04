@@ -2,6 +2,8 @@ package reactivemongo.akkastream
 
 import scala.concurrent.{ ExecutionContext, Future }
 
+import org.reactivestreams.Publisher
+
 import akka.stream.Materializer
 import akka.stream.scaladsl.{ Sink, Source }
 
@@ -12,8 +14,6 @@ import reactivemongo.api.{
   WrappedCursor,
   WrappedCursorOps
 }
-
-import org.reactivestreams.Publisher
 
 import Cursor.{ ErrorHandler, FailOnError }
 
@@ -151,9 +151,6 @@ final class AkkaStreamFlattenedCursor[T](
     extends FlattenedCursor[T](cursor)
     with AkkaStreamCursor[T] {
 
-  import com.github.ghik.silencer.silent
-
-  @silent(".*fromFuture.*")
   def bulkSource(
       maxDocs: Int = Int.MaxValue,
       err: ErrorHandler[Option[Iterator[T]]] = FailOnError()
@@ -168,7 +165,6 @@ final class AkkaStreamFlattenedCursor[T](
       .mapMaterializedValue(_ => State.materialized)
   }
 
-  @silent(".*fromFuture.*")
   def documentSource(
       maxDocs: Int = Int.MaxValue,
       err: ErrorHandler[Option[T]] = FailOnError()
