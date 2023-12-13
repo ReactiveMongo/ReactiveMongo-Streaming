@@ -1,17 +1,15 @@
 import scala.concurrent.Future
 
-import akka.util.ByteString
-
-import akka.actor.ActorSystem
-
-import akka.stream.Materializer
-import akka.stream.scaladsl.{ Sink, Source }
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{ Sink, Source }
+import org.apache.pekko.util.ByteString
 
 import reactivemongo.api.bson._
 
 import reactivemongo.api.gridfs.FileToSave
 
-import reactivemongo.akkastream.GridFSStreams
+import reactivemongo.pekkostream.GridFSStreams
 
 import org.specs2.concurrent.ExecutionEnv
 
@@ -31,12 +29,12 @@ final class GridFSSpec(
   import Common.{ db, timeout }
 
   implicit val system: ActorSystem = ActorSystem(
-    name = "reactivemongo-akkastream",
+    name = "reactivemongo-pekkostream",
     defaultExecutionContext = Some(ee.ec)
   )
 
   implicit lazy val materializer: Materializer =
-    akka.stream.ActorMaterializer.create(system)
+    org.apache.pekko.stream.Materializer.createMaterializer(system)
 
   // ---
 

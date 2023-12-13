@@ -13,8 +13,6 @@ object Compiler {
 
     }
 
-  private val silencerVer = Def.setting[String]("1.17.13")
-
   lazy val settings = Seq(
     Compile / unmanagedSourceDirectories ++= {
       unmanaged(scalaVersion.value, (Compile / sourceDirectory).value)
@@ -25,23 +23,29 @@ object Compiler {
       "-unchecked",
       "-deprecation",
       "-feature",
-      "-Xfatal-warnings",
       "-language:higherKinds"
     ),
     scalacOptions ++= {
+      if (scalaBinaryVersion.value != "2.11") {
+        Seq("-Xfatal-warnings")
+      } else {
+        Seq.empty
+      }
+    },
+    scalacOptions ++= {
       if (scalaBinaryVersion.value startsWith "2.") {
         Seq(
-          "-target:jvm-1.8",
           "-Xlint",
           "-g:vars"
         )
-      } else Seq()
+      } else Seq.empty
     },
     scalacOptions ++= {
       val sv = scalaBinaryVersion.value
 
       if (sv == "2.12") {
         Seq(
+          "-target:jvm-1.8",
           "-Xmax-classfile-name",
           "128",
           "-Ywarn-numeric-widen",
@@ -55,6 +59,7 @@ object Compiler {
         )
       } else if (sv == "2.11") {
         Seq(
+          "-target:jvm-1.8",
           "-Xmax-classfile-name",
           "128",
           "-Yopt:_",
@@ -64,6 +69,8 @@ object Compiler {
         )
       } else if (sv == "2.13") {
         Seq(
+          "-release",
+          "8",
           "-explaintypes",
           "-Werror",
           "-Wnumeric-widen",
@@ -74,41 +81,15 @@ object Compiler {
           "-Wunused"
         )
       } else {
-        Seq("-Wunused:all", "-language:implicitConversions")
+        Seq("-release", "8", "-Wunused:all", "-language:implicitConversions")
       }
     },
     Compile / console / scalacOptions ~= {
-      _.filterNot(o =>
-        o.startsWith("-X") || o.startsWith("-Y") || o.startsWith("-P:silencer")
-      )
+      _.filterNot(o => o.startsWith("-X") || o.startsWith("-Y"))
     },
     Test / scalacOptions ~= {
       _.filterNot(_ == "-Xfatal-warnings")
     },
-    libraryDependencies ++= {
-      // Silencer
-      if (!scalaBinaryVersion.value.startsWith("3")) {
-        val silencerVersion = "1.17.13"
-
-        Seq(
-          compilerPlugin(
-            ("com.github.ghik" %% "silencer-plugin" % silencerVersion)
-              .cross(CrossVersion.full)
-          ),
-          ("com.github.ghik" %% "silencer-lib" % silencerVersion % Provided)
-            .cross(CrossVersion.full)
-        )
-      } else Seq.empty
-    },
-    // Mock silencer for Scala3
-    Test / doc / scalacOptions ++= List("-skip-packages", "com.github.ghik"),
-    Compile / packageBin / mappings ~= {
-      _.filter { case (_, path) => !path.startsWith("com/github/ghik") }
-    },
-    Compile / packageSrc / mappings ~= {
-      _.filter { case (_, path) => path != "silent.scala" }
-    },
-    // --
     Compile / doc / scalacOptions ~= {
       _.filterNot(excludeOpt)
     },
@@ -124,7 +105,6 @@ object Compiler {
   private lazy val excludeOpt: String => Boolean = { opt =>
     (opt.startsWith("-X") && opt != "-Xmax-classfile-name") ||
     opt.startsWith("-Y") || opt.startsWith("-W") ||
-    opt.startsWith("-P:silencer") ||
     opt.startsWith("-P:semanticdb")
   }
 }

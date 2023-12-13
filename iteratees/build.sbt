@@ -2,14 +2,6 @@ import com.typesafe.tools.mima.core._, ProblemFilters._
 
 name := "reactivemongo-iteratees"
 
-Test / scalacOptions ++= {
-  if (!scalaBinaryVersion.value.startsWith("3")) {
-    Seq("-P:silencer:globalFilters=Use\\ reactivemongo-bson-api")
-  } else {
-    Seq.empty
-  }
-}
-
 lazy val disabled = Def.setting[Boolean] {
   val v = scalaBinaryVersion.value
 

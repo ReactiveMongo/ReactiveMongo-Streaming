@@ -1,10 +1,9 @@
-package reactivemongo.akkastream
+package reactivemongo.pekkostream
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import akka.NotUsed
-
-import akka.stream.scaladsl.Flow
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.Flow
 
 import reactivemongo.api.{ SerializationPack, WriteConcern }
 import reactivemongo.api.collections.GenericCollection
@@ -36,14 +35,14 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * @param bypassDocumentValidation $bypassDocumentValidationParam
    *
    * {{{
-   * import akka.NotUsed
-   * import akka.stream.Materializer
-   * import akka.stream.scaladsl.{ Sink, Source }
+   * import org.apache.pekko.NotUsed
+   * import org.apache.pekko.stream.Materializer
+   * import org.apache.pekko.stream.scaladsl.{ Sink, Source }
    *
    * import reactivemongo.api.bson.BSONDocument
    * import reactivemongo.api.bson.collection.BSONCollection
    *
-   * import reactivemongo.akkastream.Flows
+   * import reactivemongo.pekkostream.Flows
    *
    * def insert(
    *   coll: BSONCollection,
@@ -81,14 +80,14 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * @param bypassDocumentValidation $bypassDocumentValidationParam
    *
    * {{{
-   * import akka.NotUsed
-   * import akka.stream.Materializer
-   * import akka.stream.scaladsl.{ Sink, Source }
+   * import org.apache.pekko.NotUsed
+   * import org.apache.pekko.stream.Materializer
+   * import org.apache.pekko.stream.scaladsl.{ Sink, Source }
    *
    * import reactivemongo.api.bson.BSONDocument
    * import reactivemongo.api.bson.collection.BSONCollection
    *
-   * import reactivemongo.akkastream.Flows
+   * import reactivemongo.pekkostream.Flows
    *
    * def insert(
    *   coll: BSONCollection,
@@ -127,14 +126,14 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * @param bypassDocumentValidation $bypassDocumentValidationParam
    *
    * {{{
-   * import akka.NotUsed
-   * import akka.stream.Materializer
-   * import akka.stream.scaladsl.{ Flow, Sink, Source }
+   * import org.apache.pekko.NotUsed
+   * import org.apache.pekko.stream.Materializer
+   * import org.apache.pekko.stream.scaladsl.{ Flow, Sink, Source }
    *
    * import reactivemongo.api.bson.BSONDocument
    * import reactivemongo.api.bson.collection.BSONCollection
    *
-   * import reactivemongo.akkastream.Flows
+   * import reactivemongo.pekkostream.Flows
    *
    * def insert(
    *   coll: BSONCollection,
@@ -179,14 +178,14 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * @param bypassDocumentValidation $bypassDocumentValidationParam
    *
    * {{{
-   * import akka.NotUsed
-   * import akka.stream.Materializer
-   * import akka.stream.scaladsl.{ Sink, Source }
+   * import org.apache.pekko.NotUsed
+   * import org.apache.pekko.stream.Materializer
+   * import org.apache.pekko.stream.scaladsl.{ Sink, Source }
    *
    * import reactivemongo.api.bson.BSONDocumentWriter
    * import reactivemongo.api.bson.collection.BSONCollection
    *
-   * import reactivemongo.akkastream.Flows
+   * import reactivemongo.pekkostream.Flows
    *
    * def insertUnordered[T](
    *   coll: BSONCollection,
@@ -230,13 +229,13 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * @see [[reactivemongo.api.collections.GenericCollection.UpdateBuilder]]`.element`
    *
    * {{{
-   * import akka.NotUsed
-   * import akka.stream.scaladsl.Flow
+   * import org.apache.pekko.NotUsed
+   * import org.apache.pekko.stream.scaladsl.Flow
    *
    * import reactivemongo.api.bson.BSONDocument
    * import reactivemongo.api.bson.collection.BSONCollection
    *
-   * import reactivemongo.akkastream.Flows
+   * import reactivemongo.pekkostream.Flows
    *
    * def myUpdateFlow(coll: BSONCollection): Flow[
    *   Iterable[(String, BSONDocument)],
@@ -280,14 +279,14 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * {{{
    * import scala.concurrent.Future
    *
-   * import akka.NotUsed
-   * import akka.stream.Materializer
-   * import akka.stream.scaladsl.{ Source, Sink }
+   * import org.apache.pekko.NotUsed
+   * import org.apache.pekko.stream.Materializer
+   * import org.apache.pekko.stream.scaladsl.{ Source, Sink }
    *
    * import reactivemongo.api.bson.BSONDocument
    * import reactivemongo.api.bson.collection.BSONCollection
    *
-   * import reactivemongo.akkastream.Flows
+   * import reactivemongo.pekkostream.Flows
    *
    * def myUpdate(
    *   coll: BSONCollection,
@@ -336,13 +335,13 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * @see [[reactivemongo.api.collections.GenericCollection.UpdateBuilder]]`.element`
    *
    * {{{
-   * import akka.NotUsed
-   * import akka.stream.scaladsl.Flow
+   * import org.apache.pekko.NotUsed
+   * import org.apache.pekko.stream.scaladsl.Flow
    *
    * import reactivemongo.api.bson.BSONDocument
    * import reactivemongo.api.bson.collection.BSONCollection
    *
-   * import reactivemongo.akkastream.Flows
+   * import reactivemongo.pekkostream.Flows
    *
    * def myUpdateFlow(coll: BSONCollection): Flow[
    *   (String, BSONDocument),
@@ -382,14 +381,14 @@ sealed trait Flows[P <: SerializationPack, C <: GenericCollection[P]] {
    * {{{
    * import scala.concurrent.Future
    *
-   * import akka.NotUsed
-   * import akka.stream.Materializer
-   * import akka.stream.scaladsl.{ Source, Sink }
+   * import org.apache.pekko.NotUsed
+   * import org.apache.pekko.stream.Materializer
+   * import org.apache.pekko.stream.scaladsl.{ Source, Sink }
    *
    * import reactivemongo.api.bson.BSONDocument
    * import reactivemongo.api.bson.collection.BSONCollection
    *
-   * import reactivemongo.akkastream.Flows
+   * import reactivemongo.pekkostream.Flows
    *
    * def myUpdate(
    *   coll: BSONCollection,
@@ -458,7 +457,7 @@ object Flows {
    *
    * {{{
    * import reactivemongo.api.bson.collection.BSONCollection
-   * import reactivemongo.akkastream.Flows
+   * import reactivemongo.pekkostream.Flows
    *
    * def flowFor(c: BSONCollection) = Flows(c)
    * }}}

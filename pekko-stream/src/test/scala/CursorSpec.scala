@@ -8,19 +8,18 @@ import scala.concurrent.duration._
 
 import org.reactivestreams.Publisher
 
-import akka.actor.ActorSystem
-
-import akka.stream.{ KillSwitches, Materializer }
-import akka.stream.scaladsl.{ Keep, Sink, Source }
-import akka.stream.testkit.TestSubscriber
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.{ KillSwitches, Materializer }
+import org.apache.pekko.stream.scaladsl.{ Keep, Sink, Source }
+import org.apache.pekko.stream.testkit.TestSubscriber
 
 import reactivemongo.api.bson.{ BSONDocument, BSONDocumentReader }
 import reactivemongo.api.bson.collection.BSONCollection
 
 import reactivemongo.api.{ Cursor, DB }
 
-import reactivemongo.akkastream.{ cursorFlattener, AkkaStreamCursor, Flows }
 import reactivemongo.core.actors.Exceptions.ClosedException
+import reactivemongo.pekkostream.{ cursorFlattener, Flows, PekkoStreamCursor }
 
 import org.specs2.concurrent.ExecutionEnv
 
@@ -35,18 +34,18 @@ final class CursorSpec(
   sequential
 
   implicit val system: ActorSystem = ActorSystem(
-    name = "reactivemongo-akkastream-cursor",
+    name = "reactivemongo-pekkostream-cursor",
     defaultExecutionContext = Some(ee.ec)
   )
 
   implicit lazy val materializer: Materializer =
-    akka.stream.ActorMaterializer.create(system)
+    org.apache.pekko.stream.Materializer.createMaterializer(system)
 
   import Common.{ primaryHost, timeout }
   lazy val db = Common.db
 
   // Akka-Contrib issue with Akka-Stream > 2.5.4
-  // import akka.stream.contrib.TestKit.assertAllStagesStopped
+  // import org.apache.pekko.stream.contrib.TestKit.assertAllStagesStopped
   def assertAllStagesStopped[T](f: => T) = f
 
   "Bulk source" should {
@@ -245,8 +244,8 @@ final class CursorSpec(
         }
 
         insert() must beTypedEqualTo(nDocs).await(1, moreTime) and {
-          import reactivemongo.akkastream.cursorProducer
-          val cursor: AkkaStreamCursor[BSONDocument] =
+          import reactivemongo.pekkostream.cursorProducer
+          val cursor: PekkoStreamCursor[BSONDocument] =
             coll.find(BSONDocument.empty).cursor[BSONDocument]()
 
           def src = cursor.documentSource()
@@ -407,7 +406,7 @@ final class CursorSpec(
 
     "work with large source" >> {
       // ReactiveMongo extensions
-      import reactivemongo.akkastream.cursorProducer
+      import reactivemongo.pekkostream.cursorProducer
 
       implicit def reader: BSONDocumentReader[Int] = IdReader
 
@@ -567,7 +566,7 @@ final class CursorSpec(
         ee: ExecutionEnv
       ) = {
       // ReactiveMongo extensions
-      import reactivemongo.akkastream.cursorProducer
+      import reactivemongo.pekkostream.cursorProducer
       implicit val reader: IdReader.type = IdReader
 
       val (cursor, populate) = capped(n, database, cb)
@@ -648,11 +647,11 @@ final class CursorSpec(
     implicit def reader: IdReader.type = IdReader
 
     "should match index greater than or equal" in {
-      import reactivemongo.akkastream.cursorProducer
+      import reactivemongo.pekkostream.cursorProducer
 
       assertAllStagesStopped {
-        val flatten = Cursor.flatten[Int, AkkaStreamCursor](
-          _: Future[AkkaStreamCursor[Int]]
+        val flatten = Cursor.flatten[Int, PekkoStreamCursor](
+          _: Future[PekkoStreamCursor[Int]]
         )
 
         toSeq(
@@ -666,7 +665,7 @@ final class CursorSpec(
                   Sort(Ascending("id"))
                 )
               )
-              .prepared[AkkaStreamCursor.WithOps]
+              .prepared[PekkoStreamCursor.WithOps]
               .cursor
 
             cursor
@@ -679,14 +678,14 @@ final class CursorSpec(
   // ---
 
   @inline def expectNoMsg[T](
-      c: akka.stream.testkit.TestSubscriber.ManualProbe[T],
+      c: org.apache.pekko.stream.testkit.TestSubscriber.ManualProbe[T],
       timeout: FiniteDuration
     ) = c.expectNoMsg(timeout)
 }
 
 sealed trait CursorFixtures { specs: CursorSpec =>
   // ReactiveMongo extensions
-  import reactivemongo.akkastream.cursorProducer
+  import reactivemongo.pekkostream.cursorProducer
 
   object IdReader extends BSONDocumentReader[Int] {
     def readDocument(doc: BSONDocument): Try[Int] = Try(doc.int("id").get)
@@ -701,14 +700,14 @@ sealed trait CursorFixtures { specs: CursorSpec =>
       n: String
     )(implicit
       ee: ExecutionEnv
-    ): AkkaStreamCursor[Int] = cursor1(n)(collection(_))
+    ): PekkoStreamCursor[Int] = cursor1(n)(collection(_))
 
   @inline def cursor1(
       n: String
     )(col: String => Future[BSONCollection]
     )(implicit
       ee: ExecutionEnv
-    ): AkkaStreamCursor[Int] = {
+    ): PekkoStreamCursor[Int] = {
     implicit val reader: IdReader.type = IdReader
 
     Cursor.flatten(
