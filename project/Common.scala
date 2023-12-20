@@ -25,33 +25,36 @@ object Common extends AutoPlugin {
     bsonVersion := {
       val ver = (ThisBuild / version).value
       val suffix = {
-        if (useShaded.value) "" // default
-        else "-noshaded"
+        if (useShaded.value) "" // default ~> no suffix
+        else "noshaded"
       }
 
-      if (ver endsWith "-SNAPSHOT") {
-        s"${ver stripSuffix "-SNAPSHOT"}${suffix}-SNAPSHOT"
+      if (suffix.isEmpty) {
+        ver
       } else {
         ver.span(_ != '-') match {
-          case (a, b) => s"${a}${suffix}${b}"
-          case _      => s"${ver}${suffix}"
+          case (_, "") => s"${ver}.${suffix}"
+
+          case (a, b) => s"${a}.${suffix}${b}"
         }
       }
     },
+    version := bsonVersion.value,
     driverVersion := {
       val ver = bsonVersion.value
 
       val suffix = {
-        if (usePekko.value) "-pekko"
+        if (usePekko.value) "pekko"
         else ""
       }
 
-      if (ver endsWith "-SNAPSHOT") {
-        s"${ver stripSuffix "-SNAPSHOT"}${suffix}-SNAPSHOT"
+      if (suffix.isEmpty) {
+        ver
       } else {
         ver.span(_ != '-') match {
-          case (a, b) => s"${a}${suffix}${b}"
-          case _      => s"${ver}${suffix}"
+          case (_, "") => s"${ver}.${suffix}"
+
+          case (a, b) => s"${a}.${suffix}${b}"
         }
       }
     }
