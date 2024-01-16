@@ -2,7 +2,7 @@ import Dependencies._
 
 ThisBuild / organization := "org.reactivemongo"
 
-ThisBuild / scalaVersion := "2.12.17"
+ThisBuild / scalaVersion := "2.12.18"
 
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
@@ -24,6 +24,8 @@ lazy val iteratees = project.in(file("iteratees"))
 
 lazy val `akka-stream` = project.in(file("akka-stream"))
 
+lazy val `pekko-stream` = project.in(file("pekko-stream"))
+
 lazy val streaming = (project in file("."))
   .settings(
     Seq(
@@ -39,7 +41,6 @@ lazy val streaming = (project in file("."))
       )
     ) ++ Release.settings
   )
-  .dependsOn(iteratees, `akka-stream`)
-  .aggregate(iteratees, `akka-stream`)
+  .aggregate(iteratees, `akka-stream`, `pekko-stream`)
   .enablePlugins(ScalaUnidocPlugin)
   .disablePlugins(HighlightExtractorPlugin)

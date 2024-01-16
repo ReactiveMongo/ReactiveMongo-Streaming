@@ -1,11 +1,11 @@
-package reactivemongo.akkastream
+package reactivemongo.pekkostream
 
 import scala.concurrent.{ ExecutionContext, Future }
 
 import org.reactivestreams.Publisher
 
-import akka.stream.Materializer
-import akka.stream.scaladsl.{ Sink, Source }
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{ Sink, Source }
 
 import reactivemongo.api.{
   Cursor,
@@ -22,7 +22,7 @@ sealed trait State {}
 
 /** Companion object */
 object State {
-  private[akkastream] val materialized = Future.successful(new State {})
+  private[pekkostream] val materialized = Future.successful(new State {})
 }
 
 /**
@@ -32,7 +32,7 @@ object State {
  * @define fanoutParam see [[http://doc.akka.io/api/akka/2.4.7/index.html#akka.stream.scaladsl.Sink$@asPublisher[T](fanout:Boolean):akka.stream.scaladsl.Sink[T,org.reactivestreams.Publisher[T]] Sink.asPublisher]] (default: false)
  * @define materialization It materializes a `Future` of [[State]] (for now with no detail, for future extension)
  */
-sealed trait AkkaStreamCursor[T] extends Cursor[T] {
+sealed trait PekkoStreamCursor[T] extends Cursor[T] {
 
   /**
    * Returns a source of document bulks
@@ -101,15 +101,15 @@ sealed trait AkkaStreamCursor[T] extends Cursor[T] {
 
 }
 
-object AkkaStreamCursor {
-  type WithOps[T] = AkkaStreamCursor[T] with CursorOps[T]
+object PekkoStreamCursor {
+  type WithOps[T] = PekkoStreamCursor[T] with CursorOps[T]
 }
 
-private[akkastream] final class AkkaStreamCursorImpl[T](
+private[pekkostream] final class PekkoStreamCursorImpl[T](
     val wrappee: Cursor.WithOps[T])
     extends WrappedCursor[T]
     with WrappedCursorOps[T]
-    with AkkaStreamCursor[T] {
+    with PekkoStreamCursor[T] {
   @inline def opsWrappee = wrappee
 
   def bulkSource(
@@ -146,10 +146,10 @@ private[akkastream] final class AkkaStreamCursorImpl[T](
   }
 }
 
-final class AkkaStreamFlattenedCursor[T](
-    cursor: Future[AkkaStreamCursor[T]])
+final class pekkostreamFlattenedCursor[T](
+    cursor: Future[PekkoStreamCursor[T]])
     extends FlattenedCursor[T](cursor)
-    with AkkaStreamCursor[T] {
+    with PekkoStreamCursor[T] {
 
   def bulkSource(
       maxDocs: Int = Int.MaxValue,

@@ -12,20 +12,50 @@ object Common extends AutoPlugin {
     "Use ReactiveMongo-Shaded (see system property 'reactivemongo.shaded')"
   )
 
+  val usePekko = settingKey[Boolean]("Use ReactiveMongo-Actors-Pekko")
+
   val driverVersion = settingKey[String]("Version of the driver dependency")
+
+  val bsonVersion = settingKey[String]("Version of the BSON dependency")
 
   override def projectSettings = Compiler.settings ++ Seq(
     mimaFailOnNoPrevious := false,
     useShaded := sys.env.get("REACTIVEMONGO_SHADED").fold(true)(_.toBoolean),
-    driverVersion := {
-      val v = (ThisBuild / version).value
+    usePekko := false,
+    bsonVersion := {
+      val ver = (ThisBuild / version).value
       val suffix = {
         if (useShaded.value) "" // default ~> no suffix
-        else "-noshaded"
+        else "noshaded"
       }
 
-      v.span(_ != '-') match {
-        case (a, b) => s"${a}${suffix}${b}"
+      if (suffix.isEmpty) {
+        ver
+      } else {
+        ver.span(_ != '-') match {
+          case (_, "") => s"${ver}.${suffix}"
+
+          case (a, b) => s"${a}.${suffix}${b}"
+        }
+      }
+    },
+    version := bsonVersion.value,
+    driverVersion := {
+      val ver = bsonVersion.value
+
+      val suffix = {
+        if (usePekko.value) "pekko"
+        else ""
+      }
+
+      if (suffix.isEmpty) {
+        ver
+      } else {
+        ver.span(_ != '-') match {
+          case (_, "") => s"${ver}.${suffix}"
+
+          case (a, b) => s"${a}.${suffix}${b}"
+        }
       }
     }
   ) ++ Publish.settings ++ (Publish.mimaSettings ++ Release.settings)
@@ -48,7 +78,7 @@ object Dependencies {
         Seq(
           driver,
           "org.reactivemongo" %% "reactivemongo-alias" % v % Provided,
-          "org.reactivemongo" %% "reactivemongo-bson-api" % ver % Provided,
+          "org.reactivemongo" %% "reactivemongo-bson-api" % Common.bsonVersion.value % Provided,
           "io.netty" % "netty-handler" % "4.1.43.Final" % Provided
         )
       }
