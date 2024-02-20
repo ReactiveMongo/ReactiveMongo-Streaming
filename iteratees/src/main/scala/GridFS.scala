@@ -58,6 +58,7 @@ final class GridFS[P <: SerializationPack] private[iteratees] (
         n: Int,
         md: MessageDigest,
         length: Int) {
+
       def feed(chunk: Array[Byte]): Future[Chunk] = {
         val wholeChunk = concat(previous, chunk)
 
