@@ -16,6 +16,6 @@ addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.3")
 
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 
-addSbtPlugin("com.dwijnand" % "sbt-dynver" % "4.1.1")
+addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
 
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.11.1")
