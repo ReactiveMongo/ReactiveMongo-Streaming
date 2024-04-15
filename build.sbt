@@ -2,7 +2,7 @@ import Dependencies._
 
 ThisBuild / organization := "org.reactivemongo"
 
-ThisBuild / scalaVersion := "2.12.18"
+ThisBuild / scalaVersion := "2.12.19"
 
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
@@ -35,10 +35,6 @@ lazy val streaming = (project in file("."))
       mimaFailOnNoPrevious := false,
       libraryDependencies += (reactiveMongo % version.value % Provided)
         .exclude("com.typesafe.akka", "*"),
-      Compile / doc / scalacOptions ++= List(
-        "-skip-packages",
-        "highlightextractor"
-      )
     ) ++ Release.settings
   )
   .aggregate(iteratees, `akka-stream`, `pekko-stream`)
