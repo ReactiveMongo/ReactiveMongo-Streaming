@@ -58,8 +58,8 @@ object Common extends AutoPlugin {
         }
       }
     }
-  ) ++ Publish.settings ++ (Publish.mimaSettings ++ Release.settings)
-}
+  )// ++ Publish.settings ++ (Publish.mimaSettings ++ Release.settings)
+ }
 
 object Dependencies {
   val reactiveMongo = "org.reactivemongo" %% "reactivemongo"
