@@ -90,6 +90,15 @@ object Compiler {
     Test / scalacOptions ~= {
       _.filterNot(_ == "-Xfatal-warnings")
     },
+    Test / scalacOptions ++= {
+      if (scalaBinaryVersion.value == "2.11") {
+        Seq.empty
+      } else {
+        Seq(
+          "-Wconf:src=.*test/.*&msg=.*type\\ was\\ inferred.*(Any|Object).*:s"
+        )
+      }
+    },
     Compile / doc / scalacOptions ~= {
       _.filterNot(excludeOpt)
     },
