@@ -58,8 +58,8 @@ object Common extends AutoPlugin {
         }
       }
     }
-  )// ++ Publish.settings ++ (Publish.mimaSettings ++ Release.settings)
- }
+  ) ++ Publish.settings ++ (Publish.mimaSettings ++ Release.settings)
+}
 
 object Dependencies {
   val reactiveMongo = "org.reactivemongo" %% "reactivemongo"
@@ -84,11 +84,13 @@ object Dependencies {
       }
     }
 
+    val specVer = if (scalaBinaryVersion.value == "3") "5.5.2" else "4.10.6"
+
     rmDeps.map(_.exclude("com.typesafe.akka", "*")) ++: (Seq(
       "specs2-core",
       "specs2-junit"
-    ).map(n =>
-      ("org.specs2" %% n % "4.10.6").cross(CrossVersion.for3Use2_13) % Test
-    ) ++: Seq(Dependencies.slf4jSimple % Test))
+    ).map(n => "org.specs2" %% n % specVer % Test) ++: Seq(
+      Dependencies.slf4jSimple % Test
+    ))
   }
 }

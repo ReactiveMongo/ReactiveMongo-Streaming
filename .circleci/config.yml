@@ -150,7 +150,7 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  scala31_akka26:
+  scala3_akka26:
     docker:
       - image: circleci/openjdk:11-jdk
 
@@ -159,7 +159,7 @@ jobs:
     environment:
       AKKA_VERSION: 2.6.19
       ITERATEES_VERSION: no
-      SCALA_VERSION: 3.3.1
+      SCALA_VERSION: 3.4.1
 
     steps:
       - checkout
@@ -240,7 +240,7 @@ workflows:
       - scala211_akka24
       - scala212_akka25
       - scala213_akka26
-      - scala31_akka26
+      - scala3_akka26
 
       - publish_snapshots:
           filters:
@@ -251,7 +251,7 @@ workflows:
             - scala211_akka24
             - scala212_akka25
             - scala213_akka26
-            - scala31_akka26
+            - scala3_akka26
 
       - trigger_dependent_builds:
           filters:

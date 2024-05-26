@@ -38,7 +38,12 @@ object Compiler {
           "-Xlint",
           "-g:vars"
         )
-      } else Seq.empty
+      } else {
+        Seq(
+          "-Wconf:msg=.*with\\ as\\ a\\ type\\ operator.*:s",
+          "-Wconf:msg=.*syntax\\ .*function.*\\ is\\ no\\ longer\\ supported.*:s"
+        )
+      }
     },
     scalacOptions ++= {
       val sv = scalaBinaryVersion.value
