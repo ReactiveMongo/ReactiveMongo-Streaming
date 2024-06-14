@@ -34,7 +34,7 @@ lazy val streaming = (project in file("."))
       mimaPreviousArtifacts := Set.empty,
       mimaFailOnNoPrevious := false,
       libraryDependencies += (reactiveMongo % version.value % Provided)
-        .exclude("com.typesafe.akka", "*"),
+        .exclude("com.typesafe.akka", "*")
     ) ++ Release.settings
   )
   .aggregate(iteratees, `akka-stream`, `pekko-stream`)
