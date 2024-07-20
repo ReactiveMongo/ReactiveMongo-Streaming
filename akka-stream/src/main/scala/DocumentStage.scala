@@ -77,7 +77,7 @@ private[akkastream] final class DocumentStage[T](
       @SuppressWarnings(Array("CatchException"))
       private def kill(r: Response): Unit = {
         try {
-          cursor.wrappee killCursor r.reply.cursorID
+          cursor.wrappee.killCursor(r.reply.cursorID)
         } catch {
           case reason: Exception =>
             logger.warn(

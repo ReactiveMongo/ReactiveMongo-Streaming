@@ -137,7 +137,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      AKKA_VERSION: 2.6.0
+      AKKA_VERSION: 2.6.21
       ITERATEES_VERSION: no
       SCALA_VERSION: 2.13.14
     
@@ -157,9 +157,9 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      AKKA_VERSION: 2.6.19
+      AKKA_VERSION: 2.6.21
       ITERATEES_VERSION: no
-      SCALA_VERSION: 3.4.1
+      SCALA_VERSION: 3.4.2
 
     steps:
       - checkout
