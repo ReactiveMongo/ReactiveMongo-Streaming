@@ -5,7 +5,7 @@ name := "reactivemongo-pekkostream"
 Common.usePekko := true
 
 crossScalaVersions ~= {
-  _.filterNot(v => v.startsWith("2.11") || v.startsWith("3"))
+  _.filterNot(v => v.startsWith("2.11"))
 }
 
 mimaPreviousArtifacts := Set.empty
@@ -37,7 +37,7 @@ Test / sources := {
   }
 }
 
-val pekkoVer = "1.0.2"
+val pekkoVer = "1.0.3"
 
 libraryDependencies ++= Dependencies.shared.value ++ Seq(
   "org.apache.pekko" %% "pekko-stream" % pekkoVer,
