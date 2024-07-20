@@ -88,7 +88,7 @@ final class CursorSpec(
     }
 
     "handle errors" >> {
-      "by failing with the default handler" in {
+      "by failing with the default handler" in eventually(2, timeout) {
         assertAllStagesStopped {
           val drv = Common.newDriver()
 

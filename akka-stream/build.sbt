@@ -37,7 +37,7 @@ Test / sources := {
 
 lazy val akkaVer = Def.setting[String] {
   sys.env.get("AKKA_VERSION").getOrElse {
-    if (scalaBinaryVersion.value == "3") "2.6.18"
+    if (scalaBinaryVersion.value == "3") "2.6.21"
     else if (scalaBinaryVersion.value == "2.11") "2.4.10"
     else "2.5.32"
   }
