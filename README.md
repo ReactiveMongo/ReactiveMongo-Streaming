@@ -3,6 +3,7 @@
 **Modules:**
 
 - [Akka Stream](./akka-stream/README.md)
+- [Pekko Stream](./pekko-stream/README.md)
 - [Iteratees](./iteratees/README.md)
 
 ## Build manually
