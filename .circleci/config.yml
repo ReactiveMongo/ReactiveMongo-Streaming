@@ -159,7 +159,7 @@ jobs:
     environment:
       AKKA_VERSION: 2.6.21
       ITERATEES_VERSION: no
-      SCALA_VERSION: 3.4.3
+      SCALA_VERSION: 3.6.3
 
     steps:
       - checkout
