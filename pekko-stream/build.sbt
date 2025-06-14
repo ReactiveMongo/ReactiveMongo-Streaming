@@ -37,7 +37,7 @@ Test / sources := {
   }
 }
 
-val pekkoVer = "1.1.3"
+val pekkoVer = "1.1.4"
 
 libraryDependencies ++= Dependencies.shared.value ++ Seq(
   "org.apache.pekko" %% "pekko-stream" % pekkoVer,
