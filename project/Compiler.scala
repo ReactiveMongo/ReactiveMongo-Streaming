@@ -41,7 +41,8 @@ object Compiler {
       } else {
         Seq(
           "-Wconf:msg=.*with\\ as\\ a\\ type\\ operator.*:s",
-          "-Wconf:msg=.*syntax\\ .*function.*\\ is\\ no\\ longer\\ supported.*:s"
+          "-Wconf:msg=.*syntax\\ .*function.*\\ is\\ no\\ longer\\ supported.*:s",
+          "-Wconf:msg=unset\\ private\\ variable.*:s"
         )
       }
     },
