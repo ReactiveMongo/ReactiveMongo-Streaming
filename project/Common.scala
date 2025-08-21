@@ -84,7 +84,7 @@ object Dependencies {
       }
     }
 
-    val specVer = if (scalaBinaryVersion.value == "3") "5.5.2" else "4.10.6"
+    val specVer = if (scalaBinaryVersion.value == "3") "5.6.4" else "4.10.6"
 
     rmDeps.map(_.exclude("com.typesafe.akka", "*")) ++: (Seq(
       "specs2-core",
