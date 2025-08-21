@@ -29,7 +29,7 @@ Test / scalacOptions ++= {
 
 Test / sources := {
   if (scalaBinaryVersion.value == "3") {
-    (Test / sources).value.filter { f => f.getName.indexOf("README-md") != -1 }
+    (Test / sources).value.filter { _.getName.indexOf("README-md") != -1 }
   } else {
     (Test / sources).value
   }
