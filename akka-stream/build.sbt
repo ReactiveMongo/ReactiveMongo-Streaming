@@ -49,7 +49,7 @@ libraryDependencies ++= Dependencies.shared.value ++ Seq(
   "com.typesafe.akka" %% "akka-stream-testkit" % akkaVer.value % Test
 )
 
-libraryDependencies += "commons-codec" % "commons-codec" % "1.19.0" % Test
+libraryDependencies += "commons-codec" % "commons-codec" % "1.20.0" % Test
 
 // MiMa
 mimaBinaryIssueFilters ++= {
