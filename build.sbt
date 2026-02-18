@@ -9,7 +9,7 @@ val scala3Lts = "3.3.7"
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
   scalaVersion.value,
-  "2.13.16",
+  "2.13.18",
   scala3Lts
 )
 
