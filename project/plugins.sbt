@@ -8,7 +8,7 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
 
 addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.6")
 
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.0")
 
 addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.9")
 
