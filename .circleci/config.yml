@@ -53,7 +53,25 @@ commands:
           command: |
                     export MONGO_CONF="/tmp/mongod.conf"
                     ./.ci_scripts/fork-mongod.sh /tmp/integration-env.sh
-          background: true
+
+      - run:
+          name: Check MongoDB readiness
+          command: |
+                    . /tmp/integration-env.sh
+
+                    for _ in `seq 1 20`; do
+                      if mongo --quiet --eval 'db.runCommand({ ping: 1 }).ok' localhost:27017/admin 2>/dev/null | grep -q '^1'; then
+                        exit 0
+                      fi
+
+                      sleep 1
+                    done
+
+                    echo "MongoDB did not become ready"
+                    if [ -r /tmp/mongod.log ]; then
+                      cat /tmp/mongod.log
+                    fi
+                    exit 1
 
   build_n_tests:
     description: Build & Run tests
