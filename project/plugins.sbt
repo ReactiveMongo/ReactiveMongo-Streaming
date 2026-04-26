@@ -1,16 +1,17 @@
 resolvers ++= Seq(
-  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases"
+  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases",
+  Resolver.mavenLocal
 )
 
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.6.1")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
 
-addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.6")
+addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.7-SNAPSHOT")
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")
 
-addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.9")
+addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.10-SNAPSHOT")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.5")
 
