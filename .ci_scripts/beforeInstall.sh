@@ -33,8 +33,14 @@ if [ ! -f "$SSL_LIB/libssl.so.$SSL_MAJOR" ] || [ ! -f "$SSL_LIB/libcrypto.so.$SS
 
   cd "openssl-${SSL_FULL_RELEASE}"
   rm -rf "$SSL_HOME" && mkdir "$SSL_HOME"
+
+  echo "[INFO] Configuring OpenSSL build ..."
   ./config -shared enable-ssl2 --prefix="$SSL_HOME" > /dev/null
+
+  echo "[INFO] Resolving dependencies for OpenSSL build ..."
   make depend > /dev/null
+
+  echo "[INFO] Building and installing OpenSSL ..."
   make install > /dev/null
 fi
 
@@ -97,9 +103,26 @@ echo "  maxIncomingConnections: $MAX_CON" >> /tmp/mongod.conf
 echo "# MongoDB Configuration:"
 cat /tmp/mongod.conf
 
+for cmd in mongod mongo; do
+  if command -v "$cmd" >/dev/null 2>&1; then
+    echo "[INFO] $cmd location: $(command -v "$cmd")"
+  else
+    echo "[ERROR] Missing executable: $cmd"
+    exit 1
+  fi
+done
+
+if ldd "$(command -v mongo)" | grep -q 'not found'; then
+  echo "[ERROR] Missing shared libraries for $(command -v mongo)"
+  ldd "$(command -v mongo)"
+  exit 1
+fi
+
 # Export environment for integration tests
 
 cat > /tmp/integration-env.sh <<EOF
-PATH="$PATH"
-LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+export PATH="$PATH"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 EOF
+
+echo "[INFO] Integration environment exported to /tmp/integration-env.sh"

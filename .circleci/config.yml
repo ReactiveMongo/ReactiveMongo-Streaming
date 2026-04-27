@@ -59,15 +59,56 @@ commands:
           command: |
                     . /tmp/integration-env.sh
 
+                    echo "[INFO] Checking MongoDB readiness"
+                    echo "[INFO] PATH=$PATH"
+                    echo "[INFO] LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-<empty>}"
+                    echo "[INFO] Hosts entry for localhost:"
+                    getent hosts localhost || true
+                    echo "[INFO] IPv4 entry for localhost:"
+                    getent ahostsv4 localhost || true
+
+                    if command -v mongo >/dev/null 2>&1; then
+                      echo "[INFO] mongo location: $(command -v mongo)"
+                    else
+                      echo "[ERROR] mongo client is not available in PATH"
+                      exit 1
+                    fi
+
                     for _ in `seq 1 20`; do
-                      if mongo --quiet --eval 'db.runCommand({ ping: 1 }).ok' localhost:27017/admin 2>/dev/null | grep -q '^1'; then
-                        exit 0
-                      fi
+                      for MONGO_HOST in 127.0.0.1 localhost; do
+                        PING_STATUS=0
+                        PING_OUTPUT=""
+
+                        if PING_OUTPUT=$(mongo --quiet "mongodb://${MONGO_HOST}:27017/admin" --eval 'db.runCommand({ ping: 1 }).ok' 2>&1); then
+                          PING_STATUS=0
+                        else
+                          PING_STATUS=$?
+                        fi
+
+                        if echo "$PING_OUTPUT" | grep -q '^1$'; then
+                          echo "[INFO] MongoDB is ready on ${MONGO_HOST}:27017"
+                          exit 0
+                        fi
+
+                        if [ -n "$PING_OUTPUT" ]; then
+                          echo "[DEBUG] mongo ping non-ready output on ${MONGO_HOST}: ${PING_OUTPUT}"
+                        fi
+
+                        if [ "$PING_STATUS" -ne 0 ]; then
+                          echo "[DEBUG] mongo ping failed on ${MONGO_HOST}: status=${PING_STATUS}, output=${PING_OUTPUT}"
+                        fi
+                      done
 
                       sleep 1
                     done
 
                     echo "MongoDB did not become ready"
+                    ps -ef | grep '[m]ongod' || true
+                    if command -v ss >/dev/null 2>&1; then
+                      ss -lntp || true
+                    elif command -v netstat >/dev/null 2>&1; then
+                      netstat -lnt || true
+                    fi
                     if [ -r /tmp/mongod.log ]; then
                       cat /tmp/mongod.log
                     fi
@@ -177,7 +218,7 @@ jobs:
     environment:
       AKKA_VERSION: 2.6.21
       ITERATEES_VERSION: no
-      SCALA_VERSION: 3.3
+      SCALA_VERSION: 3.4.3
 
     steps:
       - checkout
