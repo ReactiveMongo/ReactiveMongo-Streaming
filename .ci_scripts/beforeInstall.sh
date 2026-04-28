@@ -1,4 +1,5 @@
 #! /bin/bash
+set -euo pipefail
 
 # Clean cache
 rm -rf "$HOME/.ivy2/local/org.reactivemongo"
@@ -17,28 +18,42 @@ SSL_MAJOR="1.0.0"
 SSL_SUFFIX="10"
 SSL_RELEASE="1.0.2"
 SSL_FULL_RELEASE="1.0.2u"
-SSL_DL_URL="https://www.openssl.org/source/old/$SSL_RELEASE/openssl-$SSL_FULL_RELEASE.tar.gz"
+SSL_GH_TAG="OpenSSL_1_0_2u"
+SSL_DL_URL="https://github.com/openssl/openssl/releases/download/${SSL_GH_TAG}/openssl-${SSL_FULL_RELEASE}.tar.gz"
+SSL_HOME="$HOME/ssl"
+SSL_LIB="$SSL_HOME/lib"
 
-if [ ! -L "$HOME/ssl/lib/libssl.so.$SSL_MAJOR" ] && [ ! -f "$HOME/ssl/lib/libcrypto.so.$SSL_MAJOR" ]; then
+if [ ! -f "$SSL_LIB/libssl.so.$SSL_MAJOR" ] || [ ! -f "$SSL_LIB/libcrypto.so.$SSL_MAJOR" ]; then
   echo "[INFO] Building OpenSSL $SSL_MAJOR ..."
 
   cd /tmp
 
   echo "[INFO] Downloading OpenSSL from $SSL_DL_URL ..."
-  curl -L -s -o - "$SSL_DL_URL" | tar -xzf -
+  curl -fL -s -o - "$SSL_DL_URL" | tar -xzf -
 
-  cd openssl-$SSL_FULL_RELEASE
-  rm -rf "$HOME/ssl" && mkdir "$HOME/ssl"
-  ./config -shared enable-ssl2 --prefix="$HOME/ssl" > /dev/null
+  cd "openssl-${SSL_FULL_RELEASE}"
+  rm -rf "$SSL_HOME" && mkdir "$SSL_HOME"
+
+  echo "[INFO] Configuring OpenSSL build ..."
+  ./config -shared enable-ssl2 --prefix="$SSL_HOME" > /dev/null
+
+  echo "[INFO] Resolving dependencies for OpenSSL build ..."
   make depend > /dev/null
-  make install > /dev/null
 
-  ln -s "$HOME/ssl/lib/libssl.so.$SSL_MAJOR" "$HOME/ssl/lib/libssl.so.$SSL_SUFFIX"
-  ln -s "$HOME/ssl/lib/libcrypto.so.$SSL_MAJOR" "$HOME/ssl/lib/libcrypto.so.$SSL_SUFFIX"
+  echo "[INFO] Building and installing OpenSSL ..."
+  make install > /dev/null
 fi
 
-export PATH="$HOME/ssl/bin:$PATH"
-export LD_LIBRARY_PATH="$HOME/ssl/lib:$LD_LIBRARY_PATH"
+if [ ! -d "$SSL_LIB" ] || [ ! -f "$SSL_LIB/libssl.so.$SSL_MAJOR" ] || [ ! -f "$SSL_LIB/libcrypto.so.$SSL_MAJOR" ]; then
+  echo "[ERROR] OpenSSL libraries are missing in $SSL_LIB"
+  exit 1
+fi
+
+ln -sf "$SSL_LIB/libssl.so.$SSL_MAJOR" "$SSL_LIB/libssl.so.$SSL_SUFFIX"
+ln -sf "$SSL_LIB/libcrypto.so.$SSL_MAJOR" "$SSL_LIB/libcrypto.so.$SSL_SUFFIX"
+
+export PATH="$SSL_HOME/bin:$PATH"
+export LD_LIBRARY_PATH="$SSL_LIB:${LD_LIBRARY_PATH:-}"
 
 # Build MongoDB
 MONGO_MINOR="3.6.6"
@@ -58,6 +73,12 @@ if [ ! -x "$MONGO_HOME/bin/mongod" ]; then
 
     curl -s -o - "https://fastdl.mongodb.org/linux/mongodb-linux-$MONGO_ARCH-$MONGO_MINOR.tgz" | tar -xzf -
     chmod u+x "$MONGO_HOME/bin/mongod"
+fi
+
+if ldd "$MONGO_HOME/bin/mongod" | grep -q 'not found'; then
+    echo "[ERROR] Missing shared libraries for $MONGO_HOME/bin/mongod"
+    ldd "$MONGO_HOME/bin/mongod"
+    exit 1
 fi
 
 echo "[INFO] MongoDB available at $MONGO_HOME"
@@ -82,9 +103,26 @@ echo "  maxIncomingConnections: $MAX_CON" >> /tmp/mongod.conf
 echo "# MongoDB Configuration:"
 cat /tmp/mongod.conf
 
+for cmd in mongod mongo; do
+  if command -v "$cmd" >/dev/null 2>&1; then
+    echo "[INFO] $cmd location: $(command -v "$cmd")"
+  else
+    echo "[ERROR] Missing executable: $cmd"
+    exit 1
+  fi
+done
+
+if ldd "$(command -v mongo)" | grep -q 'not found'; then
+  echo "[ERROR] Missing shared libraries for $(command -v mongo)"
+  ldd "$(command -v mongo)"
+  exit 1
+fi
+
 # Export environment for integration tests
 
 cat > /tmp/integration-env.sh <<EOF
-PATH="$PATH"
-LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+export PATH="$PATH"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 EOF
+
+echo "[INFO] Integration environment exported to /tmp/integration-env.sh"

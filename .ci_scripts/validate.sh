@@ -5,6 +5,7 @@ set -e
 source /tmp/integration-env.sh
 
 export LD_LIBRARY_PATH
+export PATH
 
 SCRIPT_DIR=`dirname $0 | sed -e "s|^\./|$PWD/|"`
 
