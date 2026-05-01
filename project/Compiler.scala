@@ -26,7 +26,11 @@ object Compiler {
       "-language:higherKinds"
     ),
     scalacOptions ++= {
-      if (scalaBinaryVersion.value != "2.11") {
+      val sv = scalaBinaryVersion.value
+
+      if (sv startsWith "3") {
+        Seq("-Werror")
+      } else if (sv != "2.11") {
         Seq("-Xfatal-warnings")
       } else {
         Seq.empty
@@ -87,7 +91,11 @@ object Compiler {
           "-Wunused"
         )
       } else {
-        Seq("-release", "8", "-Wunused:all", "-language:implicitConversions")
+        Seq(
+          "-Wunused:all",
+          "-language:implicitConversions",
+          "-Wconf:msg=.*eta.*expansion\\ is\\ unnecessary.*:s"
+        )
       }
     },
     Compile / console / scalacOptions ~= {

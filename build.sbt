@@ -4,7 +4,7 @@ ThisBuild / organization := "org.reactivemongo"
 
 ThisBuild / scalaVersion := "2.12.21"
 
-val scala3Lts = "3.4.3"
+val scala3Lts = "3.8.3"
 
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
