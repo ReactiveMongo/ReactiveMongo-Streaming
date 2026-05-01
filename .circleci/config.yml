@@ -211,14 +211,14 @@ jobs:
 
   scala3_akka26:
     docker:
-      - image: circleci/openjdk:11-jdk
+      - image: cimg/openjdk:17.0
 
     working_directory: ~/repo
 
     environment:
       AKKA_VERSION: 2.6.21
       ITERATEES_VERSION: no
-      SCALA_VERSION: 3.4.3
+      SCALA_VERSION: 3.8.3
 
     steps:
       - checkout
