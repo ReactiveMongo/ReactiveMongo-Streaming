@@ -42,8 +42,7 @@ val pekkoVer = "1.6.0"
 libraryDependencies ++= Dependencies.shared.value ++ Seq(
   "org.apache.pekko" %% "pekko-stream" % pekkoVer,
   "org.apache.pekko" %% "pekko-slf4j" % pekkoVer % Test,
-  "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVer % Test,
-  "com.typesafe.akka" %% "akka-stream" % "2.6.21" % Test // needed by org.reactivemongo:reactivemongo
+  "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVer % Test
 )
 
 libraryDependencies += "commons-codec" % "commons-codec" % "1.15" % Test
