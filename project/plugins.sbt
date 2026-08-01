@@ -10,7 +10,7 @@ addDependencyTreePlugin
 
 addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.8")
 
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.1")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.2")
 
 addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.12")
 
