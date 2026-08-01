@@ -29,7 +29,7 @@ while [ "$RETRY_COUNT" -lt "$RETRY_MAX" ]; do
   if [ "$RES" -eq 0 ]; then
     exit 0
   else
-    killall -9 java || true # Make sure
+    kill -9 $(pgrep java) || true
   fi
 done
 

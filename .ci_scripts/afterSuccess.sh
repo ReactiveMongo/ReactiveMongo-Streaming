@@ -7,7 +7,7 @@ set -e
 SCRIPT_DIR=`dirname $0`
 
 if [[ "$CI_CATEGORY" != "UNIT_TESTS" ]]; then
-  killall -9 mongod 2>&1 || true
+  kill -9 $(pgrep mongod) || true
 fi
 
 rm -rf "$HOME/.ivy2/cache/org.reactivemongo/"
