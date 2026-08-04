@@ -80,7 +80,7 @@ mimaBinaryIssueFilters ++= {
 
 // Publish
 apiURL := Some(
-  url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/iteratees/api/")
+  uri(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/iteratees/api/")
 )
 
 // Tests

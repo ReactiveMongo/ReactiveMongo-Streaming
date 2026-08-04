@@ -66,7 +66,7 @@ mimaBinaryIssueFilters ++= {
 
 // Publish
 apiURL := Some(
-  url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/akka-stream/api/")
+  uri(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/akka-stream/api/")
 )
 
 // Tests

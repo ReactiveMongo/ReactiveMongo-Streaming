@@ -52,7 +52,7 @@ libraryDependencies += "commons-codec" % "commons-codec" % "1.15" % Test
 
 // Publish
 apiURL := Some(
-  url(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/pekko-stream/api/")
+  uri(s"https://reactivemongo.github.io/ReactiveMongo-Streaming/${Publish.majorVersion}/pekko-stream/api/")
 )
 
 // Tests
