@@ -8,7 +8,7 @@ addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.6.1")
 
 addDependencyTreePlugin
 
-addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.8")
+addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.9.1")
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.2")
 
