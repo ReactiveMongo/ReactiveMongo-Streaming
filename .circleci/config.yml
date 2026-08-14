@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "2.0.1"
+        default: "2.0.6"
     steps:
       - restore_cache:
           keys:
@@ -198,7 +198,7 @@ jobs:
     environment:
       AKKA_VERSION: 2.6.21
       ITERATEES_VERSION: no
-      SCALA_VERSION: 2.13
+      SCALA_VERSION: '2.13'
     
     steps:
       - checkout
@@ -218,7 +218,7 @@ jobs:
     environment:
       AKKA_VERSION: 2.6.21
       ITERATEES_VERSION: no
-      SCALA_VERSION: 3.8.4
+      SCALA_VERSION: '3.3'
 
     steps:
       - checkout

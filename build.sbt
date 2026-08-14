@@ -4,7 +4,7 @@ ThisBuild / organization := "org.reactivemongo"
 
 ThisBuild / scalaVersion := "2.12.21"
 
-val scala3Lts = "3.8.4"
+val scala3Lts = "3.3.8"
 
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
@@ -15,12 +15,12 @@ ThisBuild / crossScalaVersions := Seq(
 
 crossVersion := CrossVersion.binary
 
-ThisBuild / credentials ++= sys.env.get("SONATYPE_USER").toSeq.map { user =>
+ThisBuild / credentials ++= sys.env.get("SONATYPE_USERNAME").toSeq.map { user =>
   Credentials(
     "", // Empty realm credential - this one is actually used by Coursier!
     "central.sonatype.com",
     user,
-    Publish.env("SONATYPE_PASS")
+    Publish.env("SONATYPE_PASSWORD")
   )
 }
 
