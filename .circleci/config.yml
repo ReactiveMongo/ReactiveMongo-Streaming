@@ -119,7 +119,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-          - &scala_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - &scala_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}-{{ checksum "akka-stream/build.sbt" }}-{{ checksum "pekko-stream/build.sbt" }}
 
       - run:
           name: Build & Run tests
@@ -218,6 +218,7 @@ jobs:
     environment:
       AKKA_VERSION: 2.6.21
       ITERATEES_VERSION: no
+      PEKKO_VERSION: '1.7.0'
       SCALA_VERSION: '3.3'
 
     steps:
