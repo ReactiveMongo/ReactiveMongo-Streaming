@@ -14,7 +14,7 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.2")
 
 addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.12")
 
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.6")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.2.0")
 
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.5.0")
 
