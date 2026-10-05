@@ -37,7 +37,7 @@ Test / sources := {
   }
 }
 
-lazy val pekkoVer = sys.env.get("PEKKO_VERSION").getOrElse("1.6.0")
+lazy val pekkoVer = sys.env.get("PEKKO_VERSION").getOrElse("1.7.1")
 
 libraryDependencies ++= Dependencies.shared.value ++ Seq(
   "org.apache.pekko" %% "pekko-stream" % pekkoVer,
