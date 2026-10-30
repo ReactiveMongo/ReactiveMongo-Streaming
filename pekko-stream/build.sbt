@@ -22,7 +22,11 @@ Compile / compile / scalacOptions ++= {
 }
 
 Test / compile / scalacOptions ++= {
-  Seq("-Wconf:cat=deprecation&msg=.*expectNoMessage.*:s")
+  if (disabled.value) {
+    Seq.empty
+  } else {
+    Seq("-Wconf:cat=deprecation&msg=.*expectNoMessage.*:s")
+  }
 }
 
 // See https://github.com/scala/bug/issues/11880#issuecomment-583682673
