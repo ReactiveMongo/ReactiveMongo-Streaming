@@ -2,10 +2,15 @@ import com.typesafe.tools.mima.core._, ProblemFilters._
 
 name := "reactivemongo-pekkostream"
 
-Common.usePekko := true
+lazy val disabled = Def.setting[Boolean] {
+  scalaBinaryVersion.value == "2.11"
+}
 
-crossScalaVersions ~= {
-  _.filterNot(v => v.startsWith("2.11"))
+Common.usePekko := !disabled.value
+
+sourceDirectory := {
+  if (disabled.value) new java.io.File("/no/sources")
+  else sourceDirectory.value
 }
 
 mimaPreviousArtifacts := Set.empty
@@ -17,7 +22,11 @@ Compile / compile / scalacOptions ++= {
 }
 
 Test / compile / scalacOptions ++= {
-  Seq("-Wconf:cat=deprecation&msg=.*expectNoMessage.*:s")
+  if (disabled.value) {
+    Seq.empty
+  } else {
+    Seq("-Wconf:cat=deprecation&msg=.*expectNoMessage.*:s")
+  }
 }
 
 // See https://github.com/scala/bug/issues/11880#issuecomment-583682673
@@ -30,8 +39,12 @@ Test / scalacOptions ++= {
 }
 
 Test / sources := {
-  if (scalaBinaryVersion.value == "3") {
+  val v = scalaBinaryVersion.value
+
+  if (v == "3") {
     (Test / sources).value.filter { f => f.getName.indexOf("README-md") != -1 }
+  } else if (v == "2.11") {
+    Seq.empty
   } else {
     (Test / sources).value
   }
@@ -39,13 +52,18 @@ Test / sources := {
 
 lazy val pekkoVer = sys.env.get("PEKKO_VERSION").getOrElse("1.7.1")
 
-libraryDependencies ++= Dependencies.shared.value ++ Seq(
-  "org.apache.pekko" %% "pekko-stream" % pekkoVer,
-  "org.apache.pekko" %% "pekko-slf4j" % pekkoVer % Test,
-  "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVer % Test
-)
-
-libraryDependencies += "commons-codec" % "commons-codec" % "1.15" % Test
+libraryDependencies ++= {
+  if (disabled.value) {
+    Seq.empty
+  } else {
+    Dependencies.shared.value ++ Seq(
+      "org.apache.pekko" %% "pekko-stream" % pekkoVer,
+      "org.apache.pekko" %% "pekko-slf4j" % pekkoVer % Test,
+      "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVer % Test,
+      "commons-codec" % "commons-codec" % "1.15" % Test
+    )
+  }
+}
 
 // MiMa
 //mimaBinaryIssueFilters ++= {}
