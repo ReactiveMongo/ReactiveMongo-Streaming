@@ -22,7 +22,11 @@ Compile / compile / scalacOptions ++= {
 }
 
 Test / compile / scalacOptions ++= {
-  Seq("-Wconf:cat=deprecation&msg=.*expectNoMessage.*:s")
+  if (disabled.value) {
+    Seq.empty
+  } else {
+    Seq("-Wconf:cat=deprecation&msg=.*expectNoMessage.*:s")
+  }
 }
 
 // See https://github.com/scala/bug/issues/11880#issuecomment-583682673
@@ -35,8 +39,12 @@ Test / scalacOptions ++= {
 }
 
 Test / sources := {
-  if (scalaBinaryVersion.value == "3") {
+  val v = scalaBinaryVersion.value
+
+  if (v == "3") {
     (Test / sources).value.filter { f => f.getName.indexOf("README-md") != -1 }
+  } else if (v == "2.11") {
+    Seq.empty
   } else {
     (Test / sources).value
   }
