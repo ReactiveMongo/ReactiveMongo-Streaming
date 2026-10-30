@@ -39,8 +39,12 @@ Test / scalacOptions ++= {
 }
 
 Test / sources := {
-  if (scalaBinaryVersion.value == "3") {
+  val v = scalaBinaryVersion.value
+
+  if (v == "3") {
     (Test / sources).value.filter { f => f.getName.indexOf("README-md") != -1 }
+  } else if (v == "2.11") {
+    Seq.empty
   } else {
     (Test / sources).value
   }
